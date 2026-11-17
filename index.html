@@ -1,0 +1,1533 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Мой котёнок — версия 20 · Живой питомец</title>
+<style>
+*{box-sizing:border-box}
+:root{
+  --paper:#fff8ef;--ink:#654942;--line:#b88d79;--panel:#ffe2c6;--panel2:#fff2e0;
+  --shadow:#d6b19f;--accent:#f08f9c;
+}
+body{margin:0;min-height:100dvh;font-family:Inter,system-ui,Arial,sans-serif;background:radial-gradient(circle at top,#f8efe7,#f3dcc8 55%,#e4cab7);display:flex;align-items:center;justify-content:center;padding:16px;color:var(--ink)}
+.app{width:min(980px,100%);background:var(--paper);border:4px solid var(--line);border-radius:30px;box-shadow:0 16px 0 var(--shadow);overflow:hidden}
+header{display:flex;gap:16px;justify-content:space-between;align-items:center;padding:16px 20px;background:linear-gradient(180deg,#ffe7d2,#ffd8bc)}
+.title h1{margin:0;font-size:clamp(24px,4vw,36px);line-height:1}.title small{display:block;color:#8a6b61;margin-top:6px}
+.top-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+button{border:2px solid #b98a70;border-radius:16px;background:#ffe2c1;color:#64443c;font-weight:800;cursor:pointer;font-size:14px;box-shadow:0 4px #c9a58d;transition:transform .08s ease, background .18s ease, filter .18s ease}
+button:hover{background:#fff0d5;filter:saturate(1.05)}button:active{transform:translateY(3px);box-shadow:0 1px #c9a58d}
+button.secondary{min-height:42px;padding:0 14px}
+button.room,button.swatch,button.accessory{min-height:44px;padding:0 12px;font-size:13px;background:#fff2df}
+button.room.active,button.swatch.active,button.accessory.active{background:#ffd39d}
+button.room.locked{background:#f1e9e4;color:#886e62;border-style:dashed}.quest-cooldown{font-size:12px;font-weight:800;color:#86695d;font-variant-numeric:tabular-nums}#newQuests:disabled{opacity:.58;cursor:not-allowed}
+button.sound-on{background:#dbffe5}button.sound-off{background:#ffe4e1}
+.dashboard{display:grid;grid-template-columns:1.2fr .95fr;gap:14px;padding:14px 18px;background:linear-gradient(180deg,#fff6ea,#fff9f2)}
+.panel{background:#fffdf9;border:2px solid #edd4c4;border-radius:18px;padding:12px 12px 10px;box-shadow:0 4px 0 #f2e1d7}
+.panel h3{margin:0 0 10px;font-size:14px;letter-spacing:.05em;color:#8b6558}
+.panel .line{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.label{font-size:11px;font-weight:900;letter-spacing:.09em;color:#8f6a5d;min-width:78px}
+.namebox{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.namebox input{border:2px solid #d8b2a1;border-radius:12px;padding:10px 12px;font:600 14px Inter,system-ui,sans-serif;min-width:160px;background:#fffaf6;color:#64443c}
+.swatches,.accessories,.rooms{display:flex;gap:8px;flex-wrap:wrap}
+.swatch i,.accessory i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-1px;border:1px solid #00000022}
+.quest-list{display:grid;gap:8px;margin:0;padding:0;list-style:none}.quest{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:9px 10px;border-radius:12px;background:#fff6ed;border:1px solid #eed7c8;font-size:13px}.quest.done{background:#eaf9e8;border-color:#b8e0b7}.quest b{font-size:12px;color:#7c6057}.reward{font-size:13px;font-weight:900;color:#8c695d;margin-top:8px}
+.scene{position:relative;height:min(58vh,470px);min-height:330px;background:linear-gradient(#cfe5f0 0 67%,#e6cab1 67%);overflow:hidden;border-top:2px solid #ecd5c8;border-bottom:2px solid #ecd5c8}
+canvas{display:block;width:100%;height:100%;touch-action:manipulation}
+.bubble{position:absolute;left:50%;top:18px;transform:translateX(-50%);background:#fffaf4;border:2px solid #ab8277;padding:9px 16px;border-radius:17px;font-weight:800;max-width:min(92%,680px);text-align:center;pointer-events:none;box-shadow:0 4px 0 #ecd2c3}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:16px 18px 8px}.stat{font-size:12px;font-weight:900}.bar{height:14px;background:#e4d6cc;border-radius:20px;overflow:hidden;margin-top:6px;box-shadow:inset 0 2px 3px #00000011}.fill{height:100%;width:60%;border-radius:20px;transition:width .35s ease}
+.actions{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px 18px 20px}.actions button{min-height:68px}
+/* Compact WoW-like cast bar integrated into status HUD, no pop-up card */
+.status-hud{padding:10px 18px 4px;background:var(--paper)}
+.action-timer{position:relative;display:block;height:27px;width:min(100%,600px);margin:0 auto 7px;border:2px solid #6d5b54;border-radius:5px;background:linear-gradient(#342e3a,#201d28);box-shadow:inset 0 1px 0 #ffffff35,0 1px 2px #0000002b;overflow:hidden;color:#fff9e9}
+.action-timer[hidden]{display:block!important;visibility:hidden}
+.action-track{position:absolute;inset:0;background:transparent;border-radius:0;min-width:0;height:100%;width:100%;overflow:hidden}
+.action-fill{height:100%;width:0;background:linear-gradient(180deg,#ffe3a0 0%,#f2a947 55%,#d47a34 100%);box-shadow:inset 0 2px 0 #ffffff70,2px 0 8px #ffe0a18a;transition:none;border-radius:0}
+.timer-copy{position:absolute;z-index:1;left:9px;top:0;bottom:0;display:flex;align-items:center;font-size:12px;font-weight:900;color:#fffdf4;text-shadow:0 1px 3px #17101c,1px 1px #17101c;pointer-events:none}
+.timer-number{position:absolute;z-index:1;right:8px;top:0;bottom:0;display:flex;align-items:center;font-size:12px;font-weight:900;font-variant-numeric:tabular-nums;color:#fffdf4;text-shadow:0 1px 3px #17101c;pointer-events:none}
+.status-hud .stats{padding:7px 0 8px}
+.actions button:disabled{opacity:.5;cursor:not-allowed;filter:grayscale(.2)}
+.foot{text-align:center;font-size:12px;color:#967a6b;padding:0 14px 16px}
+@media(max-width:860px){.dashboard{grid-template-columns:1fr}.scene{height:46vh}}
+@media(max-width:640px){.actions{grid-template-columns:repeat(2,1fr)}header{align-items:flex-start;flex-direction:column}.top-actions{justify-content:flex-start}}
+
+.modal-overlay[hidden]{display:none!important}
+.modal-overlay{position:fixed;inset:0;background:#2b1923aa;z-index:40;display:flex;align-items:center;justify-content:center;padding:14px;backdrop-filter:blur(4px)}
+.modal-content{background:linear-gradient(180deg,#ffefd9,#fff9f0);border:3px solid #ae8070;border-radius:23px;padding:18px;width:min(740px,100%);max-height:min(86vh,780px);overflow:auto;box-shadow:0 20px 50px #38211d66}
+.modal-top{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:12px}
+.modal-top h2{font-size:clamp(20px,3vw,27px);margin:0}
+.modal-close{min-width:44px;min-height:43px;font-size:20px;background:#ffe0d9}
+.modal-content .panel{box-shadow:none}
+.top-actions button{white-space:nowrap}
+@media(max-width:640px){.modal-content{max-height:90vh;padding:12px}.modal-content .panel{padding:12px}.top-actions{gap:7px}.top-actions button{font-size:12px;padding:0 9px}}
+
+.progress-panel{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:11px 18px;background:#fff6eb;border-bottom:2px solid #efd5c3;font-size:13px;font-weight:800}
+.currency{background:#ffe5aa;border:2px solid #dfbc75;padding:8px 12px;border-radius:13px;white-space:nowrap}
+.level-label{white-space:nowrap}.xp-track{background:#eadacf;height:12px;border-radius:30px;overflow:hidden;flex:1;min-width:70px;box-shadow:inset 0 1px 2px #caa9a0}.xp-fill{height:100%;width:0;background:linear-gradient(90deg,#fcb56d,#f49bb7);transition:width .3s}.goal-text{color:#8a6a5a;font-size:12px}
+.shop-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.shop-card{border:2px solid #ead1bf;background:#fffaf4;border-radius:17px;padding:14px;display:grid;gap:8px}.shop-card strong{font-size:16px}.shop-card p{font-size:12px;margin:0;color:#886d60}.shop-card button{min-height:41px;padding:5px 10px}/* Purchase feedback stays visible even when the shop dialog covers the game. */
+.shop-notice{margin:10px 0 13px;padding:11px 13px;border:2px solid #e6a4a0;border-radius:12px;background:#fff0ee;color:#873f3f;font-size:13px;font-weight:850;line-height:1.4}
+.shop-notice[hidden]{display:none!important}
+.shop-notice.success{background:#e9f7df;border-color:#b0d79f;color:#456a32}
+.shop-section-heading{font-size:17px;font-weight:900;margin:14px 0 9px;color:#664940}
+.room-shop-card.owned{background:#f2faed;border-color:#c1d9ad}
+.room-shop-card .room-icon{font-size:28px;line-height:1.1}
+/* Small, clean reward pop-up instead of oversized floating emoji. */
+.coin-floats{position:absolute;inset:0;pointer-events:none;z-index:8;overflow:hidden}
+.coin-float{position:absolute;left:50%;top:50%;display:flex;align-items:center;gap:5px;transform:translate(-50%,10px);font:900 20px/1 system-ui,Arial,sans-serif;color:#fffaf0;white-space:nowrap;text-shadow:0 2px 4px #573d2b;animation:coinFly .9s ease-out forwards;will-change:transform,opacity}
+.coin-small{position:relative;width:19px;height:19px;display:inline-flex;align-items:center;justify-content:center;flex:none;border-radius:50%;border:2px solid #ffed93;background:linear-gradient(135deg,#ffe888,#f5ac22);box-shadow:inset 0 0 0 2px #d88a19,0 1px 3px #74502955;color:#a65d0a;font-size:11px;line-height:1}
+@keyframes coinFly{0%{opacity:0;transform:translate(-50%,12px)}20%{opacity:1;transform:translate(-50%,0)}75%{opacity:1;transform:translate(-50%,-22px)}100%{opacity:0;transform:translate(-50%,-35px)}}
+@media(prefers-reduced-motion:reduce){.coin-float{animation-duration:.3s}}
+
+.shop-intro,.shop-goal{font-size:13px;line-height:1.5;color:#785c52}.shop-goal{font-weight:800}
+@media(max-width:640px){.shop-grid{grid-template-columns:1fr}.progress-panel{gap:8px;padding:8px 12px}.goal-text{width:100%}}
+
+/* Portrait-first mobile layout: keep every main control on screen. */
+html,body{width:100%;overscroll-behavior:none}
+@media(max-width:900px), (pointer:coarse){
+  html,body{height:100%;overflow:hidden}
+  body{display:block;padding:0;background:var(--paper)}
+  .app{width:100%;height:100dvh;min-height:0;max-width:none;border:0;border-radius:0;box-shadow:none;display:flex;flex-direction:column;overflow:hidden}
+  header{flex:none;display:flex;flex-direction:column;gap:7px;padding:calc(7px + env(safe-area-inset-top)) 10px 8px;align-items:stretch}
+  .title h1{font-size:21px;line-height:1.05}.title small{font-size:10px;margin-top:3px}
+  .top-actions{display:flex;flex-wrap:nowrap;gap:6px;justify-content:initial;overflow-x:auto;scrollbar-width:none;padding:2px 1px 5px;min-height:39px}
+  .top-actions::-webkit-scrollbar{display:none}
+  .top-actions button{flex:0 0 auto;min-height:32px;padding:0 9px;font-size:11px;border-radius:10px;box-shadow:0 2px #c9a58d}
+  .progress-panel{flex:none;gap:7px;align-content:center;padding:5px 9px;min-height:43px;font-size:11px}
+  .currency{padding:5px 8px;border-radius:10px}
+  .level-label{font-size:11px}.xp-track{min-width:45px;height:9px}
+  .goal-text{display:none}
+  .scene{flex:1 1 auto;height:auto;min-height:0;max-height:none;overflow:hidden;border-top:1px solid #ecd5c8;border-bottom:1px solid #ecd5c8}
+  canvas{height:100%;width:100%}
+  .bubble{top:9px;padding:6px 10px;font-size:12px;border-radius:12px;line-height:1.15;max-width:83%}
+  .status-hud{flex:none;padding:6px 10px 3px}
+  .action-timer{height:22px;margin-bottom:4px;border-width:1.5px}
+  .timer-copy,.timer-number{font-size:10px}
+  .stats,.status-hud .stats{padding:5px 0 5px;gap:8px}
+  .stat{font-size:10px;white-space:nowrap}.bar{height:10px;margin-top:4px}
+  .actions{flex:none;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:6px 10px calc(8px + env(safe-area-inset-bottom))}
+  .actions button{min-height:48px;padding:5px 7px;font-size:12px;border-radius:12px;box-shadow:0 2px #c9a58d}
+  .foot{display:none}
+  .modal-overlay{padding:8px;align-items:center}
+  .modal-content{max-height:calc(100dvh - 26px);width:100%;border-radius:18px;padding:12px;overscroll-behavior:contain}
+  .modal-top h2{font-size:20px}
+  .modal-content .panel{padding:10px}
+  .modal-content button{font-size:12px}
+  .shop-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  .shop-card{padding:9px;gap:5px}
+}
+@media(max-height:640px) and (max-width:900px){
+  header{gap:3px;padding-top:calc(4px + env(safe-area-inset-top));padding-bottom:3px}
+  .title h1{font-size:18px}.title small{display:none}
+  .top-actions{min-height:34px;padding-bottom:2px}
+  .progress-panel{min-height:34px;padding:3px 8px}
+  .status-hud{padding-top:3px;padding-bottom:1px}
+  .actions{gap:5px;padding-top:3px;padding-bottom:calc(5px + env(safe-area-inset-bottom))}
+  .actions button{min-height:41px}
+}
+
+/* Coin icon drawn with CSS, so missing emoji fonts cannot render a square. */
+.shop-price-coin{display:inline-flex;flex:none;vertical-align:middle;width:16px;height:16px;margin:0 3px;align-items:center;justify-content:center;border:2px solid #eab64a;border-radius:50%;background:linear-gradient(135deg,#fff3a3 10%,#ffcf54 45%,#e8a123 100%);box-shadow:inset 0 0 0 1px #fff3bd,0 1px 2px #694b3155;color:#a35d13;font:900 10px/1 Arial,sans-serif}
+.shop-price-coin::after{content:'★';font-size:8px}
+.shop-price{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
+.shop-card button .shop-price-coin{margin:0 4px 0 0}
+/* Growth / care HUD. Mobile keeps two action rows and a single compact need row. */
+.stats{grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.actions{grid-template-columns:repeat(5,minmax(0,1fr))}
+.growth-test{display:grid;gap:7px;padding:12px;margin:12px 0;background:#f2f8ed;border:2px solid #cbdcba;border-radius:13px;font-size:13px}
+.growth-test button{justify-self:start;padding:7px 12px}.growth-test small{color:#728264}
+@media(max-width:900px),(pointer:coarse){
+  .status-hud .stats{grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+  .status-hud .stat{font-size:clamp(8px,2.3vw,10px);overflow:hidden}
+  .actions{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .actions button{min-height:42px;font-size:clamp(10px,2.8vw,12px)}
+  .actions button:last-child{grid-column:2}
+}
+@media(max-height:660px) and (max-width:900px){
+  .status-hud .stats{padding:3px 0}
+  .actions button{min-height:35px}
+}
+
+/* Desktop test layout: retain the entire portrait room, without internal side bars. */
+@media (min-width: 901px) and (pointer: fine) {
+ body{padding:22px;align-items:flex-start}
+ .app{width:min(760px,calc(100vw - 44px));margin:auto}
+ .scene{
+   height:min(62vh,610px);
+   width:min(100%,calc(min(62vh,610px) * 600 / 570));
+   margin:0 auto;
+   border-left:3px solid #ecd5c8;
+   border-right:3px solid #ecd5c8;
+   border-radius:3px;
+ }
+ .actions{grid-template-columns:repeat(5,minmax(0,1fr))}
+ .actions button{font-size:13px}
+ .top-actions{gap:7px}
+ header{flex-wrap:wrap}
+ .bubble{max-width:85%}
+}
+
+/* v18 · soft illustrated home */
+:root{--paper:#fffaf3;--ink:#584b47;--line:#e4d8c9;--accent:#b37059}
+body{background:radial-gradient(ellipse at 15% 10%,#e4ece2,transparent 55%),radial-gradient(ellipse at 90% 80%,#f4decb,transparent 60%),#f2eee6;color:var(--ink);font-family:'Trebuchet MS',system-ui,sans-serif}
+.app{border:1px solid #fff9;border-radius:32px;background:var(--paper);box-shadow:0 24px 80px #65534020,0 3px 12px #65534010}
+header{background:#fffaf3;padding:22px 24px 16px;gap:18px}
+.title h1{font-size:29px;letter-spacing:-1.1px;color:#645548;font-weight:850}
+.title small{font-size:12px;color:#a18e7c;letter-spacing:.04em;margin-top:7px}
+button{border:1px solid #e5d8ca;background:#fffdf8;color:#726050;box-shadow:0 3px 0 #e5d6c6;transition:background .2s,box-shadow .2s,transform .15s}
+button:hover{background:#fff;filter:none;box-shadow:0 4px 10px #795b4b16}
+button:active{transform:translateY(2px);box-shadow:0 1px 0 #e5d6c6}
+button:focus-visible,input:focus-visible{outline:3px solid #689b92;outline-offset:3px}
+.top-actions{gap:7px}.top-actions button{font-size:12px;min-height:38px;padding:0 11px;border-radius:12px;box-shadow:none;background:#f4eee5;border-color:transparent}
+#reset{color:#9c8174;background:transparent}button.sound-on{background:#e8f0e5;color:#55745c}button.sound-off{background:#f4e8e2}
+.progress-panel{margin:0 22px 14px;padding:10px 13px;background:#f4eee5;border:0;border-radius:16px;gap:12px;font-size:12px}
+.currency{border:1px solid #ead8a8;background:#fff2cd;color:#9c772d;border-radius:10px;padding:6px 10px}
+.xp-track{height:7px;background:#e3dacd;box-shadow:none}.xp-fill{background:linear-gradient(90deg,#97b59e,#c9d6a7)}.goal-text{font-size:11px;color:#a08c76}
+.scene{border:0!important;border-radius:24px!important;isolation:isolate;box-shadow:inset 0 0 0 1px #00000008;background:#e8dfcf}
+.scene::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;box-shadow:inset 0 0 35px #8062490b}
+.bubble{top:16px;padding:10px 18px;background:#fffdf5f5;border:1px solid #ffffffb0;border-radius:18px;box-shadow:0 5px 18px #6e554315;color:#87715e;font-size:12px;font-weight:650;line-height:1.4;z-index:2}
+.bubble::after{content:'';position:absolute;left:calc(50% - 5px);bottom:-5px;width:10px;height:10px;background:#fffdf5;transform:rotate(45deg);border-radius:2px}
+.status-hud{padding:13px 24px 0}.stat{background:#f6f0e8;border:1px solid #eee4d8;padding:10px 9px;border-radius:13px;font-size:11px;color:#8a7664;font-weight:700}
+.bar{height:6px;background:#e8dfd3;margin-top:9px;box-shadow:none}.fill{box-shadow:inset 0 1px 0 #ffffff50}
+.action-timer{height:23px;border:1px solid #e1d2bd;border-radius:9px;background:#eee5d7;box-shadow:none;margin-bottom:5px}
+.action-fill{background:linear-gradient(90deg,#b8cdaf,#d6e2b8);box-shadow:none}.timer-copy,.timer-number{color:#5f7456;text-shadow:none;font-size:10px}
+.actions{gap:10px;padding:13px 24px 20px}.actions button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;border-radius:19px;min-height:84px;font-size:12px;font-weight:750;border:1px solid #ffffffaa;box-shadow:0 4px 0 var(--button-shadow,#e3d8c8);color:#685b4d}
+.action-icon{font-size:26px;line-height:1.1;filter:drop-shadow(0 2px 0 #ffffff80)}
+.actions button[data-act=feed]{background:#f8e6c8;--button-shadow:#e6d2ad}
+.actions button[data-act=pet]{background:#f5dfe1;--button-shadow:#e6c9cd}
+.actions button[data-act=play]{background:#e2ecd8;--button-shadow:#cbdcbc}
+.actions button[data-act=sleep]{background:#e5e1f2;--button-shadow:#d1c9e4}
+.actions button[data-act=wash]{background:#dcecf0;--button-shadow:#c4dce3}
+.actions button:hover{filter:brightness(1.035);transform:translateY(-2px)}
+.actions button:active{transform:translateY(2px)}.actions button:disabled{filter:saturate(.65);opacity:.62;transform:none}
+.foot{font-size:10px;color:#b3a18d;padding-bottom:15px;letter-spacing:.05em}
+.modal-overlay{background:#3e392a70;backdrop-filter:blur(9px)}.modal-content{background:#fffaf3;border:1px solid #fff;border-radius:25px;box-shadow:0 24px 80px #302a3040;padding:22px}
+.modal-top h2{font-size:23px;letter-spacing:-.6px;color:#73604f}.modal-close{border:0;background:#f2e8de;box-shadow:none;border-radius:50%;font-size:17px}
+.panel{border:1px solid #e8ded1;background:#fffdf9;box-shadow:none;border-radius:18px;padding:16px}.panel h3{font-size:11px;color:#a28d77;letter-spacing:.12em}
+.shop-card{border:1px solid #e8ddce;border-radius:18px;background:#fffef9;padding:16px;gap:10px}.shop-card p{line-height:1.5}.shop-card button{background:#e8eddd;border-color:#d8e1cc;box-shadow:0 2px #cdd8c0}
+.quest{padding:13px;background:#f8f2e9;border:1px solid #eee2d4;border-radius:13px}.quest.done{background:#edf3e7}.namebox input{border:1px solid #dcd2c5;background:#fffdf8}
+button.room.active,button.swatch.active,button.accessory.active{background:#e4eddd;border-color:#97b78e;color:#58704e}
+@media(min-width:901px) and (pointer:fine){.app{width:min(760px,calc(100vw - 44px))}.scene{width:calc(100% - 44px);height:min(58vh,590px);margin:0 22px}.top-actions{justify-content:flex-start}header{padding-bottom:14px}.title{width:100%}}
+@media(max-width:900px),(pointer:coarse){
+ body{background:var(--paper)}.app{border-radius:0;border:0;box-shadow:none}
+ header{padding:calc(12px + env(safe-area-inset-top)) 16px 6px;gap:9px}.title h1{font-size:24px;letter-spacing:-.8px}.title small{font-size:10px;margin-top:4px}
+ .top-actions{gap:6px;padding:2px 0;min-height:37px}.top-actions button{font-size:11px;min-height:33px;padding:0 9px;border-radius:10px;box-shadow:none}
+ .progress-panel{margin:6px 12px 9px;padding:7px 10px;gap:8px;min-height:38px;border-radius:12px}.currency{padding:4px 7px}.xp-track{height:6px}
+ .scene{width:calc(100% - 24px);margin:0 12px;border-radius:21px!important;flex:1 1 auto;min-height:0}
+ .bubble{top:12px;font-size:11px;padding:8px 12px;max-width:90%;border-radius:14px}
+ .status-hud{padding:7px 12px 0}.status-hud .stats{gap:5px;padding:4px 0}.status-hud .stat{padding:8px 4px;border-radius:11px;font-size:clamp(8px,2.3vw,10px)}.bar{height:5px;margin-top:6px}
+ .action-timer{height:20px;margin-bottom:1px}.timer-copy,.timer-number{font-size:9px}
+ .actions{grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;padding:8px 12px calc(15px + env(safe-area-inset-bottom))}
+ .actions button{min-height:70px;padding:6px 2px;gap:7px;border-radius:15px;font-size:clamp(8px,2.3vw,11px);box-shadow:0 3px 0 var(--button-shadow)}.actions button:last-child{grid-column:auto}.action-icon{font-size:24px}
+ .modal-content{padding:16px}.shop-card{padding:12px}.modal-top h2{font-size:20px}
+}
+@media(max-height:700px) and (max-width:900px){header{padding-top:6px;gap:4px}.title h1{font-size:20px}.title small{display:none}.progress-panel{margin-top:3px;margin-bottom:6px;min-height:32px;padding:4px 8px}.actions button{min-height:58px;gap:4px}.action-icon{font-size:20px}.actions{padding-bottom:8px}.stat{padding-top:5px!important;padding-bottom:5px!important}.status-hud{padding-top:3px}}
+@media(prefers-reduced-motion:reduce){button,.fill,.xp-fill{transition:none}}
+
+
+/* Keep the dialog title and close button visible while its contents scroll. */
+.modal-content{--dialog-padding:22px;isolation:isolate}
+.modal-top{
+ position:sticky;top:calc(-1 * var(--dialog-padding));z-index:10;
+ margin:calc(-1 * var(--dialog-padding)) calc(-1 * var(--dialog-padding)) 12px;
+ padding:16px var(--dialog-padding);
+ background:#fffaf3;border-bottom:1px solid #e8ded1;
+ box-shadow:0 4px 10px #65534008;
+}
+.modal-close{flex-shrink:0;min-width:44px;min-height:44px}
+@media(max-width:900px),(pointer:coarse){.modal-content{--dialog-padding:16px}.modal-top{padding-top:12px;padding-bottom:12px}}
+
+/* v19: quiet self-directed life indicator. Never blocks scene gestures. */
+.life-badge{position:absolute;left:12px;bottom:12px;z-index:3;pointer-events:none;max-width:65%;padding:7px 11px;background:#fffaf0d9;border:1px solid #f8eddb;border-radius:12px;box-shadow:0 2px 8px #56463111;font-size:11px;color:#7c6c59;font-weight:750;transition:opacity .24s}
+.life-badge[hidden]{display:none}
+@media(max-width:900px),(pointer:coarse){.life-badge{bottom:8px;left:8px;padding:5px 8px;font-size:10px}}
+
+/* v20 · store categories + in-room placement editor */
+.shop-tabs{position:sticky;top:67px;z-index:8;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;background:#fffaf3;padding:9px 0 11px;margin:3px 0 10px}
+.shop-tab{min-height:43px;padding:7px 6px;font-size:clamp(11px,2.7vw,14px);border-radius:12px;box-shadow:none;background:#f3ece3}
+.shop-tab.active{background:#dfebd8;color:#526e50;border-color:#aec7a6}
+.shop-page[hidden]{display:none!important}.shop-page{min-height:135px}
+.placement-hint{position:absolute;left:12px;right:12px;bottom:15px;z-index:12;padding:10px 14px;background:#fffdf5ef;border:1px solid #d3c5b6;border-radius:15px;box-shadow:0 4px 20px #51453725;text-align:center;font-weight:800;font-size:12px;line-height:1.4;pointer-events:none}
+.placement-hint[hidden]{display:none!important}
+.edit-furniture-on .scene{outline:3px solid #96b99b;outline-offset:-3px}
+.edit-furniture-on canvas{cursor:grab;touch-action:none}
+.placement-controls{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:7px 12px;background:#f0f5ec;border-bottom:1px solid #d7e4d2}
+.placement-controls[hidden]{display:none!important}
+.placement-controls button{font-size:12px;padding:8px 11px;min-height:36px;box-shadow:none}
+.placement-controls .place-state{flex:1;font-size:12px;color:#61745f;font-weight:800}
+.placement-controls button.warn{background:#f8e5e1;color:#9d5d54}
+#editHome.active{background:#e2eddc;color:#4c7158}
+@media(max-width:900px),(pointer:coarse){.shop-tabs{top:61px}.placement-hint{bottom:7px;font-size:10px;padding:7px 10px}.placement-controls{gap:4px;padding:5px 9px}.placement-controls button{padding:6px 8px;font-size:11px;min-height:31px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="title">
+      <h1>🐾 Мой котёнок</h1>
+      <small>Маленькие лапки. Большая любовь.</small>
+    </div>
+    <div class="top-actions">
+      <button class="secondary" id="openCustom" aria-haspopup="dialog">🎨 Настроить</button>
+      <button class="secondary" id="openQuests" aria-haspopup="dialog">📜 Квесты</button>
+      <button class="secondary" id="openShop" aria-haspopup="dialog">🛍️ Магазин</button>
+      <button class="secondary" id="editHome">↔ Расставить</button>
+      <button class="secondary sound-on" id="soundBtn">🔊 Звук: ВКЛ</button>
+      <button class="secondary" id="reset">↻ Заново</button>
+    </div>
+  </header>
+
+  <div class="modal-overlay" id="customModal" role="dialog" aria-modal="true" aria-labelledby="customTitle" hidden>
+    <div class="modal-content"><div class="modal-top"><h2 id="customTitle">🎨 Настройки котёнка</h2><button type="button" class="modal-close" data-close="customModal" aria-label="Закрыть">✕</button></div>
+<div class="panel">
+      <h3>НАСТРОЙКА КОТЁНКА</h3>
+      <div class="namebox"><span class="label">ИМЯ</span><input id="nameInput" maxlength="16" value="Пушок"></div>
+      <div class="line" style="margin-bottom:10px"><span class="label">ШЕРСТЬ</span><div class="swatches">
+        <button class="swatch active" data-fur="ginger"><i style="background:#f6aa78"></i> Рыжий</button>
+        <button class="swatch" data-fur="cream"><i style="background:#f0d4b0"></i> Кремовый</button>
+        <button class="swatch" data-fur="gray"><i style="background:#aeb4c4"></i> Серый</button>
+        <button class="swatch" data-fur="midnight"><i style="background:#6e6a7e"></i> Ночной</button>
+      </div></div>
+      <div class="line" style="margin-bottom:10px"><span class="label">ОШЕЙНИК</span><div class="swatches">
+        <button class="swatch active" data-collar="rose"><i style="background:#c65362"></i> Розовый</button>
+        <button class="swatch" data-collar="mint"><i style="background:#6bbf9c"></i> Мятный</button>
+        <button class="swatch" data-collar="sky"><i style="background:#6aa9d8"></i> Голубой</button>
+        <button class="swatch" data-collar="gold"><i style="background:#d6a846"></i> Золотой</button>
+      </div></div>
+      <div class="line" style="margin-bottom:10px"><span class="label">АКСЕССУАР</span><div class="accessories">
+        <button class="accessory active" data-accessory="none">Без аксессуара</button>
+        <button class="accessory" data-accessory="bow">🎀 Бантик</button>
+        <button class="accessory" data-accessory="star">⭐ Звёздочка</button>
+        <button class="accessory" data-accessory="scarf">🧣 Шарфик</button>
+      </div></div>
+      <div class="growth-test"><strong>🐾 Взросление</strong><div id="growthDetails">Малыш · уровень 1</div><button type="button" id="testGrow" class="secondary">🧪 +500 опыта (тест)</button><small>Для проверки всех возрастов. Монеты по-прежнему бесконечные.</small></div>
+      <div id="customNotice" class="shop-notice" role="status" hidden></div>
+      <div class="line"><span class="label">КОМНАТА</span><div class="rooms">
+        <button class="room active" data-room="cozy">☀️ Уютная • бесплатно</button>
+        <button class="room" data-room="night">🔒 🌙 Ночная • 100 🪙</button>
+        <button class="room" data-room="playroom">🔒 🧸 Игровая • 200 🪙</button>
+        <button class="room" data-room="garden">🔒 🌿 Зелёная • 400 🪙</button>
+      </div></div>
+    </div>
+    </div>
+  </div>
+  <div class="modal-overlay" id="questsModal" role="dialog" aria-modal="true" aria-labelledby="questsTitle" hidden>
+    <div class="modal-content"><div class="modal-top"><h2 id="questsTitle">📜 Мини-квесты</h2><button type="button" class="modal-close" data-close="questsModal" aria-label="Закрыть">✕</button></div>
+<div class="panel">
+      <h3>МИНИ-КВЕСТЫ</h3>
+      <ul class="quest-list" id="questList"></ul>
+      <div class="reward">⭐ Награды: <span id="stars">0</span> <span style="margin-left:12px">🏆 Выполнено наборов: <span id="setsDone">0</span></span></div>
+      <div class="line" style="margin-top:10px"><button class="secondary" id="newQuests">📝 Новые квесты</button><span id="questCooldown" class="quest-cooldown" aria-live="off">Через 10:00</span></div>
+    </div>
+    </div>
+  </div>
+
+
+  <div class="modal-overlay" id="shopModal" role="dialog" aria-modal="true" aria-labelledby="shopTitle" hidden>
+    <div class="modal-content"><div class="modal-top"><h2 id="shopTitle">🛍️ Магазин уютного домика</h2><button type="button" class="modal-close" data-close="shopModal" aria-label="Закрыть">✕</button></div>
+      <p class="shop-intro">Тестовый режим: бесконечные монеты для проверки покупок. Купленные предметы сохраняются после закрытия игры. После покупки укажи место в комнате.</p>
+      <div id="shopNotice" class="shop-notice" role="status" aria-live="polite" hidden></div>
+      <div class="shop-tabs" role="tablist" aria-label="Разделы магазина">
+        <button class="shop-tab active" data-shop-tab="rooms" role="tab" aria-selected="true">🏠 Комнаты</button>
+        <button class="shop-tab" data-shop-tab="furniture" role="tab" aria-selected="false">🛋️ Мебель</button>
+        <button class="shop-tab" data-shop-tab="decor" role="tab" aria-selected="false">✨ Украшения</button>
+      </div>
+      <section class="shop-page" id="shopPageRooms" role="tabpanel"><div class="shop-grid" id="shopRooms"></div></section>
+      <section class="shop-page" id="shopPageFurniture" role="tabpanel" hidden><div class="shop-grid" id="shopFurniture"></div></section>
+      <section class="shop-page" id="shopPageDecor" role="tabpanel" hidden><div class="shop-grid" id="shopDecor"></div></section>
+      <p class="shop-goal" id="shopProgress"></p>
+    </div>
+  </div>
+  <section class="progress-panel" aria-label="Прогресс котёнка">
+    <div class="currency">🪙 <b id="coins">∞</b> монет · ТЕСТ</div>
+    <div class="level-label">⭐ Ур. <b id="level">1</b> · <span id="ageLabel">Малыш</span></div>
+    <div class="xp-track" title="Опыт до следующего уровня"><div class="xp-fill" id="xpFill"></div></div>
+    <div class="goal-text" id="goalText">Цель: вырасти вместе с питомцем!</div>
+  </section>
+  <div class="placement-controls" id="placementControls" hidden>
+    <span class="place-state" id="placeState">Выбери место для предмета</span>
+    <button type="button" id="removePlaced" class="warn" hidden>Убрать</button>
+    <button type="button" id="finishPlacement">✓ Готово</button>
+  </div>
+  <section class="scene">
+    <canvas id="game"></canvas>
+    <div class="placement-hint" id="placementHint" hidden>Нажми на свободное место, чтобы поставить предмет</div>
+    <div class="bubble" id="bubble">Привет! Я уже жду внимания 💗</div><div class="life-badge" id="lifeBadge" aria-live="off">🐾 Изучает комнату</div><div class="coin-floats" id="coinFloats" aria-hidden="true"></div>
+  </section>
+
+  <section class="status-hud" aria-label="Показатели питомца и время действия">
+    <div class="action-timer" id="actionTimer" role="status" aria-live="off" hidden>
+      <div class="action-track" role="progressbar" aria-label="Выполнение действия" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="actionTrack"><div class="action-fill" id="actionFill"></div></div>
+      <span class="timer-copy" id="actionLabel">Действие</span>
+      <span class="timer-number" id="actionSeconds">3.0 с</span>
+    </div>
+  <section class="stats">
+    <div class="stat">🍗 Сытость<div class="bar"><div id="food" class="fill" style="background:#f9a660"></div></div></div>
+    <div class="stat">💗 Радость<div class="bar"><div id="happy" class="fill" style="background:#f18c9b"></div></div></div>
+    <div class="stat">🌙 Энергия<div class="bar"><div id="energy" class="fill" style="background:#8bb4dc"></div></div></div>
+    <div class="stat">🫧 Чистота<div class="bar"><div id="clean" class="fill" style="background:#77cbbc"></div></div></div>
+    <div class="stat">💞 Связь<div class="bar"><div id="bond" class="fill" style="background:#bd9de8"></div></div></div>
+  </section>
+  </section>
+
+  <section class="actions">
+    <button data-act="feed"><span class="action-icon" aria-hidden="true">🥣</span><span>Кормить</span></button>
+    <button data-act="pet"><span class="action-icon" aria-hidden="true">🤍</span><span>Гладить</span></button>
+    <button data-act="play"><span class="action-icon" aria-hidden="true">🧶</span><span>Играть</span></button>
+    <button data-act="sleep"><span class="action-icon" aria-hidden="true">🌙</span><span>Спать</span></button>
+    <button data-act="wash"><span class="action-icon" aria-hidden="true">🫧</span><span>Купать</span></button>
+  </section>
+  <div class="foot">Уютный дом · v20 · редактор дома · тестовые монеты ∞</div>
+</div>
+
+<script>
+'use strict';
+const canvas=document.getElementById('game');
+const ctx=canvas.getContext('2d');
+const bubble=document.getElementById('bubble');
+const soundBtn=document.getElementById('soundBtn');
+const nameInput=document.getElementById('nameInput');
+const questList=document.getElementById('questList');
+const starsEl=document.getElementById('stars');
+const setsDoneEl=document.getElementById('setsDone');
+const coinsEl=document.getElementById('coins'),levelEl=document.getElementById('level'),xpFillEl=document.getElementById('xpFill'),goalTextEl=document.getElementById('goalText');
+
+const FURS={
+  ginger:{body:'#f6aa78',stroke:'#8a5f54',inner:'#ffe0ba',tail:'#c47b57',ear:'#ee91a3',eye:'#6ac7ff'},
+  cream:{body:'#efd4b6',stroke:'#8f6f65',inner:'#fff0dd',tail:'#d2b08e',ear:'#f1a8b4',eye:'#87cfff'},
+  gray:{body:'#aeb4c4',stroke:'#666d7a',inner:'#e7ebf2',tail:'#8a92a4',ear:'#de9faf',eye:'#86b8ff'},
+  midnight:{body:'#6e6a7e',stroke:'#4f4a5f',inner:'#bbb8ca',tail:'#5f5a70',ear:'#d49aaa',eye:'#86d8ff'}
+};
+const COLLARS={rose:'#c65362',mint:'#6bbf9c',sky:'#6aa9d8',gold:'#d6a846'};
+const ROOMS={
+  cozy:{wallTop:'#cde6ef',wallMid:'#f6efe3',floor:'#dfc0a6',floor2:'#edcfb7',rug:'#fff2d2',furniture:'#d5a98f',accent:'#f8b6a3',windowSky:'#a8ddff',windowGlow:'#ffffff',bubble:'Сегодня так уютно!'},
+  night:{wallTop:'#39496d',wallMid:'#56698f',floor:'#9d7c71',floor2:'#b29086',rug:'#c6b6ff',furniture:'#857199',accent:'#ffcf82',windowSky:'#0f1f46',windowGlow:'#f3f0b4',bubble:'Тсс... Вечерняя комната 🌙'},
+  playroom:{wallTop:'#ffe8cb',wallMid:'#fff6e8',floor:'#ddb7a1',floor2:'#eccdb6',rug:'#ffe3a6',furniture:'#9cc8f0',accent:'#ff8fa7',windowSky:'#bde7ff',windowGlow:'#ffffff',bubble:'Обожаю игрушки!'},
+  garden:{wallTop:'#cbead4',wallMid:'#f3fbf2',floor:'#d9bb9e',floor2:'#ebd0b2',rug:'#d8f1c3',furniture:'#9abf7e',accent:'#f3a7a7',windowSky:'#bce5c4',windowGlow:'#ffffff',bubble:'Здесь так свежо 🌿'}
+};
+const ROOM_PRICES={cozy:0,night:100,playroom:200,garden:400};
+const ROOM_TITLES={cozy:'☀️ Уютная',night:'🌙 Ночная',playroom:'🧸 Игровая',garden:'🌿 Зелёная'};
+const ROOM_FEATURES={cozy:'Солнечная домашняя комната с мягкими шторами и тёплым светом.',night:'Лунная спальня со звёздами, лампой и глубокими вечерними тенями.',playroom:'Яркая игровая комната с баннерами, панелями и детскими акцентами.',garden:'Спокойная зелёная комната с арочным окном, лианами и живыми растениями.'};
+const QUEST_COOLDOWN_MS=10*60*1000;
+const QUEST_REFRESH_BUTTON=document.getElementById('newQuests');
+const QUEST_COUNTDOWN_LABEL=document.getElementById('questCooldown');
+const QUEST_POOL=[
+  {type:'feed', goal:2, text:'Покорми котёнка 2 раза'},
+  {type:'pet', goal:3, text:'Погладь котёнка 3 раза'},
+  {type:'play', goal:2, text:'Поиграй с клубком 2 раза'},
+  {type:'sleep', goal:1, text:'Уложи котёнка спать 1 раз'},
+  {type:'wash', goal:2, text:'Искупай котёнка 2 раза'},
+  {type:'room', goal:2, text:'Смени комнату 2 раза'}
+];
+
+const state={
+  action:'idle', started:0, duration:0, room:'cozy',
+  stats:{food:68,happy:73,energy:80,clean:80,bond:10},
+  lastDecay:performance.now(), blinkTimer:0, nextBlink:2.5, eyesClosed:false,
+  custom:{name:'Пушок', fur:'ginger', collar:'rose', accessory:'none'},
+  sound:true, audioCtx:null,
+  quests:[], stars:0, questSetsDone:0, questSetAwarded:false,
+  coins:40,xp:0,totalCare:0,owned:[],equipped:null,placements:{cozy:[],night:[],playroom:[],garden:[]},roomOwned:['cozy'],questRefreshAt:0,
+  idleLast:performance.now(),idleNext:10000,idleEvent:null,idleStarted:0,
+  _prevTime:performance.now(),
+  life:{mode:'idle',x:0,y:0,targetX:0,until:0,walking:false,started:performance.now(),
+        next:performance.now()+3800,actionFromX:0,actionFromY:0,greetCooldown:0,lastSeen:Date.now()}
+};
+
+// Portrait world: furniture is placed around the pet rather than cropping a landscape frame.
+let roomH=780;
+function resize(){
+  const dpr=Math.min(2,window.devicePixelRatio||1), r=canvas.getBoundingClientRect();
+  canvas.width=Math.max(1,Math.round(r.width*dpr));
+  canvas.height=Math.max(1,Math.round(r.height*dpr));
+  // 600 virtual units wide. The height follows the real phone aspect ratio.
+  // One uniform scale for the entire composition: no stretched artwork.
+  roomH=Math.max(570,600*canvas.height/canvas.width);
+}
+addEventListener('resize',resize);
+if(window.visualViewport)window.visualViewport.addEventListener('resize',resize);
+resize();
+
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+function easeInOut(t){return .5-.5*Math.cos(Math.PI*t);}
+function rand(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function setBars(){for(const k of Object.keys(state.stats))document.getElementById(k).style.width=state.stats[k]+'%';}
+setBars();
+
+function ellipse(x,y,rx,ry,fill,stroke='#684d44',line=4,alpha=1){ctx.save();ctx.globalAlpha=alpha;ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.lineWidth=line;ctx.strokeStyle=stroke;ctx.stroke();}ctx.restore();}
+function line(pts,color='#684d44',w=4,alpha=1){ctx.save();ctx.globalAlpha=alpha;ctx.beginPath();ctx.moveTo(...pts[0]);for(let i=1;i<pts.length;i++)ctx.lineTo(...pts[i]);ctx.lineWidth=w;ctx.strokeStyle=color;ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke();ctx.restore();}
+function poly(pts,fill,stroke='#684d44',lineWidth=4,alpha=1){ctx.save();ctx.globalAlpha=alpha;ctx.beginPath();ctx.moveTo(...pts[0]);for(let i=1;i<pts.length;i++)ctx.lineTo(...pts[i]);ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.lineWidth=lineWidth;ctx.strokeStyle=stroke;ctx.stroke();}ctx.restore();}
+function roundRect(x,y,w,h,r,fill,stroke='#684d44',lw=3,alpha=1){ctx.save();ctx.globalAlpha=alpha;ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.lineWidth=lw;ctx.strokeStyle=stroke;ctx.stroke();}ctx.restore();}
+function gradientRect(x,y,w,h,c1,c2){const g=ctx.createLinearGradient(x,y,x,y+h);g.addColorStop(0,c1);g.addColorStop(1,c2);ctx.fillStyle=g;ctx.fillRect(x,y,w,h);}
+
+function ensureAudio(){if(!state.sound)return null; if(!state.audioCtx){const AC=window.AudioContext||window.webkitAudioContext; if(!AC)return null; state.audioCtx=new AC();} if(state.audioCtx.state==='suspended')state.audioCtx.resume(); return state.audioCtx;}
+function tone({freq=440,duration=.14,type='sine',volume=.03,slideTo=null,when=0}={}){const ac=ensureAudio(); if(!ac)return; const t=ac.currentTime+when; const osc=ac.createOscillator(); const gain=ac.createGain(); osc.type=type; osc.frequency.setValueAtTime(freq,t); if(slideTo!=null)osc.frequency.linearRampToValueAtTime(slideTo,t+duration); gain.gain.setValueAtTime(.0001,t); gain.gain.exponentialRampToValueAtTime(volume,t+.02); gain.gain.exponentialRampToValueAtTime(.0001,t+duration); osc.connect(gain).connect(ac.destination); osc.start(t); osc.stop(t+duration+.02);}
+// Lightweight procedural background music: four original looping melodies.
+// No external audio files or licensing dependencies, and no autoplay before interaction.
+const MUSIC_THEMES={
+ cozy:{notes:[60,64,67,72,69,67,64,62,60,64,67,64,62,60,59,55],root:[48,53,55,48],bpm:82,wave:'sine'},
+ night:{notes:[57,60,64,60,55,59,62,59,57,60,64,67,64,60,59,55],root:[45,50,48,43],bpm:66,wave:'triangle'},
+ playroom:{notes:[67,72,76,74,72,79,76,72,69,74,77,74,72,69,67,72],root:[48,55,53,55],bpm:114,wave:'triangle'},
+ garden:{notes:[64,67,71,76,74,71,67,64,62,66,69,74,71,67,64,62],root:[52,50,55,48],bpm:90,wave:'sine'}
+};
+let musicClock=null,musicStep=0,musicNext=0,musicRoom='';
+function noteHz(midi){return 440*Math.pow(2,(midi-69)/12)}
+function musicNote(ac,midi,at,duration,wave,volume){
+ if(!state.sound||!ac||ac.state!=='running')return;
+ const osc=ac.createOscillator(),gain=ac.createGain();osc.type=wave;
+ osc.frequency.setValueAtTime(noteHz(midi),at);
+ gain.gain.setValueAtTime(.0001,at);
+ gain.gain.exponentialRampToValueAtTime(Math.max(.0002,volume),at+.025);
+ gain.gain.exponentialRampToValueAtTime(.0001,at+duration);
+ osc.connect(gain).connect(ac.destination);osc.start(at);osc.stop(at+duration+.02);
+}
+function musicTick(){
+ if(!state.sound||document.hidden||!state.audioCtx||state.audioCtx.state!=='running')return;
+ const ac=state.audioCtx, theme=MUSIC_THEMES[state.room];if(!theme)return;
+ if(musicRoom!==state.room){musicRoom=state.room;musicStep=0;musicNext=ac.currentTime+.04;}
+ const beat=60/theme.bpm;
+ if(musicNext<ac.currentTime-.5)musicNext=ac.currentTime+.04;
+ while(musicNext<ac.currentTime+.35){
+  const idx=musicStep%theme.notes.length,note=theme.notes[idx];
+  musicNote(ac,note,musicNext,beat*.72,theme.wave,.008);
+  if(idx%4===0)musicNote(ac,theme.root[Math.floor(idx/4)%4],musicNext,beat*2.7,'sine',.0045);
+  musicStep++;musicNext+=beat;
+ }
+}
+function startMusic(){
+ if(!state.sound)return;
+ const ac=ensureAudio();if(!ac)return;
+ if(!musicClock)musicClock=setInterval(musicTick,130);
+ if(musicNext<ac.currentTime)musicNext=ac.currentTime+.04;
+ musicTick();
+}
+function stopMusic(){if(musicClock){clearInterval(musicClock);musicClock=null;} musicRoom='';musicNext=0;}
+function switchMusic(){musicRoom='';musicStep=0;musicNext=0;if(state.sound)startMusic();}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)stopMusic();else if(state.sound && state.audioCtx)startMusic();});
+// WebAudio needs a user gesture on mobile browsers.
+document.addEventListener('pointerdown',()=>{if(state.sound)startMusic();},{passive:true});
+function playSound(kind){if(!state.sound)return; if(kind==='feed'){tone({freq:540,duration:.08,type:'triangle',volume:.035}); tone({freq:680,duration:.11,when:.07,type:'triangle',volume:.03});}
+else if(kind==='pet'){tone({freq:230,duration:.24,type:'sine',volume:.03}); tone({freq:260,duration:.24,when:.12,type:'sine',volume:.025});}
+else if(kind==='play'){tone({freq:700,duration:.09,type:'square',volume:.025}); tone({freq:860,duration:.08,when:.09,type:'square',volume:.02}); tone({freq:760,duration:.08,when:.18,type:'square',volume:.018});}
+else if(kind==='sleep'){tone({freq:392,duration:.18,type:'sine',volume:.03}); tone({freq:523,duration:.28,when:.12,type:'sine',volume:.025});}
+else if(kind==='room'){tone({freq:420,duration:.08,type:'triangle',volume:.025}); tone({freq:560,duration:.1,when:.08,type:'triangle',volume:.02});}
+else if(kind==='quest'){tone({freq:523,duration:.10,type:'triangle',volume:.03}); tone({freq:659,duration:.12,when:.11,type:'triangle',volume:.03}); tone({freq:784,duration:.18,when:.24,type:'triangle',volume:.03});}
+else if(kind==='meow'){tone({freq:700,duration:.08,type:'sawtooth',volume:.028,slideTo:560}); tone({freq:560,duration:.16,when:.08,type:'sawtooth',volume:.022,slideTo:470});}}
+
+
+const SHOP_ITEMS=[
+ {id:'pillow',category:'furniture',name:'🛏️ Мягкая подушка',description:'Место для отдыха котёнка',price:55},
+ {id:'house',category:'furniture',name:'🏠 Кошачий домик',description:'Собственный уютный домик для сна',price:200},
+ {id:'plant',category:'decor',name:'🪴 Домашний цветок',description:'Зелёный акцент в комнате',price:90},
+ {id:'lamp',category:'decor',name:'💡 Светильник',description:'Тёплый свет на вечер',price:140},
+ {id:'picture',category:'decor',name:'🖼️ Картина',description:'Украшение для стены',price:110},
+ {id:'garland',category:'decor',name:'✨ Гирлянда',description:'Мягкие мерцающие огоньки',price:170}
+];
+const WALL_ITEMS=new Set(['picture','garland']);
+let activeShopTab='rooms';
+let placement={active:false,pending:null,selected:null,dragging:false,pointerId:null};
+const placementsFor=(room=state.room)=>state.placements[room]||(state.placements[room]=[]);
+function getPlacementIndex(id){return placementsFor().findIndex(p=>p.id===id)}
+function isPlaced(id){return getPlacementIndex(id)!==-1}
+function clampPlace(id,x,y){const wall=WALL_ITEMS.has(id);return {x:clamp(x,wall?72:88,wall?528:512),y:clamp(y,wall?.14:.68,wall?.52:.90)};}
+function placeDefault(id){const wall=WALL_ITEMS.has(id);return {id,...clampPlace(id,wall?300:140,wall?.31:.78)};}
+function setShopTab(name){activeShopTab=name;for(const b of document.querySelectorAll('[data-shop-tab]')){const on=b.dataset.shopTab===name;b.classList.toggle('active',on);b.setAttribute('aria-selected',on?'true':'false');}for(const [key,which] of [['rooms','Rooms'],['furniture','Furniture'],['decor','Decor']])document.getElementById('shopPage'+which).hidden=key!==name;}
+const SAVE_KEY='kotenok-v6-progress'; // Existing progress key preserved for v18 saves.
+const LIFE_SEEN_KEY='kotenok-v19-last-seen';
+const AGE_STAGES=[
+ {name:'Малыш',min:1,scale:.83},
+ {name:'Подросток',min:6,scale:.96},
+ {name:'Молодой кот',min:16,scale:1.07},
+ {name:'Взрослый кот',min:31,scale:1.15}
+];
+const levelOf=()=>Math.floor(state.xp/100)+1;
+const ageIndex=()=>levelOf()>=31?3:levelOf()>=16?2:levelOf()>=6?1:0;
+const ageStage=()=>AGE_STAGES[ageIndex()];
+
+const TEST_UNLIMITED_COINS=true; // Test builds: purchases never deduct coins.
+function store(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({stats:state.stats,room:state.room,custom:state.custom,sound:state.sound,quests:state.quests,stars:state.stars,questSetsDone:state.questSetsDone,questSetAwarded:state.questSetAwarded,coins:state.coins,xp:state.xp,totalCare:state.totalCare,owned:state.owned,equipped:state.equipped,placements:state.placements,roomOwned:state.roomOwned,questRefreshAt:state.questRefreshAt}));}catch(e){}}
+function load(){try{const o=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(!o)return false;
+ if(o.stats)for(const k of ['food','happy','energy','clean','bond'])if(Number.isFinite(o.stats[k]))state.stats[k]=clamp(o.stats[k],0,100);
+ if(Array.isArray(o.roomOwned))state.roomOwned=['cozy',...o.roomOwned.filter(r=>r!=='cozy'&&ROOM_PRICES[r]!==undefined)];
+ // Returning players who selected an environment in the earlier free version keep it.
+ else if(ROOMS[o.room]&&o.room!=='cozy')state.roomOwned=['cozy',o.room];
+ if(ROOMS[o.room] && state.roomOwned.includes(o.room))state.room=o.room;
+ if(Number.isFinite(o.questRefreshAt))state.questRefreshAt=Math.max(0,Math.floor(o.questRefreshAt));
+ if(o.custom){if(FURS[o.custom.fur])state.custom.fur=o.custom.fur;if(COLLARS[o.custom.collar])state.custom.collar=o.custom.collar;if(['none','bow','star','scarf'].includes(o.custom.accessory))state.custom.accessory=o.custom.accessory;if(typeof o.custom.name==='string')state.custom.name=o.custom.name.slice(0,16)||'Пушок';}
+ if(typeof o.sound==='boolean')state.sound=o.sound;
+ if(Array.isArray(o.quests)&&o.quests.length===3&&o.quests.every(q=>QUEST_POOL.some(p=>p.type===q.type)))state.quests=o.quests.map(q=>({...q,progress:clamp(Number(q.progress)||0,0,q.goal),done:!!q.done}));
+ for(const k of ['stars','questSetsDone','coins','xp','totalCare'])if(Number.isFinite(o[k]))state[k]=clamp(Math.floor(o[k]),0,1000000);
+ state.questSetAwarded=!!o.questSetAwarded;
+ if(Array.isArray(o.owned))state.owned=o.owned.filter(id=>SHOP_ITEMS.some(it=>it.id===id));
+ if(state.owned.includes(o.equipped))state.equipped=o.equipped;
+ if(o.placements && typeof o.placements==='object'){
+  for(const room of Object.keys(ROOMS)){
+    if(Array.isArray(o.placements[room])){
+      const seen=new Set();state.placements[room]=o.placements[room].filter(p=>p && state.owned.includes(p.id) && !seen.has(p.id) && Number.isFinite(p.x)&&Number.isFinite(p.y) && (seen.add(p.id),true)).map(p=>({id:p.id,...clampPlace(p.id,p.x,p.y)}));
+    }
+  }
+ }else if(state.equipped && state.owned.includes(state.equipped)){
+   state.placements[state.room].push(placeDefault(state.equipped)); // v19 migration
+ }
+ return true;
+ }catch(e){return false;}}
+function progressUI(){
+ const level=levelOf(),stage=ageStage();
+ coinsEl.textContent=TEST_UNLIMITED_COINS?'∞':state.coins;levelEl.textContent=level;xpFillEl.style.width=(state.xp%100)+'%';
+ document.getElementById('ageLabel').textContent=stage.name;
+ const details=document.getElementById('growthDetails');
+ if(details)details.textContent=`${stage.name} · уровень ${level} · связь ${Math.round(state.stats.bond)}%`;
+
+ const n=state.owned.length;
+ goalTextEl.textContent=n===SHOP_ITEMS.length?`🏆 Домик мечты готов! Уровень ${level} • забот: ${state.totalCare}`:`Цель: обустрой домик (${n}/${SHOP_ITEMS.length} предметов)`;
+ renderShop();
+}
+function floatCoins(amount){
+ if(!amount)return;
+ const host=document.getElementById('coinFloats');
+ const el=document.createElement('div');el.className='coin-float';const value=document.createElement('span');value.textContent=`+${amount}`;const coin=document.createElement('span');coin.className='coin-small';coin.textContent='★';el.append(value,coin);
+ host.appendChild(el);el.addEventListener('animationend',()=>el.remove(),{once:true});
+ setTimeout(()=>el.remove(),2500);
+}
+function shopFeedback(message,success=false){
+ const notice=document.getElementById('shopNotice');
+ notice.textContent=message;notice.hidden=false;notice.classList.toggle('success',success);
+ setBubble(message);
+}
+function shortage(item,cost){
+ const missing=Math.max(0,cost-state.coins);
+ shopFeedback(`Не хватает монет на «${item}»! Цена: ${cost} 🪙. У тебя: ${state.coins} 🪙. Нужно ещё ${missing} 🪙.`);
+ playSound('meow');
+}
+function gain(coins,xp){state.coins+=coins;state.xp+=xp;state.totalCare++;floatCoins(coins);progressUI();store();}
+function priceCoinLabel(cost, prefix=''){
+ const group=document.createElement('span');group.className='shop-price';
+ if(prefix) group.appendChild(document.createTextNode(prefix));
+ const coin=document.createElement('span');coin.className='shop-price-coin';coin.setAttribute('aria-hidden','true');
+ group.append(coin,document.createTextNode(String(cost)));
+ return group;
+}
+function renderShop(){
+ for(const category of ['furniture','decor']){
+  const grid=document.getElementById(category==='furniture'?'shopFurniture':'shopDecor');grid.replaceChildren();
+  for(const it of SHOP_ITEMS.filter(i=>i.category===category)){
+   const owned=state.owned.includes(it.id),placed=isPlaced(it.id);
+   const card=document.createElement('div');card.className='shop-card';
+   const head=document.createElement('strong');head.textContent=it.name;
+   const desc=document.createElement('p');desc.textContent=it.description;
+   const button=document.createElement('button');
+   if(owned)button.textContent=placed?'↔ Переместить':'📍 Поставить';
+   else button.append(priceCoinLabel(it.price),document.createTextNode(' · Купить'));
+   button.addEventListener('click',()=>{
+    if(!state.owned.includes(it.id)){
+     if(!TEST_UNLIMITED_COINS && state.coins<it.price){shortage(it.name,it.price);return;}
+     if(!TEST_UNLIMITED_COINS)state.coins-=it.price;
+     state.owned.push(it.id);playSound('quest');store();
+    }
+    closeModals(false);beginPlacement(it.id);
+   });
+   card.append(head,desc,button);grid.append(card);
+  }
+ }
+ renderShopRooms();
+ document.getElementById('shopProgress').textContent=`Куплено предметов: ${state.owned.length} из ${SHOP_ITEMS.length}. Предметы можно ставить одновременно в разных комнатах.`;
+}
+function renderShopRooms(){
+ const grid=document.getElementById('shopRooms');grid.innerHTML='';
+ for(const id of ['cozy','night','playroom','garden']){
+  const owned=state.roomOwned.includes(id),cost=ROOM_PRICES[id];
+  const card=document.createElement('div');card.className='shop-card room-shop-card'+(owned?' owned':'');
+  const head=document.createElement('strong');head.textContent=ROOM_TITLES[id];
+  const desc=document.createElement('p');
+  const feature=document.createElement('span');feature.textContent=ROOM_FEATURES[id]+' ';desc.appendChild(feature);
+  if(owned){
+    const ownedLine=document.createElement('span');ownedLine.textContent='Комната уже куплена и доступна в настройках.';desc.appendChild(ownedLine);
+  }else{
+    desc.append(document.createElement('br'),document.createTextNode('Стоимость: '),priceCoinLabel(cost));
+  }
+  const button=document.createElement('button');
+  if(owned)button.textContent=state.room===id?'✓ Сейчас выбрана':'✓ Куплена';else button.append(priceCoinLabel(cost),document.createTextNode(' · Купить'));
+  button.disabled=owned;
+  button.addEventListener('click',()=>{
+   if(state.roomOwned.includes(id))return;
+   if(!TEST_UNLIMITED_COINS && state.coins<cost){shortage(ROOM_TITLES[id],cost);return;}
+   if(!TEST_UNLIMITED_COINS)state.coins-=cost;state.roomOwned.push(id);
+   playSound('quest');shopFeedback(`Комната ${ROOM_TITLES[id]} куплена! Теперь её можно выбрать в «Настроить». ${TEST_UNLIMITED_COINS?'Тестовый режим — бесплатно.':`−${cost} 🪙`}`,true);
+   progressUI();renderRoomButtons();store();
+  });
+  card.append(head,desc,button);grid.appendChild(card);
+ }
+}
+function renderRoomButtons(){
+ for(const btn of document.querySelectorAll('[data-room]')){
+  const id=btn.dataset.room,owned=state.roomOwned.includes(id);
+  btn.textContent=(owned?'': '🔒 ')+ROOM_TITLES[id]+(owned?'':` • магазин: ${ROOM_PRICES[id]} 🪙`);
+  btn.classList.toggle('active',state.room===id);btn.classList.toggle('locked',!owned);
+  btn.setAttribute('aria-label',owned?ROOM_TITLES[id]+' — доступно':ROOM_TITLES[id]+` — закрыто, купить в магазине за ${ROOM_PRICES[id]} монет`);
+ }
+}
+function updateQuestCooldown(){
+ const ms=Math.max(0,state.questRefreshAt-Date.now());
+ const ready=ms<=0;
+ QUEST_REFRESH_BUTTON.disabled=!ready;
+ QUEST_REFRESH_BUTTON.textContent=ready?'📝 Получить новые квесты':'🔒 Новые квесты';
+ QUEST_COUNTDOWN_LABEL.textContent=ready?'✅ Доступны!':`Через ${String(Math.floor(ms/60000)).padStart(2,'0')}:${String(Math.ceil((ms%60000)/1000)%60).padStart(2,'0')}`;
+}
+function restoreUI(){nameInput.value=state.custom.name;
+ [['room',state.room],['fur',state.custom.fur],['collar',state.custom.collar],['accessory',state.custom.accessory]].forEach(([type,val])=>document.querySelectorAll(`[data-${type}]`).forEach(b=>b.classList.toggle('active',b.dataset[type]===val)));
+ soundBtn.textContent=state.sound?'🔊 Звук: ВКЛ':'🔈 Звук: ВЫКЛ';soundBtn.classList.toggle('sound-on',state.sound);soundBtn.classList.toggle('sound-off',!state.sound);
+ setBars();renderQuests();progressUI();renderRoomButtons();updateQuestCooldown();
+}
+function createQuestSet(){
+  const available=QUEST_POOL.filter(q=>q.type!=='room'||state.roomOwned.length>=2);
+  const pool=[...available].sort(()=>Math.random()-.5).slice(0,3);
+  state.questSetAwarded=false;
+  state.quests=pool.map((q,i)=>({id:i+1,type:q.type,goal:q.goal,progress:0,text:q.text,done:false}));
+  state.questRefreshAt=Date.now()+QUEST_COOLDOWN_MS;
+  renderQuests();updateQuestCooldown();store();
+}
+function renderQuests(){
+  questList.innerHTML='';
+  for(const q of state.quests){
+    const li=document.createElement('li');
+    li.className='quest'+(q.done?' done':'');
+    li.innerHTML=`<span>${q.done?'✅':'⬜'} ${q.text}</span><b>${q.progress}/${q.goal}</b>`;
+    questList.appendChild(li);
+  }
+  starsEl.textContent=state.stars;
+  setsDoneEl.textContent=state.questSetsDone;
+}
+function updateQuests(type){
+  let completedNow=0;
+  for(const q of state.quests){
+    if(q.type===type && !q.done){
+      q.progress=clamp(q.progress+1,0,q.goal);
+      if(q.progress>=q.goal){
+        q.done=true; state.stars += 1; state.coins+=25;state.xp+=25; completedNow++;
+      }
+    }
+  }
+  if(completedNow>0){playSound('quest');floatCoins(completedNow*25);}
+  if(!state.questSetAwarded && state.quests.length && state.quests.every(q=>q.done)){
+    state.questSetAwarded=true;
+    state.questSetsDone += 1;
+    state.stars += 2;state.coins+=50;state.xp+=35;floatCoins(50);
+    setBubble(`Ура! ${state.custom.name} выполнил все мини-квесты! ⭐`);
+    playSound('quest');
+  }
+  renderQuests();progressUI();store();
+}
+if(!load()||!state.quests.length)createQuestSet();
+restoreUI();
+// Returning after a break feels personal. Offline time does not punish needs.
+try{
+  const seen=Number(localStorage.getItem(LIFE_SEEN_KEY)||0);
+  if(seen>0 && Date.now()-seen>75*1000){
+    state.life.mode='greet';state.life.started=performance.now();state.life.until=state.life.started+3300;
+    state.life.next=state.life.until+6500;
+    setTimeout(()=>setBubble(`${state.custom.name} рад тебя видеть! 🐾💗`),0);
+  }
+}catch(e){}
+try{localStorage.setItem(LIFE_SEEN_KEY,String(Date.now()))}catch(e){}
+
+
+function setBubble(text){bubble.textContent=text;}
+
+function drawRoomPortrait(t){
+  const r=ROOMS[state.room], H=roomH, floorY=H*.65;
+  gradientRect(0,0,600,floorY,r.wallTop,r.wallMid);
+  gradientRect(0,floorY,600,H-floorY,r.floor,r.floor2);
+  ctx.fillStyle='#ffffff55';ctx.fillRect(0,0,600,12);
+  ctx.fillStyle='#00000010';ctx.fillRect(0,floorY-5,600,5);
+  line([[0,floorY],[600,floorY]],'#8d6d5a55',4);
+
+  // Crown molding and baseboard help every room feel more architectural.
+  ctx.fillStyle='#ffffff3d';ctx.fillRect(0,24,600,5);
+  ctx.fillStyle='#ffffff33';ctx.fillRect(0,floorY-52,600,4);
+
+  if(state.room==='cozy'){
+    // Lower wall paneling.
+    gradientRect(0,floorY-90,600,90,'#f3e5d4','#ead7c1');
+    for(let x=34;x<600;x+=76) line([[x,floorY-88],[x,floorY-3]],'#d4bda7',3);
+
+    // Big sunlit window with swaying curtains.
+    roundRect(32,86,206,192,20,'#bfe3ff','#b58b79',4);
+    ellipse(196,124,25,25,'#fff2b3',null,0,.92);
+    for(let i=0;i<4;i++) ellipse(78+i*34,156+i*9,25,13,'#ffffff',null,0,.42);
+    line([[136,86],[136,278]],'#ffffffaa',4); line([[32,182],[238,182]],'#ffffffaa',4);
+    const sway=Math.sin(t*1.6)*6;
+    poly([[34,86],[65,98+sway],[58,276],[34,276]],'#f7f0e6','#cbb7a6',3,.92);
+    poly([[236,86],[205,98-sway],[212,276],[236,276]],'#f7f0e6','#cbb7a6',3,.92);
+    // Soft sunbeams.
+    poly([[196,150],[268,196],[228,H]],'#fff4be',null,0,.12);
+    poly([[176,166],[230,222],[172,H]],'#fff8d8',null,0,.10);
+    for(let i=0;i<11;i++) ellipse(190+Math.sin(t*.7+i)*24,195+i*26,2.2,2.2,'#fffdf3',null,0,.35);
+
+    // Framed wall art.
+    roundRect(262,48,110,94,13,'#fff4eb','#bf9b86',3);
+    poly([[296,96],[313,70],[330,96]],'#f1b986','#c78865',2);
+    ellipse(316,107,29,15,'#f8d4ba','#daa788',2);
+    ellipse(300,102,7,7,'#fff3ea',null,0,.55);
+
+    // Built-in shelf niche.
+    roundRect(394,176,176,20,10,'#d5a98f','#9b7566',3);
+    roundRect(406,151,28,45,8,'#f0b1ad','#aa7b74',2);
+    roundRect(440,147,26,49,8,'#f0d27d','#ad8b45',2);
+    roundRect(472,157,18,39,6,'#b5d0a5','#7f9d70',2);
+    ellipse(526,175,18,18,'#f6d4a2','#bb8c5a',2);
+    // Window-seat vibe on left.
+    roundRect(26,floorY-32,88,24,10,'#e8d0bb','#b68d76',3);
+    roundRect(36,floorY-54,68,24,12,'#f9dfc9','#c59c84',3);
+
+    ellipse(300,H*.79,250,54,'#fff0d0','#e8cfba',3,.96);
+    ellipse(300,H*.79,164,24,'#ffffff35',null,0,.7);
+  }
+
+  else if(state.room==='night'){
+    // Deep moody wall overlay.
+    gradientRect(0,0,600,floorY,'#2e3b5a','#4f6289');
+    ctx.fillStyle='#0000001a';ctx.fillRect(0,floorY-58,600,58);
+
+    // Arched moon window.
+    roundRect(40,96,190,176,18,'#102147','#8d7d92',4);
+    ellipse(135,95,95,32,'#102147','#8d7d92',4);
+    ellipse(174,132,22,22,'#f6f0b1',null,0,.98);
+    ellipse(182,126,18,18,'#102147',null,0,.25);
+    for(let i=0;i<14;i++) ellipse(68+i*10,112+(i%4)*26,2.4,2.4,'#fff5d5',null,0,.45+.3*(Math.sin(t*2.2+i)+1)/2);
+    line([[135,96],[135,272]],'#cbd5ff55',3); line([[40,184],[230,184]],'#cbd5ff55',3);
+    // Curtains and sill.
+    poly([[44,98],[76,108+Math.sin(t*1.2)*4],[66,273],[44,273]],'#566487','#38425f',3,.95);
+    poly([[226,98],[194,108-Math.sin(t*1.2)*4],[204,273],[226,273]],'#566487','#38425f',3,.95);
+
+    // Star chart frame.
+    roundRect(255,48,112,96,13,'#f8f1ff','#b39ec6',3);
+    for(let i=0;i<5;i++) ellipse(279+i*15,81+(i%2)*9,4,4,'#ffd86d',null,0,1);
+    line([[279,81],[294,90],[309,81],[324,90],[339,81]],'#8b6d93',3);
+
+    // Warm lamp on the right for premium contrast.
+    roundRect(408,188,152,16,8,'#7b6b85','#5d5368',3);
+    line([[496,188],[496,118]],'#99879c',7);
+    ellipse(496,110,40,28,'#ffe0a4','#ba9672',3);
+    ellipse(496,139,78,58,'#ffd77d',null,0,.14+.07*Math.sin(t*2));
+    // Long floor shadows.
+    poly([[448,floorY],[544,floorY],[575,H],[392,H]],'#1f263711',null,0,.7);
+    poly([[74,floorY],[130,floorY],[82,H],[20,H]],'#1f263711',null,0,.65);
+
+    ellipse(300,H*.79,244,52,'#c9baf3','#958ab4',3,.92);
+    ellipse(300,H*.79,156,22,'#ffffff22',null,0,.55);
+  }
+
+  else if(state.room==='playroom'){
+    // Bright playful upper wall and soft lower padding.
+    gradientRect(0,0,600,floorY,'#ffeecf','#fff8ea');
+    gradientRect(0,floorY-98,600,98,'#ffe0d5','#f7d6c3');
+    for(let x=0;x<600;x+=74) roundRect(x+8,floorY-78,58,56,12,(x/74)%2?'#fbd9a7':'#d8ebff','#d5b9a0',2,.45);
+    // Pennant banner.
+    line([[54,76],[548,76]],'#d2a28f',4);
+    const colors=['#ff9ab0','#ffd777','#8fd2ff','#9fe28f','#c9b3ff'];
+    for(let i=0;i<11;i++) poly([[68+i*43,78],[84+i*43,106+Math.sin(t*2+i)*3],[100+i*43,78]],colors[i%colors.length],'#b88d79',2);
+
+    // Wide bright window.
+    roundRect(34,108,192,152,18,'#bfe7ff','#b58b79',4);
+    ellipse(190,136,22,22,'#fff0c8',null,0,.9);
+    for(let i=0;i<4;i++) ellipse(74+i*30,150+i*7,22,11,'#ffffff',null,0,.42);
+    line([[130,108],[130,260]],'#ffffff99',4); line([[34,184],[226,184]],'#ffffff99',4);
+
+    // Wall decals.
+    for(let i=0;i<6;i++) ellipse(270+i*47,118+(i%2)*18,13,13,colors[i%colors.length],'#caa18e',2,.9);
+    ctx.save();ctx.fillStyle='#ffcf6f';ctx.strokeStyle='#c99b4e';ctx.lineWidth=2;
+    ctx.beginPath();let cx=460,cy=132,r1=14,r2=6;for(let i=0;i<10;i++){const ang=-Math.PI/2+i*Math.PI/5,r=i%2===0?r1:r2,x=cx+Math.cos(ang)*r,y=cy+Math.sin(ang)*r;i?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();
+
+    // Built-in cubbies / toy niches.
+    roundRect(392,170,172,122,18,'#9cc8f0','#719abb',4);
+    for(let row=0;row<2;row++) for(let col=0;col<3;col++) roundRect(406+col*50,184+row*52,40,40,10,'#f7f0e4','#84aed4',2);
+    ellipse(426,204,11,11,'#ffb4c4','#cb788d',2); ellipse(477,206,10,10,'#ffd567','#c9a04e',2); ellipse(526,206,12,8,'#9fe28f','#76a96c',2);
+    roundRect(418,240,28,17,8,'#ffd888','#c7a049',2); roundRect(468,239,20,21,8,'#ff9ab0','#cb6e83',2); roundRect(516,238,24,18,8,'#8fd2ff','#679fc3',2);
+
+    // Puzzle floor mat.
+    for(let i=0;i<4;i++) roundRect(182+i*60,H*.73,70,50,12,colors[(i+1)%colors.length],'#d0b092',3,.85);
+    ellipse(300,H*.81,220,34,'#ffffff22',null,0,.5);
+  }
+
+  else if(state.room==='garden'){
+    gradientRect(0,0,600,floorY,'#d4efd8','#f4fbf1');
+    // Soft leaf-shadow overlay.
+    for(let i=0;i<6;i++) ellipse(70+i*88,138+(i%2)*18,68,24,'#7fb084',null,0,.08);
+
+    // Arched greenhouse window.
+    roundRect(42,102,194,168,18,'#ccebd0','#91b497',4);
+    ellipse(139,102,97,38,'#ccebd0','#91b497',4);
+    for(let i=0;i<5;i++) line([[60+i*39,102],[60+i*39,270]],'#ffffff66',3);
+    line([[42,188],[236,188]],'#ffffff66',3);
+    for(let i=0;i<4;i++) ellipse(86+i*33,148+i*10,24,12,'#ffffff',null,0,.38);
+    // Vines around the window.
+    line([[46,122],[26,170],[40,220],[28,270]],'#6b9e6d',4);
+    line([[232,116],[252,162],[238,218],[246,274]],'#6b9e6d',4);
+    for(let i=0;i<7;i++){ellipse(32+Math.sin(i)*8,132+i*20,13,8,'#86be78','#66995c',2);ellipse(244+Math.cos(i)*8,127+i*21,13,8,'#86be78','#66995c',2);}    
+
+    // Hanging planters and wall trellis.
+    line([[392,52],[392,96]],'#9e8b79',3); roundRect(364,96,56,24,10,'#d2a186','#9f745e',3); for(let i=0;i<5;i++)ellipse(376+i*10,90+Math.sin(t*1.4+i)*3,14,10,'#77b76e','#5d9358',2);
+    line([[500,42],[500,98]],'#9e8b79',3); roundRect(470,98,60,26,10,'#d2a186','#9f745e',3); for(let i=0;i<6;i++)ellipse(478+i*9,91+Math.cos(t*1.5+i)*3,14,10,'#77b76e','#5d9358',2);
+    for(let x=278;x<566;x+=56){line([[x,156],[x,276]],'#b5c6a7',2,.45);} for(let y=168;y<276;y+=28){line([[278,y],[560,y]],'#b5c6a7',2,.35);}    
+    // Small built-in ledge with pots.
+    roundRect(292,186,250,18,9,'#b2c89c','#8ba274',3);
+    roundRect(308,156,30,30,8,'#d9a682','#a7765d',2); roundRect(355,148,34,38,8,'#c5b17d','#99895b',2); roundRect(410,158,28,28,8,'#d9a682','#a7765d',2);
+    for(let i=0;i<5;i++)ellipse(323+Math.sin(i)*6,149-i*2,13,10,'#77b76e','#5d9358',2);
+    for(let i=0;i<5;i++)ellipse(372+Math.sin(i)*7,139-i*3,14,11,'#7fbe73','#5f9758',2);
+    for(let i=0;i<4;i++)ellipse(424+Math.cos(i)*6,150-i*3,12,9,'#77b76e','#5d9358',2);
+    // Sun shafts and floating motes.
+    poly([[176,126],[250,180],[210,H]],'#fff7cc',null,0,.12);
+    poly([[124,146],[198,220],[130,H]],'#fffef0',null,0,.09);
+    for(let i=0;i<10;i++) ellipse(180+Math.sin(t*.9+i)*28,184+i*28,2.2,2.2,'#faffef',null,0,.32);
+
+    ellipse(300,H*.79,248,50,'#d8f1c3','#bdd7a8',3,.96);
+    for(let i=0;i<9;i++) ellipse(196+i*26,H*.79+Math.sin(i)*4,10,5,'#ffffff1c',null,0,.7);
+  }
+
+  // Subtle floorboard / tile detailing so the room never feels flat.
+  for(let i=1;i<6;i++) line([[0,floorY+i*(H-floorY)/6],[600,floorY+i*(H-floorY)/6]],'#8b695511',2);
+}
+
+function drawAtmosphere(t){
+  ctx.save();
+  const H=roomH, night=state.room==='night';
+  // A soft pool of window light unifies the foreground with the room.
+  const glow=ctx.createRadialGradient(190,H*.56,10,260,H*.6,380);
+  glow.addColorStop(0,night?'#d4dbff16':'#fff9dc30');
+  glow.addColorStop(1,'#fff9dc00');ctx.fillStyle=glow;ctx.fillRect(0,0,600,H);
+  const shade=ctx.createLinearGradient(0,0,600,0);
+  shade.addColorStop(0,'#594b3710');shade.addColorStop(.2,'#594b3700');
+  shade.addColorStop(.8,'#594b3700');shade.addColorStop(1,'#594b3710');
+  ctx.fillStyle=shade;ctx.fillRect(0,0,600,H);
+  // Delicate stitching along the rug, beneath the kitten.
+  if(state.room!=='playroom'){
+    ctx.beginPath();ctx.ellipse(300,H*.79,228,43,0,0,Math.PI*2);
+    ctx.setLineDash([3,7]);ctx.strokeStyle=night?'#fff9ef40':'#c7a48055';
+    ctx.lineWidth=1.5;ctx.stroke();ctx.setLineDash([]);
+  }
+  // Diffuse contact shadow gives the original drawing a little more depth.
+  const shadow=ctx.createRadialGradient(300,H*.78,8,300,H*.78,110);
+  shadow.addColorStop(0,'#765b4521');shadow.addColorStop(1,'#765b4500');
+  ctx.save();ctx.translate(0,H*.78);ctx.scale(1,.25);ctx.translate(0,-H*.78);
+  ctx.fillStyle=shadow;ctx.fillRect(180,H*.78-115,240,230);ctx.restore();
+  ctx.restore();
+}
+
+// Each owned item has independent per-room coordinates and can coexist with the rest.
+function drawPlacedItem(it,t){
+ const {id}=it,floor=roomH*it.y;
+ ctx.save();ctx.translate(it.x,floor);
+ if(id==='pillow'){
+  ellipse(0,15,67,13,'#00000018',null,0,.46);
+  roundRect(-66,-13,132,36,18,'#ef97bd','#ab688b',3);
+  ellipse(0,-3,30,7,'#ffdbe8',null,0,.72);
+ }
+ if(id==='plant'){
+  ellipse(0,16,43,9,'#00000014',null,0,.48);
+  roundRect(-28,-58,56,74,11,'#d89b78','#a57358',3);
+  for(let i=0;i<8;i++){const a=i*Math.PI*2/8;ellipse(Math.cos(a)*34+Math.sin(t*1.4+i)*2,-66+Math.sin(a)*25,23,12,'#6aa66e','#528457',2);}
+ }
+ if(id==='lamp'){
+  ellipse(0,16,54,10,'#00000013',null,0,.5);
+  roundRect(-40,6,80,12,6,'#b78f7d','#8b6d63',2);
+  line([[0,6],[0,-78]],'#987e73',7);
+  ellipse(0,-87,47,33,'#ffdb91','#b9916b',3);
+  ellipse(0,-53,62,45,'#ffdc87',null,0,.12+.06*Math.sin(t*2));
+ }
+ if(id==='house'){
+  ellipse(0,19,90,13,'#00000016',null,0,.45);
+  roundRect(-81,-101,162,114,19,'#d5a281','#916b5d',4);
+  poly([[-89,-95],[0,-165],[89,-95]],'#edb989','#916b5d',5);
+  ellipse(0,-42,44,46,'#725046','#5f433d',4);
+  ellipse(0,-3,30,9,'#e6bc9e',null,0,1);
+ }
+ if(id==='picture'){
+  roundRect(-56,-43,112,86,12,'#f3d9b7','#a67b5c',6);
+  roundRect(-45,-32,90,64,7,'#b6d7d2','#d5ac8d',2);
+  ellipse(20,-10,15,15,'#ffe0a0',null,0,.95);
+  poly([[-42,31],[-11,-10],[13,16],[29,0],[44,31]],'#8bb38a',null,0,1);
+ }
+ if(id==='garland'){
+  line([[-80,-11],[-30,10],[30,10],[80,-11]],'#bca189',3);
+  for(let i=0;i<9;i++){const x=-76+i*19, y=-10+Math.sin(i/8*Math.PI)*21;
+   ellipse(x,y,5,6,['#ffe1a2','#eeb3bd','#b5e1d4'][i%3],null,0,.65+.25*Math.sin(t*2.4+i));}
+ }
+ if(placement.active && placement.selected===id){
+  const rx=WALL_ITEMS.has(id)?88:id==='house'?99:78,ry=WALL_ITEMS.has(id)?58:25;
+  ctx.save();ctx.setLineDash([7,5]);ctx.lineWidth=3;ctx.strokeStyle='#71a893';ctx.beginPath();ctx.ellipse(0,WALL_ITEMS.has(id)?0:15,rx,ry,0,0,Math.PI*2);ctx.stroke();ctx.restore();
+ }
+ ctx.restore();
+}
+function drawPurchasedDecor(t){
+ for(const p of placementsFor().filter(p=>WALL_ITEMS.has(p.id)))drawPlacedItem(p,t);
+ for(const p of placementsFor().filter(p=>!WALL_ITEMS.has(p.id)).sort((a,b)=>a.y-b.y))drawPlacedItem(p,t);
+ if(placement.active && placement.pending){const mouse=placement.preview||{x:300,y:WALL_ITEMS.has(placement.pending)?.31:.78};ctx.save();ctx.globalAlpha=.52;drawPlacedItem({id:placement.pending,...mouse},t);ctx.restore();}
+}
+function drawBowl(x,y){ellipse(x,y+10,66,18,'#bf8078','#956057',3);ellipse(x,y,50,12,'#fff4df','#b17f73',2);for(let i=0;i<7;i++)ellipse(x-26+i*9,y-2+Math.sin(i)*2,4,3,'#a57145',null,0,1);}
+function drawYarn(x,y,rot){ctx.save();ctx.translate(x,y);ctx.rotate(rot);ellipse(0,0,30,30,'#d97dad','#8e5a80',3);for(let i=0;i<5;i++)line([[-18,-10+i*8],[18,10-i*8]],'#efb4cf',2);line([[10,-25],[26,-38],[38,-34]],'#efb4cf',3);ctx.restore();}
+
+function drawAccessory(kind,c){
+  if(kind==='none')return;
+  if(kind==='bow'){
+    ellipse(-40,-78,10,8,'#ff8fb0',c.stroke,2); ellipse(-17,-78,10,8,'#ff8fb0',c.stroke,2); ellipse(-28,-78,6,6,'#f7d9e0',c.stroke,2);
+  } else if(kind==='star'){
+    ctx.save(); ctx.fillStyle='#ffd45b'; ctx.strokeStyle=c.stroke; ctx.lineWidth=2; ctx.beginPath(); const cx=32, cy=-78, r1=11, r2=5; for(let i=0;i<10;i++){ const ang=-Math.PI/2 + i*Math.PI/5; const r=i%2===0?r1:r2; const x=cx+Math.cos(ang)*r, y=cy+Math.sin(ang)*r; i?ctx.lineTo(x,y):ctx.moveTo(x,y);} ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
+  } else if(kind==='scarf'){
+    line([[-58,16],[-8,24],[56,16]],'#cc7c54',14); line([[10,23],[25,52]],'#cc7c54',11); line([[26,52],[8,66]],'#cc7c54',11);
+  }
+}
+
+function actionProgress(){
+  // Preserve each animation's choreography while playing all four actions in exactly 3 seconds.
+  const oldLengths={feed:4.5,pet:3.8,play:5.2,sleep:8.5,wash:3.8};
+  return Math.max(0,(performance.now()-state.started)/1000)*(oldLengths[state.action]||3)/3;
+}
+function pulse(x){return Math.max(0,Math.min(1,x));}
+function drawKitten(t){
+  const stage=ageStage();
+  ctx.save();
+  ctx.translate(490,308);
+  ctx.scale(stage.scale,stage.scale);
+  ctx.translate(-490,-308);
+  drawKittenBase(t);
+  ctx.restore();
+}
+function drawKittenBase(t){
+  const c=FURS[state.custom.fur], collar=COLLARS[state.custom.collar];
+  const a=state.action,e=actionProgress();
+  const idlePurr=a==='idle'&&state.idleEvent==='purr';
+  const idleMeow=a==='idle'&&state.idleEvent==='meow';
+  const idlePhase=(performance.now()-state.idleStarted)/1000;
+  const breathing=Math.sin(t*2.3)*2.5+(idlePurr?Math.sin(t*16)*3:0);
+  const active=a==='feed'||a==='play'||a==='pet';
+  const tailWave=Math.sin(t*(a==='play'?10:3.5))*(a==='play'?18:7)+(idleMeow?Math.sin(t*7)*9:0)+(a==='idle'&&state.life.mode==='greet'?Math.sin(t*13)*15:0);
+  const feedEase=a==='feed'?Math.sin(Math.PI*pulse(e/.58)/2):0;
+  const feedDown=a==='feed'? (e<.75?Math.sin(Math.PI*pulse(e/.75)/2): e<3.8? 1:1-pulse((e-3.8)/.65))*75:0;
+  const petLift=a==='pet'? Math.sin(Math.PI*pulse(e/.6)/2)*12:0;
+  // During play, move the entire kitten after the yarn instead of pivoting a static sprite.
+  const chase=a==='play' ? Math.sin(Math.min(e/5.0,1)*Math.PI*1.1)*110 : 0;
+  const bounce=a==='play' ? -Math.abs(Math.sin(e*14))*13 : (a==='idle'&&state.life.walking?-Math.abs(Math.sin(t*8))*3:0);
+  const x=490+chase+(a==='feed'?55*Math.sin(Math.PI*pulse(e/.75)/2):0);
+  const y=292+breathing+bounce+(a==='pet'?-petLift/3:0)-(idleMeow?Math.sin(Math.PI*Math.min(1,idlePhase/1.9))*7:0)-(a==='idle'&&state.life.mode==='greet'?Math.abs(Math.sin(idlePhase*6))*8:0);
+  const sleepMode=(a==='sleep' && e>.48)||(a==='idle'&&state.life.mode==='nap');
+  if(sleepMode){
+    // A separate sleeping drawing is swapped in; never distort or squash the awake image.
+    const breath=Math.sin(t*2.2)*2.4;
+    const zPhase=(e%1.8)/1.8;
+    ctx.save();ctx.translate(500,312);ctx.rotate(-.09);
+    ellipse(0,20,116+breath,69+breath*.6,c.body,c.stroke,4);
+    ellipse(25,36,67,32,c.inner,null,0,.72);
+    ctx.beginPath();ctx.arc(9,15,80,-.65,1.4);ctx.strokeStyle=c.tail;ctx.lineWidth=21;ctx.lineCap='round';ctx.stroke();
+    ellipse(-43,3,61,58,c.body,c.stroke,4);
+    poly([[-81,-33],[-78,-85],[-39,-53]],c.body,c.stroke,4);
+    poly([[0,-42],[18,-86],[25,-24]],c.body,c.stroke,4);
+    poly([[-73,-39],[-69,-67],[-47,-49]],c.ear,null,0);
+    ellipse(-58,6,24,16,c.inner,null,0,.9);
+    line([[-69,-2],[-50,2],[-34,-2]],'#684d44',3);
+    line([[-8,-2],[8,1],[23,-1]],'#684d44',3);
+    poly([[-23,19],[-10,20],[-17,28]],'#b96c6f',null,0);
+    ctx.beginPath();ctx.arc(-31,18,49,.50,1.8);ctx.lineWidth=11;ctx.strokeStyle=collar;ctx.stroke();
+    ellipse(-7,58,9,10,'#f3d77d','#966b38',2);
+    // Accessories remain part of the sleeping pose too.
+    if(state.custom.accessory==='bow'){
+      ellipse(-76,-54,11,8,'#ff8fb0',c.stroke,2);ellipse(-54,-53,11,8,'#ff8fb0',c.stroke,2);
+    } else if(state.custom.accessory==='star'){
+      ctx.fillStyle='#ffd45b';ctx.font='20px system-ui';ctx.fillText('★',-52,-59);
+    } else if(state.custom.accessory==='scarf'){
+      line([[-67,38],[-25,54],[3,46]],'#cc7c54',10);
+    }
+    ctx.restore();
+    // Sleep particles are soft, not attached to a displaced sprite.
+    ctx.save();ctx.globalAlpha=.35+.5*(1-zPhase);ctx.font='25px system-ui';ctx.fillText('Z',622,178-zPhase*40);ctx.font='17px system-ui';ctx.fillText('z',649,149-zPhase*30);ctx.restore();
+    return;
+  }
+  ctx.save();ctx.translate(x,y);
+  const tilt=a==='play'?Math.sin(e*11)*.07:a==='pet'?-.04*Math.sin(Math.min(e,2)*2):0;
+  ctx.rotate(tilt);
+  ellipse(0,96-bounce,110,17,'#00000016',null,0,.63);
+  ctx.save();ctx.translate(92,14);ctx.rotate(tailWave*Math.PI/180);
+  ctx.beginPath();ctx.moveTo(0,12);ctx.quadraticCurveTo(28,-26,58,-34);ctx.quadraticCurveTo(87,-40,84,-10);ctx.strokeStyle=c.tail;ctx.lineWidth=22;ctx.lineCap='round';ctx.stroke();ctx.restore();
+  ellipse(0,32,84,68,c.body,c.stroke,4);ellipse(6,46,44,46,c.inner,null,0,.78);
+  // Animated forepaws. They actually step when chasing the yarn.
+  const stride=a==='play'?Math.sin(e*15)*12:(a==='idle'&&state.life.walking?Math.sin(t*12)*6:0);
+  ellipse(-50,76+stride,27,18,c.body,c.stroke,4);
+  ellipse(48,78-stride,27,18,c.body,c.stroke,4);
+  ellipse(-52,82+stride,12,7,c.inner,null,0,.85);
+  ellipse(47,82-stride,12,7,c.inner,null,0,.85);
+  // The collar and bell share the kitten's full-body transformation: no drifting.
+  ctx.beginPath();ctx.moveTo(-58,8);ctx.quadraticCurveTo(0,28,58,8);ctx.lineWidth=14;ctx.strokeStyle=collar;ctx.stroke();ellipse(0,26,10,11,'#f3d77d','#966b38',2);
+  ctx.save();ctx.translate(0,-42+feedDown-petLift*.35);ctx.scale(1-ageIndex()*.027,1-ageIndex()*.018);
+  ctx.rotate((a==='feed'?-.10:a==='pet'?-.05:0)+ (a==='play'?Math.sin(e*13)*.05:0));
+  poly([[-64,-46],[-58,-121],[-5,-83]],c.body,c.stroke,4);
+  poly([[64,-46],[59,-121],[6,-83]],c.body,c.stroke,4);
+  poly([[-50,-61],[-48,-106],[-21,-80]],c.ear,null,0);
+  poly([[49,-61],[47,-106],[20,-80]],c.ear,null,0);
+  ellipse(0,-12,78,68,c.body,c.stroke,4);
+  ellipse(0,4,36,30,c.inner,null,0,.85);
+  drawAccessory(state.custom.accessory,c);
+  // As the cat grows, subtle forehead markings become more defined.
+  if(ageIndex()>=1){
+    const lines=ageIndex()+1;
+    for(let i=0;i<lines;i++){
+      const ox=(i-(lines-1)/2)*13;
+      line([[ox-5,-63],[ox,-57],[ox+4,-65]],c.tail,2.5,.58);
+    }
+  }
+  const blinkClosed=state.eyesClosed||idlePurr||(a==='idle'&&['nap','groom'].includes(state.life.mode))||a==='pet'||a==='feed'&&e>.7&&e<3.7;
+  if(blinkClosed){line([[-34,-20],[-20,-16],[-8,-20]],'#5e4340',4);line([[8,-20],[20,-16],[34,-20]],'#5e4340',4);}
+  else {ellipse(-22,-19,15,19,'#2d2a30',null,0,1);ellipse(22,-19,15,19,'#2d2a30',null,0,1);ellipse(-26,-24,5,7,'white',null,0,.95);ellipse(18,-24,5,7,'white',null,0,.95);ellipse(-20,-18,6,8,c.eye,null,0,.65);ellipse(24,-18,6,8,c.eye,null,0,.65);}
+  poly([[-10,3],[10,3],[0,12]],'#c27b7a',null,0);
+  const mouthOpen=a==='feed'?Math.max(0,Math.sin(e*17))*8:a==='play'?Math.abs(Math.sin(e*12))*5:idleMeow?Math.sin(Math.PI*Math.min(1,idlePhase/1.9))*12:0;
+  line([[0,12],[-10,18+mouthOpen],[-20,16+mouthOpen]],'#694b45',2.7);
+  line([[0,12],[10,18+mouthOpen],[20,16+mouthOpen]],'#694b45',2.7);
+  if(a==='feed'&&e>.8&&e<3.5) ellipse(0,21,5,3,'#e4878d',null,0,.9);
+  if(a==='play')ellipse(0,20,6,4,'#ff9ba8',null,0,.9);
+  for(const side of [-1,1]){
+    line([[side*23,5],[side*75,-2]],'#846257',2.1);
+    line([[side*22,13],[side*79,17]],'#846257',2.1);
+    line([[side*21,21],[side*72,32]],'#846257',2.1);
+  }
+  ctx.restore();ctx.restore();
+}
+function drawPattingHand(e){
+  // Human hand turned palm-first toward the kitten, not the nail-side.
+  // Same position as the previous petting animation, with short wrist motion.
+  const swing=.5-.5*Math.cos(e*7);
+  const x=552-19*swing,y=191+10*swing;
+  ctx.save();ctx.translate(x,y);ctx.rotate(-.10+Math.sin(e*7)*.035);
+  ctx.lineJoin='round';ctx.lineCap='round';
+  const skin='#f5cbaa',light='#ffe1c7',shadow='#dba381',edge='#a96f5a';
+  // Forearm enters from the right.
+  ctx.beginPath();ctx.moveTo(160,-28);
+  ctx.bezierCurveTo(132,-28,102,-22,77,-21);
+  ctx.lineTo(77,22);
+  ctx.bezierCurveTo(101,16,130,17,160,15);
+  ctx.closePath();ctx.fillStyle=skin;ctx.fill();ctx.lineWidth=2.3;ctx.strokeStyle=edge;ctx.stroke();
+  // Four curved separated fingers; tips are soft pads, with no fingernails.
+  const fingers=[
+    [[54,-13],[18,-27],[-19,-20],12.2],
+    [[54,-4],[14,-10],[-32,-4],13.8],
+    [[56,6],[19,12],[-24,15],13.2],
+    [[60,16],[34,27],[-6,31],11.4]
+  ];
+  for(const [from,control,to,width] of fingers){
+    ctx.beginPath();ctx.moveTo(...from);ctx.quadraticCurveTo(...control,...to);
+    ctx.strokeStyle=edge;ctx.lineWidth=width+3.4;ctx.stroke();
+    ctx.beginPath();ctx.moveTo(...from);ctx.quadraticCurveTo(...control,...to);
+    ctx.strokeStyle=skin;ctx.lineWidth=width;ctx.stroke();
+    ellipse(to[0]+2,to[1],width*.42,width*.4,light,null,0,.75);
+  }
+  // Broad inner palm, rounded at the knuckles.
+  ctx.beginPath();ctx.moveTo(90,-20);
+  ctx.bezierCurveTo(67,-30,39,-23,28,-7);
+  ctx.bezierCurveTo(18,8,30,31,51,33);
+  ctx.bezierCurveTo(74,33,93,16,96,0);
+  ctx.bezierCurveTo(97,-8,94,-16,90,-20);ctx.closePath();
+  const gradient=ctx.createLinearGradient(42,-18,80,30);
+  gradient.addColorStop(0,light);gradient.addColorStop(.56,skin);gradient.addColorStop(1,shadow);
+  ctx.fillStyle=gradient;ctx.fill();ctx.lineWidth=2.3;ctx.strokeStyle=edge;ctx.stroke();
+  // Thumb wraps below palm, facing inward toward the kitten.
+  ctx.beginPath();ctx.moveTo(77,20);
+  ctx.bezierCurveTo(64,30,56,43,39,46);
+  ctx.bezierCurveTo(29,48,25,42,29,35);
+  ctx.bezierCurveTo(34,28,43,25,49,18);
+  ctx.closePath();ctx.fillStyle=skin;ctx.fill();ctx.strokeStyle=edge;ctx.stroke();
+  // Palm life/heart creases and soft finger folds make the palmar side clear.
+  ctx.strokeStyle='#ca9076';ctx.lineWidth=1.6;
+  ctx.beginPath();ctx.moveTo(44,-7);ctx.bezierCurveTo(53,-13,72,-11,79,-4);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(40,8);ctx.bezierCurveTo(53,15,66,16,77,9);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(49,25);ctx.quadraticCurveTo(61,22,66,18);ctx.stroke();
+  for(const [cx,cy] of [[-3,-22],[-11,-5],[-5,15],[17,29]]){
+    ctx.beginPath();ctx.moveTo(cx-3,cy+2);ctx.quadraticCurveTo(cx,cy+4,cx+4,cy+2);ctx.stroke();
+  }
+  ctx.restore();
+}
+function particles(t){
+  const a=state.action,e=actionProgress();
+  if(a==='idle'&&state.idleEvent==='purr'){
+    ctx.save();ctx.globalAlpha=.6+.25*Math.sin(t*7);ctx.fillStyle='#bb7898';ctx.font='22px system-ui';ctx.fillText('♡',590,235+Math.sin(t*3)*4);ctx.restore();
+  }
+  if(a==='wash'){
+    // Light bubbly bath overlay, while the cat remains in the room.
+    ellipse(490,372,123,22,'#aedfe4',null,0,.48);
+    for(let i=0;i<13;i++){
+      const phase=(e*.54+i*.19)%1;
+      const x=421+(i%7)*25+Math.sin(e*2+i)*6;
+      const y=339-(phase*115);
+      ellipse(x,y,6+(i%3)*2,6+(i%3)*2,'#eaffff','#87ceda',1.5,.72*(1-phase));
+    }
+    ctx.save();ctx.fillStyle='#f8ffff';ctx.font='23px system-ui';ctx.globalAlpha=.75;ctx.fillText('✧',552,190);ctx.restore();
+  }
+  if(a==='pet'){
+    drawPattingHand(e);
+    for(let i=0;i<7;i++){
+      const ph=(e*1.4+i*.23)%1;
+      const x=395+i*28+Math.sin(e*2.2+i)*12,y=190-ph*92;
+      ctx.save();ctx.globalAlpha=Math.pow(1-ph,1.25);ctx.font=(21+ph*12)+'px system-ui';ctx.fillText(i%2?'✨':'💗',x,y);ctx.restore();
+    }
+  }
+  if(a==='play'){
+    // The rolling yarn changes direction while the kitten physically runs and pounces.
+    const p=pulse(e/5.0);
+    const x=290+360*p+Math.sin(e*3)*32;
+    const y=350 - Math.abs(Math.sin(e*10))* (e>3.8?11:5);
+    ctx.save();ctx.globalAlpha=.18;ellipse(x,368,36,9,'#6b4c65',null,0,.18);ctx.restore();
+    drawYarn(x,y,e*7);
+    for(let i=0;i<5;i++){
+      const trailX=x-50-i*17, trailY=350+Math.sin(e*3+i)*7;
+      ellipse(trailX,trailY,3+i*.4,3+i*.4,'#e6b2ca',null,0,.42-i*.06);
+    }
+    if(e>3.6&&e<4.9){ctx.save();ctx.font='31px system-ui';ctx.globalAlpha=.8;ctx.fillText('✨',x+34,y-28);ctx.restore();}
+  }
+  if(a==='feed'){
+    const bowlX=585; // Locked to the room floor; never follows the kitten or floats.
+    ellipse(bowlX,386,68,10,'#72544a',null,0,.17);
+    drawBowl(bowlX,367);
+    for(let i=0;i<5;i++){
+      const ph=(e*3.2+i*.17)%1;
+      const x=bowlX-35+i*18,y=347-ph*17;
+      ellipse(x,y,3,3,'#bd8256',null,0,e>.7&&e<3.5?1-ph:0);
+    }
+    if(e>3.4){ctx.save();ctx.globalAlpha=Math.min(1,(e-3.4));ctx.font='21px system-ui';ctx.fillText('♥',bowlX+65,323-(e-3.4)*12);ctx.restore();}
+  }
+  if(a==='sleep'&&e<.48){
+    ctx.save();ctx.globalAlpha=.6;ctx.font='24px system-ui';ctx.fillText('☾',602,161);ctx.restore();
+  }
+}
+function drawLifeEffects(t){
+ const l=state.life,dt=(performance.now()-l.started)/1000;
+ const x=490+l.x,y=292+l.y;
+ if(l.mode==='groom'){
+   ctx.save();ctx.translate(x,y);ctx.rotate(Math.sin(dt*7)*.06);
+   // A lifted paw brushes the cheek in two little strokes.
+   const pawY=-27+Math.sin(dt*9)*12;
+   ellipse(-60,pawY,18,13,FURS[state.custom.fur].body,FURS[state.custom.fur].stroke,2);
+   ellipse(-63,pawY-1,8,5,FURS[state.custom.fur].inner,null,0,.8);
+   ctx.restore();
+ }
+ if(l.mode==='greet'){
+   const alpha=Math.max(0,1-dt/3);
+   ctx.save();ctx.globalAlpha=alpha;ctx.font='20px system-ui';
+   ctx.fillText('♥',x-49,170-28*(dt%1));
+   ctx.fillText('♥',x+42,163-22*((dt+.35)%1));ctx.restore();
+ }
+ if(l.mode==='window'){
+   ctx.save();ctx.globalAlpha=.65+.2*Math.sin(t*2);ctx.font='21px system-ui';ctx.fillText('✧',x-65,182);ctx.restore();
+ }
+ if(l.mode==='nap'){
+   ctx.save();ctx.globalAlpha=.45;ctx.fillStyle='#a18dbe';ctx.font='22px system-ui';ctx.fillText('z',x+90,161-10*((dt*.6)%1));ctx.restore();
+ }
+ if(l.mode==='decor'&&placementsFor().length){
+   ctx.save();ctx.globalAlpha=.7;ctx.font='20px system-ui';ctx.fillText('?',x-100,204);ctx.restore();
+ }
+}
+
+function updateBlink(now){ const dt=(now-state._prevTime)/1000; state.blinkTimer+=dt; if(!state.eyesClosed&&state.blinkTimer>state.nextBlink){ state.eyesClosed=true; state.blinkTimer=0; state.nextBlink=2.2+Math.random()*2.8; } else if(state.eyesClosed&&state.blinkTimer>.12){ state.eyesClosed=false; state.blinkTimer=0; } state._prevTime=now; }
+function draw(now){
+  const t=now/1000, width=canvas.width, height=canvas.height;
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.clearRect(0,0,width,height);
+  // Exact uniform scaling, never crop the room on mobile.
+  const scale=Math.min(width/600,height/roomH), ox=(width-600*scale)/2, oy=(height-roomH*scale)/2;
+  ctx.setTransform(scale,0,0,scale,ox,oy);
+  const r=ROOMS[state.room];
+  gradientRect(0,0,600,roomH,r.wallTop,r.floor2);
+  drawRoomPortrait(t);
+  drawAtmosphere(t);
+  drawPurchasedDecor(t);
+  // Existing shop objects and pet art are positioned in a centered foreground layer.
+  // They keep their own correct proportions and remain inside the portrait scene.
+  const petScale=Math.min(1.08,Math.max(.82,roomH/730));
+  const petY=roomH*.77;
+  ctx.save();
+  ctx.translate(300,petY);
+  ctx.scale(petScale,petScale);
+  ctx.translate(-490,-372);
+
+  // Autonomous motion is applied to the same kitten drawing, no scaled sprites.
+  const l=state.life;
+  const returning=state.action!=='idle';
+  const phase=returning?Math.min(1,(performance.now()-state.started)/620):0;
+  const returnFactor=returning?1-easeInOut(phase):1;
+  ctx.save();
+  ctx.translate((returning?l.actionFromX:l.x)*returnFactor,
+    (returning?l.actionFromY:l.y)*returnFactor);
+  drawKitten(t);
+  ctx.restore();
+  // Original action effects are kept aligned with their original coordinates.
+  particles(t);
+  // Dedicated gentle behavior details, away from the actionable UI.
+  if(state.action==='idle')drawLifeEffects(t);
+  ctx.restore();
+}
+
+const actionTimerEl=document.getElementById('actionTimer');
+const actionSecondsEl=document.getElementById('actionSeconds');
+const actionFillEl=document.getElementById('actionFill');
+const actionTrackEl=document.getElementById('actionTrack');
+const actionLabelEl=document.getElementById('actionLabel');
+const actionButtons=[...document.querySelectorAll('[data-act]')];
+const actionNames={feed:'🥣 Кормление',pet:'🤍 Поглаживание',play:'🧶 Игра',sleep:'🌙 Сон',wash:'🫧 Купание'};
+function syncActionTimer(now){
+  const running=state.action!=='idle';
+  actionTimerEl.hidden=!running;
+  for(const b of actionButtons)b.disabled=running;
+  if(!running)return;
+  const remaining=Math.max(0,(state.duration-(now-state.started))/1000);
+  const fraction=Math.min(1,Math.max(0,1-remaining/3));
+  actionLabelEl.textContent=actionNames[state.action]||'Действие';
+  actionSecondsEl.textContent=remaining.toFixed(1)+' с';
+  actionFillEl.style.width=(fraction*100)+'%';
+  actionTrackEl.setAttribute('aria-valuenow',String(Math.round(fraction*100)));
+}
+
+function startAction(a){
+  if(state.action!=='idle')return;
+  const life=state.life;life.actionFromX=life.x;life.actionFromY=life.y;
+  life.mode='idle';life.targetX=0;life.x=0;life.y=0;life.next=performance.now()+6000;
+  state.action=a; state.started=performance.now(); state.duration=3000; state.idleLast=state.started;state.idleEvent=null;state.idleNext=8000+Math.random()*6500;syncActionTimer(performance.now());
+  const badge=document.getElementById('lifeBadge');if(badge)badge.hidden=true;
+  if(a==='feed'){ state.stats.food=clamp(state.stats.food+23,0,100); state.stats.happy=clamp(state.stats.happy+4,0,100); setBubble(`${state.custom.name} довольно урчит над миской 🥣`); playSound('feed'); }
+  if(a==='pet'){ state.stats.happy=clamp(state.stats.happy+18,0,100); state.stats.energy=clamp(state.stats.energy+4,0,100); setBubble(`Муррр... ${state.custom.name} любит ласку 💗`); playSound('pet'); }
+  if(a==='play'){ state.stats.happy=clamp(state.stats.happy+24,0,100); state.stats.energy=clamp(state.stats.energy-14,0,100); state.stats.food=clamp(state.stats.food-3,0,100); setBubble(`${state.custom.name} гоняет клубок по полу! 🧶`); playSound('play'); }
+  if(a==='sleep'){ state.stats.energy=clamp(state.stats.energy+28,0,100); state.stats.happy=clamp(state.stats.happy+6,0,100); setBubble(`${state.custom.name} сворачивается клубочком 🌙`); playSound('sleep'); }
+  if(a==='wash'){ state.stats.clean=clamp(state.stats.clean+28,0,100); state.stats.happy=clamp(state.stats.happy+3,0,100); setBubble(`${state.custom.name} принимает ванну! 🫧`); playSound('pet'); }
+
+  setBars();store();
+}
+
+for(const btn of document.querySelectorAll('[data-act]')) btn.addEventListener('click',()=>startAction(btn.dataset.act));
+for(const btn of document.querySelectorAll('[data-room]')) btn.addEventListener('click',()=>{
+ const room=btn.dataset.room;
+ if(!state.roomOwned.includes(room)){
+  setBubble(`${ROOM_TITLES[room]} закрыта 🔒. Купить за ${ROOM_PRICES[room]} 🪙 можно в магазине.`);
+  const notice=document.getElementById('customNotice');
+  if(notice){notice.textContent=`🔒 ${ROOM_TITLES[room]} ещё не куплена. Открой «Магазин», чтобы приобрести комнату за ${ROOM_PRICES[room]} 🪙.`;notice.hidden=false;}
+  playSound('meow');return;
+ }
+ if(state.room!==room){finishPlacement();state.room=room;playSound('room');updateQuests('room');switchMusic();}
+ renderRoomButtons();store();
+});
+for(const btn of document.querySelectorAll('[data-fur]')) btn.addEventListener('click',()=>{document.querySelectorAll('[data-fur]').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); state.custom.fur=btn.dataset.fur; setBubble(`Новый окрас для ${state.custom.name}!`); playSound('room');store();});
+for(const btn of document.querySelectorAll('[data-collar]')) btn.addEventListener('click',()=>{document.querySelectorAll('[data-collar]').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); state.custom.collar=btn.dataset.collar; setBubble(`Подобрали новый ошейник ✨`); playSound('room');store();});
+for(const btn of document.querySelectorAll('[data-accessory]')) btn.addEventListener('click',()=>{document.querySelectorAll('[data-accessory]').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); state.custom.accessory=btn.dataset.accessory; setBubble(`${state.custom.name} примеряет аксессуар!`); playSound('room');store();});
+nameInput.addEventListener('input',()=>{state.custom.name=nameInput.value.trim()||'Пушок';store();});
+nameInput.addEventListener('change',()=>{setBubble(`Теперь котёнка зовут ${state.custom.name}!`); playSound('meow');store();});
+
+document.getElementById('newQuests').addEventListener('click',()=>{if(Date.now()<state.questRefreshAt){updateQuestCooldown();return;}createQuestSet();setBubble('Новый набор мини-квестов готов! Следующий через 10 минут.');playSound('quest');});
+soundBtn.addEventListener('click',()=>{state.sound=!state.sound; soundBtn.textContent=state.sound?'🔊 Звук: ВКЛ':'🔈 Звук: ВЫКЛ'; soundBtn.classList.toggle('sound-on',state.sound); soundBtn.classList.toggle('sound-off',!state.sound); if(state.sound){playSound('meow');startMusic();}else stopMusic();store();});
+document.getElementById('reset').addEventListener('click',()=>{
+  finishPlacement();
+  state.action='idle'; syncActionTimer(performance.now()); state.room='cozy'; state.stats={food:68,happy:73,energy:80,clean:80,bond:10}; state.custom={name:'Пушок',fur:'ginger',collar:'rose',accessory:'none'}; state.stars=0; state.questSetsDone=0; state.questSetAwarded=false;state.coins=40;state.xp=0;state.totalCare=0;state.owned=[];state.equipped=null;state.placements={cozy:[],night:[],playroom:[],garden:[]};state.roomOwned=['cozy'];state.idleLast=performance.now();state.idleEvent=null;state.life={mode:'idle',x:0,y:0,targetX:0,until:0,walking:false,started:performance.now(),next:performance.now()+3600,actionFromX:0,actionFromY:0,greetCooldown:0,lastSeen:Date.now()};stopMusic();setBars(); createQuestSet(); setBubble('Привет! Я уже жду внимания 💗');
+  nameInput.value='Пушок';progressUI();renderRoomButtons();store();
+  [['room','cozy'],['fur','ginger'],['collar','rose'],['accessory','none']].forEach(([type,val])=>document.querySelectorAll(`[data-${type}]`).forEach(b=>b.classList.toggle('active',b.dataset[type]===val)));
+});
+
+
+document.getElementById('testGrow').addEventListener('click',()=>{
+  const prev=ageIndex();state.xp+=500;progressUI();store();
+  const msg=ageIndex()>prev?`🐾 Новая стадия: ${ageStage().name}!`:`🧪 +500 опыта. ${ageStage().name}, уровень ${levelOf()}.`;
+  setBubble(msg);playSound('quest');
+});
+let modalReturnFocus=null;
+function openModal(id,button){
+  closeModals(false);
+  modalReturnFocus=button;
+  const modal=document.getElementById(id);modal.hidden=false;
+  const close=modal.querySelector('.modal-close'); if(close)close.focus();
+}
+function closeModals(restore=true){
+  document.querySelectorAll('.modal-overlay').forEach(m=>m.hidden=true);
+  if(restore && modalReturnFocus){modalReturnFocus.focus();modalReturnFocus=null;}
+}
+document.getElementById('openCustom').addEventListener('click',e=>openModal('customModal',e.currentTarget));
+document.getElementById('openQuests').addEventListener('click',e=>openModal('questsModal',e.currentTarget));
+document.getElementById('openShop').addEventListener('click',e=>{document.getElementById('shopNotice').hidden=true;renderShop();setShopTab(activeShopTab);openModal('shopModal',e.currentTarget);});
+for(const b of document.querySelectorAll('[data-close]'))b.addEventListener('click',()=>closeModals());
+for(const modal of document.querySelectorAll('.modal-overlay'))modal.addEventListener('click',e=>{if(e.target===modal)closeModals();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModals(); if(e.key==='Tab'){const open=[...document.querySelectorAll('.modal-overlay')].find(m=>!m.hidden);if(open){const items=[...open.querySelectorAll('button,input')].filter(el=>!el.disabled);if(!items.length)return;const first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){last.focus();e.preventDefault();}else if(!e.shiftKey&&document.activeElement===last){first.focus();e.preventDefault();}}}});
+
+
+// v20: tap-to-place and drag-to-move directly on the room canvas.
+const placeControls=document.getElementById('placementControls');
+const placeHint=document.getElementById('placementHint');
+const placeState=document.getElementById('placeState');
+const removePlaced=document.getElementById('removePlaced');
+const editHome=document.getElementById('editHome');
+function syncPlacement(){
+ document.body.classList.toggle('edit-furniture-on',placement.active);
+ placeControls.hidden=!placement.active;placeHint.hidden=!placement.active;
+ editHome.classList.toggle('active',placement.active);
+ editHome.textContent=placement.active?'✓ Закончить':'↔ Расставить';
+ const id=placement.pending||placement.selected;
+ const item=SHOP_ITEMS.find(i=>i.id===id);
+ placeState.textContent=placement.pending?`Место для: ${item?.name||'предмета'}`:placement.selected?`Перемещай: ${item?.name||'предмет'}`:'Нажми на предмет, чтобы переместить';
+ placeHint.textContent=placement.pending?'Коснись комнаты, чтобы поставить предмет. Затем перетащи при необходимости.':'Перетаскивай предметы пальцем или мышью. Коснись предмета, чтобы выбрать.';
+ removePlaced.hidden=!(placement.selected && isPlaced(placement.selected));
+}
+function beginPlacement(id){
+ placement={active:true,pending:isPlaced(id)?null:id,selected:isPlaced(id)?id:null,dragging:false,pointerId:null};
+ syncPlacement();setBubble(`Выбери место для «${SHOP_ITEMS.find(i=>i.id===id)?.name||'предмета'}» 🏡`);
+}
+function finishPlacement(){
+ placement={active:false,pending:null,selected:null,dragging:false,pointerId:null};
+ syncPlacement();store();
+}
+function eventScenePos(ev){
+ const r=canvas.getBoundingClientRect();
+ const sx=canvas.width/600, sy=canvas.height/roomH;
+ const scale=Math.min(sx,sy), ox=(canvas.width-600*scale)/2,oy=(canvas.height-roomH*scale)/2;
+ const px=(ev.clientX-r.left)*canvas.width/r.width;
+ const py=(ev.clientY-r.top)*canvas.height/r.height;
+ return {x:(px-ox)/scale,y:(py-oy)/scale};
+}
+function hitPlaced(x,y){
+ const items=[...placementsFor()].reverse();
+ for(const p of items){const targetY=roomH*p.y; const isWall=WALL_ITEMS.has(p.id);
+  const halfWidth=p.id==='house'?92:p.id==='garland'?90:p.id==='pillow'?73:60;
+  const top=isWall?(p.id==='garland'?-35:-52):p.id==='house'?-165:p.id==='lamp'?-130:p.id==='plant'?-110:-27;
+  const bottom=isWall?55:28;
+  if(Math.abs(x-p.x)<=halfWidth && y>=targetY+top && y<=targetY+bottom)return p;
+ }
+ return null;
+}
+function placementMove(pos){
+ const entry=placementsFor().find(p=>p.id===placement.selected);if(!entry)return;
+ const correct=clampPlace(entry.id,pos.x,pos.y/roomH);entry.x=correct.x;entry.y=correct.y;
+}
+canvas.addEventListener('pointerdown',ev=>{
+ if(!placement.active || state.action!=='idle')return;
+ ev.preventDefault();ev.stopImmediatePropagation();
+ const pos=eventScenePos(ev);
+ if(placement.pending){
+  const data=clampPlace(placement.pending,pos.x,pos.y/roomH);
+  const entry={id:placement.pending,...data};placementsFor().push(entry);
+  placement.selected=entry.id;placement.pending=null;placement.dragging=true;
+ }else{
+  const found=hitPlaced(pos.x,pos.y);
+  placement.selected=found?found.id:null;
+  placement.dragging=!!found;
+ }
+ placement.pointerId=ev.pointerId;
+ if(placement.dragging){canvas.setPointerCapture(ev.pointerId);placementMove(pos);}
+ syncPlacement();store();
+},true);
+canvas.addEventListener('pointermove',ev=>{
+ if(!placement.active)return;
+ const pos=eventScenePos(ev);
+ if(placement.dragging && ev.pointerId===placement.pointerId){placementMove(pos);ev.preventDefault();}
+ else if(placement.pending){placement.preview=clampPlace(placement.pending,pos.x,pos.y/roomH);}
+});
+function stopDrag(ev){if(placement.dragging && placement.pointerId===ev.pointerId){placement.dragging=false;placement.pointerId=null;store();renderShop();}}
+canvas.addEventListener('pointerup',stopDrag);canvas.addEventListener('pointercancel',stopDrag);
+editHome.addEventListener('click',()=>{if(placement.active)finishPlacement();else{placement.active=true;syncPlacement();}});
+document.getElementById('finishPlacement').addEventListener('click',finishPlacement);
+removePlaced.addEventListener('click',()=>{
+ if(!placement.selected)return;
+ state.placements[state.room]=placementsFor().filter(p=>p.id!==placement.selected);
+ placement.selected=null;syncPlacement();renderShop();store();
+});
+for(const b of document.querySelectorAll('[data-shop-tab]'))b.addEventListener('click',()=>setShopTab(b.dataset.shopTab));
+setShopTab('rooms');
+
+// v19: a single autonomous-behavior state machine (no competing idle timers).
+const LIFE_LABELS={idle:'🐾 Отдыхает',walk:'🐾 Гуляет по комнате',window:'🪟 Смотрит в окно',groom:'🐈 Умывается',nap:'💤 Дремлет',decor:'🧸 Изучает мебель',purr:'💗 Мурлычет',meow:'🐱 Мяукает',greet:'💞 Рад тебя видеть'};
+function lifeSpeech(text){
+ // Show occasional personality lines, but avoid replacing active action messages.
+ if(state.action==='idle')setBubble(`${state.custom.name} ${text}`);
+}
+function lifeEnter(mode,now){
+ const l=state.life;l.mode=mode;l.started=now;l.walking=false;
+ const durations={walk:4600,window:4100,groom:3400,nap:5100,decor:4200,purr:2700,meow:1800,greet:3100,idle:2800};
+ l.until=now+(durations[mode]||2800);
+ if(mode==='walk') l.targetX=rand([-115,-75,55,105]);
+ else if(mode==='window') l.targetX=-97;
+ else if(mode==='decor'){const furniture=placementsFor().find(p=>!WALL_ITEMS.has(p.id));l.targetX=furniture?clamp((furniture.x-300)/Math.min(1.08,Math.max(.82,roomH/730)),-115,115):-80;}
+ else if(mode==='greet')l.targetX=0;
+ else if(mode==='idle'||mode==='nap'||mode==='purr'||mode==='groom'||mode==='meow') l.targetX=clamp(l.x,-100,100);
+ if(mode==='window')lifeSpeech('с интересом смотрит в окно 🪟');
+ if(mode==='decor')lifeSpeech('разглядывает новую вещь 🧸');
+ if(mode==='groom')lifeSpeech('аккуратно умывает мордочку 🐾');
+ if(mode==='purr'){lifeSpeech('тихонько мурлычет... 💗');playIdlePurr();}
+ if(mode==='meow'){lifeSpeech('говорит: мяу! 🐱');playSound('meow');}
+ if(mode==='greet'){lifeSpeech('очень рад тебя видеть! 💞');playSound('meow');}
+}
+function lifePick(now){
+ const options=['walk','walk','window','groom','nap','purr','meow'];
+ if(placementsFor().length)options.push('decor','decor');
+ lifeEnter(rand(options),now);
+}
+function runIdle(now){
+ const l=state.life;
+ if(placement.active){l.mode='idle';l.walking=false;l.previous=now;return;}
+ if(state.action!=='idle'){
+   l.walking=false;state.idleEvent=null;return;
+ }
+ if(!l.mode)l.mode='idle';
+ if(l.mode==='idle'&&now>=l.next)lifePick(now);
+ if(l.mode!=='idle'&&now>=l.until){
+   l.mode='idle';l.targetX=l.x;l.started=now;l.until=now+3200;
+   l.next=now+2300+Math.random()*3500;
+ }
+ // Frame-time independent damped walk, with no sudden teleportation.
+ const dx=l.targetX-l.x;
+ l.walking=Math.abs(dx)>1.2;
+ if(l.walking){const delta=clamp((now-(l.previous||now))/1000,0,.06); l.x+=Math.sign(dx)*Math.min(Math.abs(dx),delta*67);}
+ l.previous=now;
+ // Preserve the original special face / sound code for purring and meowing.
+ state.idleEvent=l.mode==='purr'?'purr':l.mode==='meow'?'meow':null;
+ state.idleStarted=l.started;
+ const badge=document.getElementById('lifeBadge');
+ if(badge){badge.hidden=false;badge.textContent=LIFE_LABELS[l.mode]||LIFE_LABELS.idle;}
+}
+function rememberLastVisit(){try{localStorage.setItem(LIFE_SEEN_KEY,String(Date.now()));}catch(e){}}
+let lifeHiddenAt=0;
+document.addEventListener('visibilitychange',()=>{
+ if(document.hidden){lifeHiddenAt=Date.now();rememberLastVisit();}
+ else if(lifeHiddenAt && Date.now()-lifeHiddenAt>45*1000 && state.action==='idle'){
+   lifeEnter('greet',performance.now());
+ }
+});
+window.addEventListener('pagehide',rememberLastVisit);
+// Tapping the kitten is a tiny direct interaction even outside the five care actions.
+canvas.addEventListener('pointerdown',e=>{
+ if(state.action!=='idle'||placement.active)return;
+ const rect=canvas.getBoundingClientRect(),l=state.life;
+ const virtualX=(e.clientX-rect.left)/rect.width*600;
+ const virtualY=(e.clientY-rect.top)/rect.height*roomH;
+ const petX=300+l.x*Math.min(1.08,Math.max(.82,roomH/730));
+ if(Math.abs(virtualX-petX)>110||Math.abs(virtualY-roomH*.76)>145)return;
+ const now=performance.now();if(now<l.greetCooldown)return;
+ l.greetCooldown=now+5000;
+ lifeEnter('greet',now);
+ state.stats.bond=clamp(state.stats.bond+1,0,100);
+ setBars();progressUI();store();
+});
+
+function playIdlePurr(){
+ if(!state.sound)return;
+ // A few gentle low notes mimic a soft kitten purr without prerecorded audio.
+ for(let i=0;i<5;i++)tone({freq:87+i%2*11,duration:.20,when:i*.16,type:'sine',volume:.012});
+}
+let questTickSecond=-1;
+function frame(now){
+  updateBlink(now);
+  const second=Math.floor(Date.now()/1000);
+  if(questTickSecond!==second){questTickSecond=second;updateQuestCooldown();}
+  runIdle(now);
+  if(state.action!=='idle'&&now-state.started>=state.duration){ const finished=state.action;state.action='idle';state.idleLast=now;state.idleNext=8000+Math.random()*7000;state.life.mode='idle';state.life.next=now+3500+Math.random()*2200;state.life.previous=now;const money={feed:8,pet:6,play:12,sleep:10,wash:9}[finished]||0;
+    const previousAge=ageIndex();
+    const oldBond=state.stats.bond;
+    state.stats.bond=clamp(state.stats.bond+({feed:3,pet:5,play:5,sleep:2,wash:4}[finished]||0),0,100);
+    const bonusXP=state.stats.bond>=65?5:0;
+    gain(money,12+bonusXP);updateQuests(finished);setBars();
+    if(ageIndex()>previousAge){setBubble(`🎉 ${state.custom.name} вырос! Новая стадия: ${ageStage().name}!`);playSound('quest');}
+    else setBubble(`${state.custom.name} доволен! +${money} 🪙 · +${12+bonusXP} опыта · 💞 +${Math.round(state.stats.bond-oldBond)}`);
+    progressUI();store(); }
+  if(now-state.lastDecay>24000){ state.stats.food=clamp(state.stats.food-1,0,100); state.stats.happy=clamp(state.stats.happy-1,0,100); if(state.action!=='sleep') state.stats.energy=clamp(state.stats.energy-1,0,100);state.stats.clean=clamp(state.stats.clean-1,0,100); state.lastDecay=now; setBars();store(); }
+  syncActionTimer(now);
+  draw(now); requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
