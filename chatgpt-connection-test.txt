@@ -1,0 +1,4 @@
+ChatGPT GitHub write-access test.
+Repository: bender2289/moy-kotenok
+Branch: test-chatgpt
+This file is not part of the game and does not affect production.
