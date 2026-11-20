@@ -1003,8 +1003,8 @@ function draw(now){
   ctx.setTransform(scale,0,0,scale,ox,oy);
   // Existing shop objects and pet art are positioned in a centered foreground layer.
   // They keep their own correct proportions and remain inside the portrait scene.
-  const petScale=Math.min(1.55,Math.max(1.35,roomH/520));
-  const petY=roomH*.73;
+  const petScale=Math.min(1.10,Math.max(.94,roomH/720));
+  const petY=roomH*.76;
   ctx.save();
   // Kitten always stays in the foreground, centrally visible on tall and short screens.
   ctx.translate(300,petY);
