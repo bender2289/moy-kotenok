@@ -345,21 +345,6 @@ button.room.active,button.swatch.active,button.accessory.active{background:#e4ed
   <section class="scene">
     <canvas id="game"></canvas>
     <canvas id="characterLayer" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none"></canvas>
-    <svg id="characterFallback" aria-label="Тестовый котёнок" viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg" style="position:absolute;z-index:2;left:50%;bottom:15%;width:min(58%,230px);max-height:56%;transform:translateX(-50%);filter:drop-shadow(0 5px 3px rgba(0,0,0,.3));pointer-events:none">
-<ellipse cx="130" cy="217" rx="83" ry="11" fill="#43352b" opacity=".22"/>
-<path d="M193 170 Q253 139 225 112 Q243 150 203 165" fill="#df8b57" stroke="#885441" stroke-width="5" stroke-linejoin="round"/>
-<ellipse cx="130" cy="168" rx="74" ry="67" fill="#efa16e" stroke="#885441" stroke-width="5"/>
-<ellipse cx="130" cy="184" rx="49" ry="36" fill="#ffd3a7"/>
-<path d="M70 87 L60 18 L111 50 Q130 42 150 50 L200 18 L190 87 Q215 112 197 155 Q175 186 130 186 Q86 186 64 156 Q45 110 70 87Z" fill="#efa16e" stroke="#885441" stroke-width="5" stroke-linejoin="round"/>
-<path d="M72 72 L69 38 L100 58Z M190 72 L191 38 L160 58Z" fill="#f0a8b5"/>
-<ellipse cx="95" cy="116" rx="13" ry="19" fill="#ffffff" stroke="#885441" stroke-width="3"/><ellipse cx="162" cy="116" rx="13" ry="19" fill="#ffffff" stroke="#885441" stroke-width="3"/>
-<ellipse cx="99" cy="119" rx="7" ry="13" fill="#326c85"/><ellipse cx="166" cy="119" rx="7" ry="13" fill="#326c85"/>
-<path d="M117 143 L143 143 L130 154 Z" fill="#d7787a"/>
-<path d="M130 155 Q118 170 109 157 M130 155 Q142 170 151 157" fill="none" stroke="#885441" stroke-width="3" stroke-linecap="round"/>
-<path d="M116 151 L68 143 M115 159 L65 166 M143 151 L193 143 M144 159 L195 166" stroke="#885441" stroke-width="2.5" fill="none"/>
-<ellipse cx="83" cy="215" rx="28" ry="20" fill="#efa16e" stroke="#885441" stroke-width="4"/><ellipse cx="177" cy="215" rx="28" ry="20" fill="#efa16e" stroke="#885441" stroke-width="4"/>
-<path d="M73 175 Q129 201 186 175" fill="none" stroke="#e97b7d" stroke-width="10"/><circle cx="130" cy="189" r="10" fill="#f9d96f" stroke="#885441" stroke-width="3"/>
-</svg>
     <div class="placement-hint" id="placementHint" hidden>Нажми на свободное место, чтобы поставить предмет</div>
     <div class="bubble" id="bubble">Привет! Я уже жду внимания 💗</div><div class="life-badge" id="lifeBadge" aria-live="off">🐾 Изучает комнату</div><div class="coin-floats" id="coinFloats" aria-hidden="true"></div>
   </section>
@@ -1018,7 +1003,7 @@ function draw(now){
   ctx.setTransform(scale,0,0,scale,ox,oy);
   // Existing shop objects and pet art are positioned in a centered foreground layer.
   // They keep their own correct proportions and remain inside the portrait scene.
-  const petScale=Math.min(1.06,Math.max(.83,roomH/750));
+  const petScale=Math.min(1.55,Math.max(1.35,roomH/520));
   const petY=roomH*.73;
   ctx.save();
   // Kitten always stays in the foreground, centrally visible on tall and short screens.
