@@ -344,6 +344,7 @@ button.room.active,button.swatch.active,button.accessory.active{background:#e4ed
   </div>
   <section class="scene">
     <canvas id="game"></canvas>
+    <canvas id="characterLayer" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none"></canvas>
     <div class="placement-hint" id="placementHint" hidden>Нажми на свободное место, чтобы поставить предмет</div>
     <div class="bubble" id="bubble">Привет! Я уже жду внимания 💗</div><div class="life-badge" id="lifeBadge" aria-live="off">🐾 Изучает комнату</div><div class="coin-floats" id="coinFloats" aria-hidden="true"></div>
   </section>
@@ -376,7 +377,10 @@ button.room.active,button.swatch.active,button.accessory.active{background:#e4ed
 <script>
 'use strict';
 const canvas=document.getElementById('game');
-const ctx=canvas.getContext('2d');
+let ctx=canvas.getContext('2d');
+const sceneCtx=ctx;
+const characterCanvas=document.getElementById('characterLayer');
+const characterCtx=characterCanvas.getContext('2d');
 const bubble=document.getElementById('bubble');
 const soundBtn=document.getElementById('soundBtn');
 const nameInput=document.getElementById('nameInput');
@@ -433,6 +437,7 @@ function resize(){
   const dpr=Math.min(2,window.devicePixelRatio||1), r=canvas.getBoundingClientRect();
   canvas.width=Math.max(1,Math.round(r.width*dpr));
   canvas.height=Math.max(1,Math.round(r.height*dpr));
+  characterCanvas.width=canvas.width;characterCanvas.height=canvas.height;
   // 600 virtual units wide. The height follows the real phone aspect ratio.
   // One uniform scale for the entire composition: no stretched artwork.
   roomH=Math.max(570,600*canvas.height/canvas.width);
@@ -979,6 +984,7 @@ function drawLifeEffects(t){
 function updateBlink(now){ const dt=(now-state._prevTime)/1000; state.blinkTimer+=dt; if(!state.eyesClosed&&state.blinkTimer>state.nextBlink){ state.eyesClosed=true; state.blinkTimer=0; state.nextBlink=2.2+Math.random()*2.8; } else if(state.eyesClosed&&state.blinkTimer>.12){ state.eyesClosed=false; state.blinkTimer=0; } state._prevTime=now; }
 function draw(now){
   const t=now/1000, width=canvas.width, height=canvas.height;
+  ctx=sceneCtx;
   ctx.setTransform(1,0,0,1,0,0);
   ctx.clearRect(0,0,width,height);
   // Exact uniform scaling, never crop the room on mobile.
@@ -989,6 +995,11 @@ function draw(now){
   drawRoomPortrait(t);
   drawAtmosphere(t);
   drawPurchasedDecor(t);
+  // Render character independently over the cave background.
+  ctx=characterCtx;
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.clearRect(0,0,width,height);
+  ctx.setTransform(scale,0,0,scale,ox,oy);
   // Existing shop objects and pet art are positioned in a centered foreground layer.
   // They keep their own correct proportions and remain inside the portrait scene.
   const petScale=Math.min(1.06,Math.max(.83,roomH/750));
@@ -1014,6 +1025,7 @@ function draw(now){
   // Dedicated gentle behavior details, away from the actionable UI.
   if(state.action==='idle')drawLifeEffects(t);
   ctx.restore();
+  ctx=sceneCtx;
 }
 
 const actionTimerEl=document.getElementById('actionTimer');
