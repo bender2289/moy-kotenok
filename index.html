@@ -886,6 +886,51 @@ button:not(.kurmet-location-arrow):not(.kurmet-back):not(.kurmet-detail-back):no
 @media(min-width:901px) and (pointer:fine){.kurmet-minigame{width:min(100%,760px)!important;left:50%!important;right:auto!important;transform:translateX(-50%)}}
 @media(max-width:420px){.kg-time{font-size:17px}.kg-stats{font-size:12px}.kg-header{padding-left:8px;padding-right:8px}.kg-heading small{font-size:10px}}
 
+
+/* KURMET: current location title centered above the scene in a matching gold plaque. */
+.scene .kurmet-location-title{
+ position:absolute!important;
+ top:9px!important;
+ bottom:auto!important;
+ left:50%!important;
+ right:auto!important;
+ transform:translateX(-50%)!important;
+ z-index:18!important;
+ display:flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ min-height:42px!important;
+ min-width:104px!important;
+ max-width:31%!important;
+ padding:8px 13px!important;
+ margin:0!important;
+ background-color:#e3b62a!important;
+ background-image:var(--kurmet-plaque)!important;
+ background-position:center!important;
+ background-repeat:no-repeat!important;
+ background-size:100% 100%!important;
+ border:0!important;
+ border-radius:0!important;
+ box-shadow:none!important;
+ color:#1c1406!important;
+ text-shadow:0 1px 1px #ffec8a!important;
+ font-size:clamp(11px,3vw,15px)!important;
+ font-weight:900!important;
+ line-height:1.1!important;
+ text-align:center!important;
+ white-space:nowrap!important;
+ pointer-events:none!important;
+}
+@media(max-width:400px){
+ .scene .kurmet-location-title{
+  min-width:90px!important;
+  max-width:30%!important;
+  min-height:40px!important;
+  padding:6px 9px!important;
+  font-size:11px!important;
+ }
+}
+
 </style>
 </head>
 <body>
