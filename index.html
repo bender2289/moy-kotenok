@@ -428,6 +428,42 @@ button.kurmet-location-arrow:focus{transform:none!important;}
  .app>header{order:5!important;}
 }
 
+
+/* KURMET: only the drawn arrow reacts to touch; never reveal its hitbox. */
+button.kurmet-location-arrow,
+button.kurmet-location-arrow:hover,
+button.kurmet-location-arrow:active,
+button.kurmet-location-arrow:focus,
+button.kurmet-location-arrow:focus-visible{
+  -webkit-tap-highlight-color:transparent!important;
+  -webkit-touch-callout:none;
+  appearance:none!important;-webkit-appearance:none!important;
+  outline:0!important;outline-offset:0!important;
+  border:0!important;border-radius:0!important;
+  background:transparent!important;box-shadow:none!important;
+  transform:none!important;
+  touch-action:manipulation;
+  user-select:none;-webkit-user-select:none;
+}
+button.kurmet-location-arrow img{
+  transform:scale(1);
+  transform-origin:center center;
+  transition:transform 130ms ease-out,filter 130ms ease-out;
+  -webkit-user-drag:none;
+  user-select:none;-webkit-user-select:none;
+}
+button.kurmet-location-arrow:not(:disabled):active img{
+  transform:scale(.86);
+  filter:drop-shadow(0 1px 1px rgba(0,0,0,.28)) brightness(1.12);
+}
+/* Visible keyboard focus without highlighting the rectangular touch target. */
+button.kurmet-location-arrow:focus-visible img{
+  filter:drop-shadow(0 0 5px #ffde76);
+}
+@media(prefers-reduced-motion:reduce){
+ button.kurmet-location-arrow img{transition:none}
+}
+
 </style>
 </head>
 <body>
