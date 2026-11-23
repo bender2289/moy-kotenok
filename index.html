@@ -493,6 +493,47 @@ button.kurmet-location-arrow:focus-visible img{
  .kurmet-locations-grid .kurmet-location-choice{min-height:52px}
 }
 
+
+/* Locations gallery - 3-column portrait thumbnails following the artist's sketch. */
+.kurmet-locations-modal{width:min(730px,100%)!important;max-height:min(88dvh,860px)!important;overflow-y:auto!important}
+.kurmet-locations-help{margin:3px 0 14px!important}
+.kurmet-locations-grid{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:clamp(7px,2vw,16px)!important;align-items:start;
+ padding:3px 1px 18px;
+}
+.kurmet-locations-grid .kurmet-location-tile{
+ display:flex;flex-direction:column;align-items:stretch;gap:7px;
+ padding:7px!important;margin:0;min-width:0;
+ background:#2e2e34!important;border:1px solid #4a4a53!important;
+ border-radius:13px!important;box-shadow:none!important;
+ color:#eeeef0!important;text-align:center;
+ overflow:hidden;
+}
+.kurmet-locations-grid button.kurmet-location-tile{cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.kurmet-locations-grid button.kurmet-location-tile:active{transform:scale(.97)}
+.kurmet-locations-grid button.kurmet-location-tile:hover{background:#37373f!important}
+.kurmet-locations-grid .kurmet-location-tile.selected{border-color:#d3a944!important;background:#3b3528!important;box-shadow:inset 0 0 0 1px #b7903a!important}
+.kurmet-location-picture{
+ display:block;position:relative;width:100%;aspect-ratio:3/4.2;
+ border-radius:8px;overflow:hidden;background:#1b1b20;
+ border:1px solid #55555d;
+}
+.kurmet-location-picture img{display:block;width:100%;height:100%;object-fit:cover;object-position:center center}
+.kurmet-location-caption{display:block;min-width:0;max-width:100%;line-height:1.15;font-size:clamp(10px,2.9vw,15px);font-weight:800;overflow-wrap:anywhere}
+.kurmet-location-selected{position:absolute;top:5px;right:5px;display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:100%;background:#d4ae4e;color:#262320;font-size:14px;font-weight:950;box-shadow:0 2px 4px #0008}
+.kurmet-locations-grid .kurmet-location-tile.locked{opacity:.85;cursor:default}
+.kurmet-locations-grid .kurmet-location-tile.locked .kurmet-location-picture{display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#25252b,#373740);border:1px dashed #6a6a72}
+.kurmet-location-lock{font-size:clamp(22px,6vw,41px);filter:grayscale(.85);opacity:.75}
+.kurmet-locations-grid .kurmet-location-tile.locked .kurmet-location-caption{color:#9797a0}
+@media(max-width:900px),(pointer:coarse){
+ .kurmet-locations-modal{padding:12px!important}
+ .kurmet-locations-grid{gap:7px!important}
+ .kurmet-locations-grid .kurmet-location-tile{padding:4px!important;gap:5px!important;border-radius:9px!important}
+ .kurmet-location-picture{border-radius:6px}
+ .kurmet-location-selected{width:17px;height:17px;font-size:11px;top:3px;right:3px}
+}
+
 </style>
 </head>
 <body>
@@ -958,24 +999,63 @@ const renderLocationsMenu=()=>{
  const grid=document.getElementById('locationsGrid');
  if(!grid)return;
  grid.replaceChildren();
- for(const id of LOCATIONS){
-  const button=document.createElement('button');
-  const selected=id===state.location;
-  button.type='button';
-  button.className='kurmet-location-choice'+(selected?' selected':'');
-  button.textContent=(selected?'✓ ':'')+LOCATION_TITLES[id];
-  button.setAttribute('aria-current',selected?'location':'false');
-  button.addEventListener('click',()=>{
-   if(id!==state.location){
-    state.location=id;
-    refreshLocationNavigation();
-    if(state.sound)playSound('room');
-    store();
+ // Three currently available places plus six reserved spaces for future KURMET locations.
+ const slots=[...LOCATIONS,null,null,null,null,null,null];
+ slots.forEach((id,index)=>{
+  if(id){
+   const button=document.createElement('button');
+   const selected=id===state.location;
+   button.type='button';
+   button.className='kurmet-location-tile'+(selected?' selected':'');
+   button.setAttribute('aria-label',LOCATION_TITLES[id]+(selected?', текущая локация':''));
+   if(selected)button.setAttribute('aria-current','location');
+   const art=document.createElement('span');
+   art.className='kurmet-location-picture';
+   const image=document.createElement('img');
+   image.src=locationImages[id].src; // Exact images supplied by the artist, reused without redrawing.
+   image.alt='';
+   image.loading='lazy';
+   image.draggable=false;
+   art.append(image);
+   if(selected){
+    const mark=document.createElement('span');
+    mark.className='kurmet-location-selected';
+    mark.textContent='✓';
+    mark.setAttribute('aria-hidden','true');
+    art.append(mark);
    }
-   closeModals();
-  });
-  grid.append(button);
- }
+   const label=document.createElement('span');
+   label.className='kurmet-location-caption';
+   label.textContent=LOCATION_TITLES[id];
+   button.append(art,label);
+   button.addEventListener('click',()=>{
+    if(id!==state.location){
+     state.location=id;
+     refreshLocationNavigation();
+     if(state.sound)playSound('room');
+     store();
+    }
+    closeModals();
+   });
+   grid.append(button);
+  }else{
+   const locked=document.createElement('div');
+   locked.className='kurmet-location-tile locked';
+   locked.setAttribute('aria-label','Будущая локация заблокирована');
+   const art=document.createElement('span');
+   art.className='kurmet-location-picture';
+   const lock=document.createElement('span');
+   lock.className='kurmet-location-lock';
+   lock.textContent='🔒';
+   lock.setAttribute('aria-hidden','true');
+   art.append(lock);
+   const label=document.createElement('span');
+   label.className='kurmet-location-caption';
+   label.textContent='Закрыто';
+   locked.append(art,label);
+   grid.append(locked);
+  }
+ });
 };
 
 const refreshLocationNavigation=()=>{
