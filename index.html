@@ -633,6 +633,58 @@ button.kurmet-location-arrow:focus-visible img{
  .kurmet-location-detail{width:min(100%,760px);left:50%;right:auto;transform:translateX(-50%);border-left:1px solid #444;border-right:1px solid #444}
 }
 
+
+/* KURMET navigation polish: original golden arrow, without rectangular button chrome. */
+.modal-content .modal-top button.modal-close.kurmet-back,
+.modal-content .modal-top button.modal-close.kurmet-back:hover,
+.modal-content .modal-top button.modal-close.kurmet-back:active,
+.modal-content .modal-top button.modal-close.kurmet-back:focus,
+.kurmet-location-detail button.kurmet-detail-back,
+.kurmet-location-detail button.kurmet-detail-back:hover,
+.kurmet-location-detail button.kurmet-detail-back:active,
+.kurmet-location-detail button.kurmet-detail-back:focus{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ flex:0 0 auto!important;width:56px!important;height:54px!important;
+ min-width:56px!important;min-height:54px!important;max-width:56px!important;
+ padding:2px!important;margin:0!important;
+ border:0!important;border-radius:0!important;outline:0!important;
+ background:transparent!important;box-shadow:none!important;
+ transform:none!important;filter:none!important;
+ -webkit-tap-highlight-color:transparent!important;
+ touch-action:manipulation;cursor:pointer;
+}
+.modal-content .modal-top button.modal-close.kurmet-back{order:-1!important}
+.modal-content .modal-top button.modal-close.kurmet-back img,
+.kurmet-location-detail button.kurmet-detail-back img{
+ display:block;width:100%;max-height:100%;height:auto;object-fit:contain;
+ pointer-events:none;user-select:none;-webkit-user-drag:none;
+ filter:drop-shadow(0 2px 2px #0009);
+ transform:scale(1);transform-origin:center;
+ transition:transform .14s ease-out;
+}
+.modal-content .modal-top button.modal-close.kurmet-back:active img,
+.kurmet-location-detail button.kurmet-detail-back:active img{
+ transform:scale(.86);
+}
+.kurmet-location-detail button.kurmet-detail-back{
+ position:absolute!important;z-index:3!important;top:calc(10px + env(safe-area-inset-top))!important;
+ left:14px!important;
+}
+/* Lift both full-screen location actions and title to a comfortable thumb position. */
+.kurmet-location-detail{
+ padding-bottom:calc(clamp(94px,13dvh,166px) + env(safe-area-inset-bottom))!important;
+}
+.kurmet-detail-actions{
+ margin-bottom:0!important;
+}
+@media(max-height:640px){
+ .kurmet-location-detail{padding-bottom:calc(62px + env(safe-area-inset-bottom))!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .modal-content .modal-top button.modal-close.kurmet-back img,
+ .kurmet-location-detail button.kurmet-detail-back img{transition:none}
+}
+
 </style>
 </head>
 <body>
@@ -1685,6 +1737,20 @@ document.getElementById('openCustom').addEventListener('click',e=>openModal('cus
 document.getElementById('openQuests').addEventListener('click',e=>openModal('questsModal',e.currentTarget));
 document.getElementById('openLocations').addEventListener('click',e=>{resetLocationScreens();renderLocationsMenu();openModal('locationsModal',e.currentTarget);});
 document.getElementById('openShop').addEventListener('click',e=>{document.getElementById('shopNotice').hidden=true;renderShop();setShopTab(activeShopTab);openModal('shopModal',e.currentTarget);});
+// Back controls reuse the artist's exact original left location arrow artwork.
+const originalBackArrow=document.querySelector('#locationLeft img');
+if(originalBackArrow){
+ for(const back of document.querySelectorAll('button.kurmet-back,button.kurmet-detail-back')){
+  const icon=originalBackArrow.cloneNode(false);
+  icon.removeAttribute('srcset');
+  icon.alt='';
+  icon.setAttribute('aria-hidden','true');
+  icon.draggable=false;
+  back.replaceChildren(icon);
+  back.setAttribute('aria-label','Назад');
+  back.title='Назад';
+ }
+}
 for(const b of document.querySelectorAll('[data-close]'))b.addEventListener('click',()=>{if(b.dataset.close==='locationsModal')goBackLocation();else closeModals();});
 for(const modal of document.querySelectorAll('.modal-overlay'))modal.addEventListener('click',e=>{if(e.target===modal){if(modal.id==='locationsModal')goBackLocation();else closeModals();}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!document.getElementById('locationsModal').hidden && locationScreen!=='grid')goBackLocation();else closeModals();} if(e.key==='Tab'){const open=[...document.querySelectorAll('.modal-overlay')].find(m=>!m.hidden);if(open){const items=[...open.querySelectorAll('button,input')].filter(el=>!el.disabled);if(!items.length)return;const first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){last.focus();e.preventDefault();}else if(!e.shiftKey&&document.activeElement===last){first.focus();e.preventDefault();}}}});
