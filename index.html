@@ -990,11 +990,14 @@ button:not(.kurmet-location-arrow):not(.kurmet-back):not(.kurmet-detail-back):no
 .kurmet-boot-title{font-size:clamp(24px,6vw,36px);font-weight:800;letter-spacing:.08em;line-height:1.15}
 .kurmet-boot-subtitle{font-size:11px;letter-spacing:.24em;color:#a5a4a9}
 .kurmet-boot-track{width:85%;height:5px;border-radius:100px;overflow:hidden;background:#34343a}
-.kurmet-boot-bar{height:100%;width:38%;border-radius:100px;background:#d7b777;animation:kurmet-boot-progress 1.35s ease-in-out infinite alternate}
+.kurmet-boot-bar{height:100%;width:0;border-radius:100px;background:#d7b777;transition:width .12s linear}
 .kurmet-boot-caption{font-size:12px;color:#a5a4a9}
+.kurmet-boot-continue{display:none;min-width:175px;margin-top:4px;padding:12px 26px;border:1px solid #a78a4e;border-radius:12px;background:#d7b777;color:#19191d;font:700 15px Inter,system-ui,Arial,sans-serif;cursor:pointer;box-shadow:0 3px 12px #0005}
+.kurmet-boot-continue:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.kurmet-boot-continue.kurmet-boot-ready{display:block;animation:kurmet-boot-appear .3s ease-out}
 @keyframes kurmet-boot-pulse{50%{opacity:.68;transform:scale(.97)}}
-@keyframes kurmet-boot-progress{from{transform:translateX(-85%)}to{transform:translateX(250%)}}
-@media(prefers-reduced-motion:reduce){.kurmet-boot-skull,.kurmet-boot-bar{animation:none}#kurmet-boot-screen{transition:none}}
+@keyframes kurmet-boot-appear{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.kurmet-boot-skull,.kurmet-boot-continue{animation:none}#kurmet-boot-screen{transition:none}}
 </style>
 </head>
 <body>
@@ -1004,7 +1007,8 @@ button:not(.kurmet-location-arrow):not(.kurmet-back):not(.kurmet-detail-back):no
     <div class="kurmet-boot-title">KURMET UNIVERSE</div>
     <div class="kurmet-boot-subtitle">ВХОД ВО ВСЕЛЕННУЮ</div>
     <div class="kurmet-boot-track" aria-hidden="true"><div class="kurmet-boot-bar"></div></div>
-    <div class="kurmet-boot-caption">Загрузка мира...</div>
+    <div class="kurmet-boot-caption" id="kurmet-boot-caption">Загрузка мира... 0%</div>
+    <button type="button" class="kurmet-boot-continue" id="kurmet-boot-continue">Продолжить</button>
   </div>
 </div>
 
@@ -2402,15 +2406,41 @@ requestAnimationFrame(frame);
 </script>
 
 <script>
-/* Hide immediately once the page's assets have loaded; safety fallback prevents a stuck overlay. */
+/* Smooth visible progress; entry is always controlled by the player. */
 (function(){
  const screen=document.getElementById('kurmet-boot-screen');
- if(!screen)return;
- let finished=false;
- function finish(){if(finished)return;finished=true;screen.classList.add('kurmet-boot-done');setTimeout(()=>screen.remove(),450)}
- if(document.readyState==='complete')finish();
- else window.addEventListener('load',finish,{once:true});
- setTimeout(finish,8000);
+ const bar=screen?.querySelector('.kurmet-boot-bar');
+ const caption=document.getElementById('kurmet-boot-caption');
+ const button=document.getElementById('kurmet-boot-continue');
+ if(!screen||!bar||!caption||!button)return;
+ const start=performance.now(),duration=2200;
+ let pageReady=document.readyState==='complete',progress=0,entered=false;
+ const lang=()=>{try{return localStorage.getItem('kurmet-language-v1')==='en'}catch(e){return false}};
+ function render(){
+  const en=lang();
+  caption.textContent=(progress===100?(en?'World ready':'Мир готов'):(en?'Loading world... ':'Загрузка мира... ')+(progress+'%'));
+  button.textContent=en?'Continue':'Продолжить';
+  screen.setAttribute('aria-label',en?'KURMET UNIVERSE — loading':'KURMET UNIVERSE — загрузка');
+ }
+ function tick(now){
+  if(entered)return;
+  const elapsed=Math.min(1,(now-start)/duration);
+  const target=Math.round((1-Math.pow(1-elapsed,2))*100);
+  progress=pageReady?target:Math.min(target,95);
+  bar.style.width=progress+'%';render();
+  if(progress===100){button.classList.add('kurmet-boot-ready');return}
+  requestAnimationFrame(tick);
+ }
+ function ready(){pageReady=true}
+ if(!pageReady)window.addEventListener('load',ready,{once:true});
+ /* Prevent a failed external asset from trapping the player. */
+ setTimeout(ready,8000);
+ button.addEventListener('click',()=>{
+  if(progress!==100||entered)return;
+  entered=true;screen.classList.add('kurmet-boot-done');
+  setTimeout(()=>screen.remove(),450);
+ });
+ requestAnimationFrame(tick);
 })();
 </script>
 </body>
