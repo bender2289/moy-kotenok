@@ -17,20 +17,13 @@ header{display:flex;gap:16px;justify-content:space-between;align-items:center;pa
 .top-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
 button{border:2px solid #b98a70;border-radius:16px;background:#ffe2c1;color:#64443c;font-weight:800;cursor:pointer;font-size:14px;box-shadow:0 4px #c9a58d;transition:transform .08s ease, background .18s ease, filter .18s ease}
 button:hover{background:#fff0d5;filter:saturate(1.05)}button:active{transform:translateY(3px);box-shadow:0 1px #c9a58d}
-button.secondary{min-height:42px;padding:0 14px}
-button.room,button.swatch,button.accessory{min-height:44px;padding:0 12px;font-size:13px;background:#fff2df}
-button.room.active,button.swatch.active,button.accessory.active{background:#ffd39d}
-button.room.locked{background:#f1e9e4;color:#886e62;border-style:dashed}.quest-cooldown{font-size:12px;font-weight:800;color:#86695d;font-variant-numeric:tabular-nums}#newQuests:disabled{opacity:.58;cursor:not-allowed}
+button.secondary{min-height:42px;padding:0 14px}.quest-cooldown{font-size:12px;font-weight:800;color:#86695d;font-variant-numeric:tabular-nums}#newQuests:disabled{opacity:.58;cursor:not-allowed}
 button.sound-on{background:#dbffe5}button.sound-off{background:#ffe4e1}
 .dashboard{display:grid;grid-template-columns:1.2fr .95fr;gap:14px;padding:14px 18px;background:linear-gradient(180deg,#fff6ea,#fff9f2)}
 .panel{background:#fffdf9;border:2px solid #edd4c4;border-radius:18px;padding:12px 12px 10px;box-shadow:0 4px 0 #f2e1d7}
 .panel h3{margin:0 0 10px;font-size:14px;letter-spacing:.05em;color:#8b6558}
 .panel .line{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .label{font-size:11px;font-weight:900;letter-spacing:.09em;color:#8f6a5d;min-width:78px}
-.namebox{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
-.namebox input{border:2px solid #d8b2a1;border-radius:12px;padding:10px 12px;font:600 14px Inter,system-ui,sans-serif;min-width:160px;background:#fffaf6;color:#64443c}
-.swatches,.accessories,.rooms{display:flex;gap:8px;flex-wrap:wrap}
-.swatch i,.accessory i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-1px;border:1px solid #00000022}
 .quest-list{display:grid;gap:8px;margin:0;padding:0;list-style:none}.quest{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:9px 10px;border-radius:12px;background:#fff6ed;border:1px solid #eed7c8;font-size:13px}.quest.done{background:#eaf9e8;border-color:#b8e0b7}.quest b{font-size:12px;color:#7c6057}.reward{font-size:13px;font-weight:900;color:#8c695d;margin-top:8px}
 /* Location navigation uses the original drawn arrow only, never the browser/button skin. */
 button.kurmet-location-arrow{
@@ -88,22 +81,13 @@ canvas{display:block;width:100%;height:100%;touch-action:manipulation}
 .progress-panel{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:11px 18px;background:#fff6eb;border-bottom:2px solid #efd5c3;font-size:13px;font-weight:800}
 .currency{background:#ffe5aa;border:2px solid #dfbc75;padding:8px 12px;border-radius:13px;white-space:nowrap}
 .level-label{white-space:nowrap}.xp-track{background:#eadacf;height:12px;border-radius:30px;overflow:hidden;flex:1;min-width:70px;box-shadow:inset 0 1px 2px #caa9a0}.xp-fill{height:100%;width:0;background:linear-gradient(90deg,#fcb56d,#f49bb7);transition:width .3s}.goal-text{color:#8a6a5a;font-size:12px}
-.shop-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.shop-card{border:2px solid #ead1bf;background:#fffaf4;border-radius:17px;padding:14px;display:grid;gap:8px}.shop-card strong{font-size:16px}.shop-card p{font-size:12px;margin:0;color:#886d60}.shop-card button{min-height:41px;padding:5px 10px}/* Purchase feedback stays visible even when the shop dialog covers the game. */
-.shop-notice{margin:10px 0 13px;padding:11px 13px;border:2px solid #e6a4a0;border-radius:12px;background:#fff0ee;color:#873f3f;font-size:13px;font-weight:850;line-height:1.4}
-.shop-notice[hidden]{display:none!important}
-.shop-notice.success{background:#e9f7df;border-color:#b0d79f;color:#456a32}
-.shop-section-heading{font-size:17px;font-weight:900;margin:14px 0 9px;color:#664940}
-.room-shop-card.owned{background:#f2faed;border-color:#c1d9ad}
-.room-shop-card .room-icon{font-size:28px;line-height:1.1}
 /* Small, clean reward pop-up instead of oversized floating emoji. */
 .coin-floats{position:absolute;inset:0;pointer-events:none;z-index:8;overflow:hidden}
 .coin-float{position:absolute;left:50%;top:50%;display:flex;align-items:center;gap:5px;transform:translate(-50%,10px);font:900 20px/1 system-ui,Arial,sans-serif;color:#fffaf0;white-space:nowrap;text-shadow:0 2px 4px #573d2b;animation:coinFly .9s ease-out forwards;will-change:transform,opacity}
 .coin-small{position:relative;width:19px;height:19px;display:inline-flex;align-items:center;justify-content:center;flex:none;border-radius:50%;border:2px solid #ffed93;background:linear-gradient(135deg,#ffe888,#f5ac22);box-shadow:inset 0 0 0 2px #d88a19,0 1px 3px #74502955;color:#a65d0a;font-size:11px;line-height:1}
 @keyframes coinFly{0%{opacity:0;transform:translate(-50%,12px)}20%{opacity:1;transform:translate(-50%,0)}75%{opacity:1;transform:translate(-50%,-22px)}100%{opacity:0;transform:translate(-50%,-35px)}}
 @media(prefers-reduced-motion:reduce){.coin-float{animation-duration:.3s}}
-
-.shop-intro,.shop-goal{font-size:13px;line-height:1.5;color:#785c52}.shop-goal{font-weight:800}
-@media(max-width:640px){.shop-grid{grid-template-columns:1fr}.progress-panel{gap:8px;padding:8px 12px}.goal-text{width:100%}}
+@media(max-width:640px){.progress-panel{gap:8px;padding:8px 12px}.goal-text{width:100%}}
 
 /* Portrait-first mobile layout: keep every main control on screen. */
 html,body{width:100%;overscroll-behavior:none}
@@ -136,8 +120,6 @@ html,body{width:100%;overscroll-behavior:none}
   .modal-top h2{font-size:20px}
   .modal-content .panel{padding:10px}
   .modal-content button{font-size:12px}
-  .shop-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
-  .shop-card{padding:9px;gap:5px}
 }
 @media(max-height:640px) and (max-width:900px){
   header{gap:3px;padding-top:calc(4px + env(safe-area-inset-top));padding-bottom:3px}
@@ -148,12 +130,6 @@ html,body{width:100%;overscroll-behavior:none}
   .actions{gap:5px;padding-top:3px;padding-bottom:calc(5px + env(safe-area-inset-bottom))}
   .actions button{min-height:41px}
 }
-
-/* Coin icon drawn with CSS, so missing emoji fonts cannot render a square. */
-.shop-price-coin{display:inline-flex;flex:none;vertical-align:middle;width:16px;height:16px;margin:0 3px;align-items:center;justify-content:center;border:2px solid #eab64a;border-radius:50%;background:linear-gradient(135deg,#fff3a3 10%,#ffcf54 45%,#e8a123 100%);box-shadow:inset 0 0 0 1px #fff3bd,0 1px 2px #694b3155;color:#a35d13;font:900 10px/1 Arial,sans-serif}
-.shop-price-coin::after{content:'★';font-size:8px}
-.shop-price{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
-.shop-card button .shop-price-coin{margin:0 4px 0 0}
 /* Growth / care HUD. Mobile keeps two action rows and a single compact need row. */
 .stats{grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
 .actions{grid-template-columns:repeat(5,minmax(0,1fr))}
@@ -227,9 +203,7 @@ button:focus-visible,input:focus-visible{outline:3px solid #689b92;outline-offse
 .modal-overlay{background:#3e392a70;backdrop-filter:blur(9px)}.modal-content{background:#fffaf3;border:1px solid #fff;border-radius:25px;box-shadow:0 24px 80px #302a3040;padding:22px}
 .modal-top h2{font-size:23px;letter-spacing:-.6px;color:#73604f}.modal-close{border:0;background:#f2e8de;box-shadow:none;border-radius:50%;font-size:17px}
 .panel{border:1px solid #e8ded1;background:#fffdf9;box-shadow:none;border-radius:18px;padding:16px}.panel h3{font-size:11px;color:#a28d77;letter-spacing:.12em}
-.shop-card{border:1px solid #e8ddce;border-radius:18px;background:#fffef9;padding:16px;gap:10px}.shop-card p{line-height:1.5}.shop-card button{background:#e8eddd;border-color:#d8e1cc;box-shadow:0 2px #cdd8c0}
-.quest{padding:13px;background:#f8f2e9;border:1px solid #eee2d4;border-radius:13px}.quest.done{background:#edf3e7}.namebox input{border:1px solid #dcd2c5;background:#fffdf8}
-button.room.active,button.swatch.active,button.accessory.active{background:#e4eddd;border-color:#97b78e;color:#58704e}
+.quest{padding:13px;background:#f8f2e9;border:1px solid #eee2d4;border-radius:13px}.quest.done{background:#edf3e7}
 @media(min-width:901px) and (pointer:fine){.app{width:min(760px,calc(100vw - 44px))}.scene{width:calc(100% - 44px);height:min(58vh,590px);margin:0 22px}.top-actions{justify-content:flex-start}header{padding-bottom:14px}.title{width:100%}}
 @media(max-width:900px),(pointer:coarse){
  body{background:var(--paper)}.app{border-radius:0;border:0;box-shadow:none}
@@ -242,7 +216,7 @@ button.room.active,button.swatch.active,button.accessory.active{background:#e4ed
  .action-timer{height:20px;margin-bottom:1px}.timer-copy,.timer-number{font-size:9px}
  .actions{grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;padding:8px 12px calc(15px + env(safe-area-inset-bottom))}
  .actions button{min-height:70px;padding:6px 2px;gap:7px;border-radius:15px;font-size:clamp(8px,2.3vw,11px);box-shadow:0 3px 0 var(--button-shadow)}.actions button:last-child{grid-column:auto}.action-icon{font-size:24px}
- .modal-content{padding:16px}.shop-card{padding:12px}.modal-top h2{font-size:20px}
+ .modal-content{padding:16px}.modal-top h2{font-size:20px}
 }
 @media(max-height:700px) and (max-width:900px){header{padding-top:6px;gap:4px}.title h1{font-size:20px}.title small{display:none}.progress-panel{margin-top:3px;margin-bottom:6px;min-height:32px;padding:4px 8px}.actions button{min-height:58px;gap:4px}.action-icon{font-size:20px}.actions{padding-bottom:8px}.stat{padding-top:5px!important;padding-bottom:5px!important}.status-hud{padding-top:3px}}
 @media(prefers-reduced-motion:reduce){button,.fill,.xp-fill{transition:none}}
@@ -264,23 +238,7 @@ button.room.active,button.swatch.active,button.accessory.active{background:#e4ed
 .life-badge{position:absolute;left:12px;bottom:12px;z-index:3;pointer-events:none;max-width:65%;padding:7px 11px;background:#fffaf0d9;border:1px solid #f8eddb;border-radius:12px;box-shadow:0 2px 8px #56463111;font-size:11px;color:#7c6c59;font-weight:750;transition:opacity .24s}
 .life-badge[hidden]{display:none}
 @media(max-width:900px),(pointer:coarse){.life-badge{bottom:8px;left:8px;padding:5px 8px;font-size:10px}}
-
-/* v20 · store categories + in-room placement editor */
-.shop-tabs{position:sticky;top:67px;z-index:8;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;background:#fffaf3;padding:9px 0 11px;margin:3px 0 10px}
-.shop-tab{min-height:43px;padding:7px 6px;font-size:clamp(11px,2.7vw,14px);border-radius:12px;box-shadow:none;background:#f3ece3}
-.shop-tab.active{background:#dfebd8;color:#526e50;border-color:#aec7a6}
-.shop-page[hidden]{display:none!important}.shop-page{min-height:135px}
-.placement-hint{position:absolute;left:12px;right:12px;bottom:15px;z-index:12;padding:10px 14px;background:#fffdf5ef;border:1px solid #d3c5b6;border-radius:15px;box-shadow:0 4px 20px #51453725;text-align:center;font-weight:800;font-size:12px;line-height:1.4;pointer-events:none}
-.placement-hint[hidden]{display:none!important}
-.edit-furniture-on .scene{outline:3px solid #96b99b;outline-offset:-3px}
-.edit-furniture-on canvas{cursor:grab;touch-action:none}
-.placement-controls{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:7px 12px;background:#f0f5ec;border-bottom:1px solid #d7e4d2}
-.placement-controls[hidden]{display:none!important}
-.placement-controls button{font-size:12px;padding:8px 11px;min-height:36px;box-shadow:none}
-.placement-controls .place-state{flex:1;font-size:12px;color:#61745f;font-weight:800}
-.placement-controls button.warn{background:#f8e5e1;color:#9d5d54}
-#editHome.active{background:#e2eddc;color:#4c7158}
-@media(max-width:900px),(pointer:coarse){.shop-tabs{top:61px}.placement-hint{bottom:7px;font-size:10px;padding:7px 10px}.placement-controls{gap:4px;padding:5px 9px}.placement-controls button{padding:6px 8px;font-size:11px;min-height:31px}}
+@media(max-width:900px),(pointer:coarse){}
 
 /* KURMET UI: charcoal-grey palette. Original location/arrow artwork untouched. */
 :root{
@@ -323,19 +281,9 @@ button:not(.kurmet-location-arrow):disabled{opacity:.55}
 .modal-close{background:#393940!important;color:#f0f0f3!important}
 .panel,.shop-card{background:#29292e!important;border-color:#45454c!important;color:#eaeaec!important;box-shadow:none!important}
 .panel h3,.label,.shop-section-heading{color:#d0d0d5!important}
-.shop-card p,.shop-intro,.shop-goal{color:#b9b9c0!important}
-.shop-tabs{background:#222227!important}.shop-tab{background:#33333a!important}
-.shop-tab.active{background:#49494f!important;border-color:#77777e!important;color:#fff!important}
 .quest,.quest.done,.room-shop-card.owned{background:#333339!important;border-color:#4d4d55!important;color:#eeeeef!important}
 .quest b,.reward,.quest-cooldown{color:#d4d4d9!important}
-.namebox input{background:#303035!important;border-color:#585860!important;color:#f2f2f4!important}
-.shop-notice{background:#3a3031!important;border-color:#77575b!important;color:#f1d3d7!important}
-.shop-notice.success{background:#293b34!important;border-color:#507a61!important;color:#d3ecdb!important}
 .life-badge{background:#29292eea!important;border-color:#57575e!important;color:#ededee!important;box-shadow:0 2px 8px #0006!important}
-.placement-hint{background:#29292ef0!important;border-color:#53535b!important;color:#ececee!important}
-.placement-controls{background:#29292e!important;border-color:#45454b!important}
-.placement-controls .place-state{color:#d5d5d9!important}
-#editHome.active,button.room.active,button.swatch.active,button.accessory.active{background:#49494f!important;border-color:#77777e!important;color:#fff!important}
 button.kurmet-location-arrow,button.kurmet-location-arrow:hover,button.kurmet-location-arrow:active{
  background:transparent!important;border:0!important;box-shadow:none!important;
 }
@@ -367,7 +315,6 @@ header .top-actions{width:100%;justify-content:flex-start;align-items:center;min
    width:calc(100% - 12px)!important;margin:3px 6px 0!important;
    border-radius:15px!important;
  }
- .placement-controls{order:-1}
  .status-hud{order:1;padding:3px 7px 0!important;flex:none!important}
  .action-timer{height:17px!important;margin-bottom:0!important}
  .status-hud .stats{gap:4px!important;padding:2px 0 3px!important}
@@ -421,7 +368,6 @@ button.kurmet-location-arrow:focus{transform:none!important;}
    padding:4px 7px!important;
    min-height:30px!important;
  }
- .app>.placement-controls{order:1!important;}
  .app>.scene{order:2!important;}
  .app>.status-hud{order:3!important;}
  .app>.actions{order:4!important;}
@@ -559,7 +505,6 @@ button.kurmet-location-arrow:focus-visible img{
 @media(max-width:900px),(pointer:coarse){
  .app>.scene{order:2!important;flex:1 1 auto!important;min-height:0!important;width:calc(100% - 12px)!important;margin:3px 6px 5px!important}
  .app>.progress-panel{order:0!important}
- .app>.placement-controls{order:1!important}
  .app>.foot{display:none!important}
  .kurmet-scene-tool{font-size:clamp(10px,2.7vw,12px)!important;min-height:34px;padding:6px 8px!important;border-radius:9px!important}
  .kurmet-scene-tool.top-left,.kurmet-scene-tool.top-right{top:9px}
@@ -1036,12 +981,6 @@ button:not(.kurmet-location-arrow):not(.kurmet-back):not(.kurmet-detail-back):no
  .kg-time{font-size:14px!important}
 }
 
-/* Hidden prototype features (shop, customization, furniture placement). */
-#openCustom,#openShop,#editHome{display:none!important}
-
-/* KURMET: customization, shop and furniture placement suspended during prototype. */
-#openCustom,#openShop,#editHome,#customModal,#shopModal,#placementControls,#placeHint{display:none!important}
-
 </style>
 </head>
 <body>
@@ -1357,7 +1296,7 @@ const TEST_UNLIMITED_COINS=true; // Test builds: purchases never deduct coins.
 function store(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({stats:state.stats,location:state.location,custom:{name:state.custom.name},sound:state.sound,quests:state.quests,stars:state.stars,questSetsDone:state.questSetsDone,questSetAwarded:state.questSetAwarded,coins:state.coins,xp:state.xp,totalCare:state.totalCare,questRefreshAt:state.questRefreshAt}));}catch(e){}}
 function load(){try{
  const o=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(!o)return false;
- if(LOCATIONS.includes(o.location))state.location=o.location;
+ if(['cave','prison','laboratory'].includes(o.location))state.location=o.location;
  if(o.stats)for(const k of ['food','happy','energy','clean','bond'])if(Number.isFinite(o.stats[k]))state.stats[k]=clamp(o.stats[k],0,100);
  state.room='cozy';
  if(Number.isFinite(o.questRefreshAt))state.questRefreshAt=Math.max(0,Math.floor(o.questRefreshAt));
@@ -1371,9 +1310,6 @@ function progressUI(){
  const level=levelOf(),stage=ageStage();
  coinsEl.textContent=TEST_UNLIMITED_COINS?'∞':state.coins;levelEl.textContent=level;xpFillEl.style.width=(state.xp%100)+'%';
  document.getElementById('ageLabel').textContent=stage.name;
- const details=document.getElementById('growthDetails');
- if(details)details.textContent=`${stage.name} · уровень ${level} · связь ${Math.round(state.stats.bond)}%`;
-
  goalTextEl.textContent=`⭐ Уровень ${level} · Забота о персонаже`;
 }
 function floatCoins(amount){
@@ -2440,6 +2376,7 @@ kurmetLangObserver.observe(document.body,{subtree:true,childList:true,characterD
 kurmetSetLanguage(kurmetLanguage);
 
 initLocation();
+store(); // Upgrade previous saves without writing obsolete furniture or cosmetic fields.
 requestAnimationFrame(frame);
 </script>
 </body>
