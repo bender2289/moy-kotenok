@@ -1038,6 +1038,10 @@ button:not(.kurmet-location-arrow):not(.kurmet-back):not(.kurmet-detail-back):no
 
 /* Hidden prototype features (shop, customization, furniture placement). */
 #openCustom,#openShop,#editHome{display:none!important}
+
+/* KURMET: customization, shop and furniture placement suspended during prototype. */
+#openCustom,#openShop,#editHome,#customModal,#shopModal,#placementControls,#placeHint{display:none!important}
+
 </style>
 </head>
 <body>
@@ -1459,9 +1463,7 @@ function progressUI(){
  const details=document.getElementById('growthDetails');
  if(details)details.textContent=`${stage.name} · уровень ${level} · связь ${Math.round(state.stats.bond)}%`;
 
- const n=state.owned.length;
- goalTextEl.textContent=n===SHOP_ITEMS.length?`🏆 Домик мечты готов! Уровень ${level} • забот: ${state.totalCare}`:`Цель: обустрой пещеру (${n}/${SHOP_ITEMS.length} предметов)`;
- renderShop();
+ goalTextEl.textContent=`⭐ Уровень ${level} · Забота о персонаже`;
 }
 function floatCoins(amount){
  if(!amount)return;
@@ -1489,6 +1491,7 @@ function priceCoinLabel(cost, prefix=''){
  return group;
 }
 function renderShop(){
+ return; // Temporarily suspended; preserve all player purchases.
  for(const category of ['furniture','decor']){
   const grid=document.getElementById(category==='furniture'?'shopFurniture':'shopDecor');grid.replaceChildren();
   for(const it of SHOP_ITEMS.filter(i=>i.category===category)){
@@ -1756,6 +1759,7 @@ function drawRoomPortrait(t){
 function drawAtmosphere(t){ /* Cave drawing preserved without filters or a drawn rug. */ }
 
 function drawPurchasedDecor(t){
+ return; // Hide purchased assets for prototype; do not erase saved data.
  for(const p of placementsFor().filter(p=>WALL_ITEMS.has(p.id)))drawPlacedItem(p,t);
  for(const p of placementsFor().filter(p=>!WALL_ITEMS.has(p.id)).sort((a,b)=>a.y-b.y))drawPlacedItem(p,t);
  if(placement.active && placement.pending){const mouse=placement.preview||{x:300,y:WALL_ITEMS.has(placement.pending)?.31:.78};ctx.save();ctx.globalAlpha=.52;drawPlacedItem({id:placement.pending,...mouse},t);ctx.restore();}
@@ -2193,6 +2197,7 @@ function syncPlacement(){
  removePlaced.hidden=!(placement.selected && isPlaced(placement.selected));
 }
 function beginPlacement(id){
+ return; // Temporarily disabled; preserve saved placement positions.
  placement={active:true,pending:isPlaced(id)?null:id,selected:isPlaced(id)?id:null,dragging:false,pointerId:null};
  syncPlacement();setBubble(`Выбери место для «${SHOP_ITEMS.find(i=>i.id===id)?.name||'предмета'}» 🏡`);
 }
