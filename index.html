@@ -856,6 +856,36 @@ button:not(.kurmet-location-arrow):not(.kurmet-back):not(.kurmet-detail-back):no
  color:#24180b!important;
 }
 
+
+/* Prototype mini-game: full viewport, fixed independent game field, safe iPhone layout. */
+.kurmet-cave-launch{position:absolute;z-index:15;left:50%;bottom:66px;transform:translateX(-50%);white-space:nowrap;min-height:40px!important;padding:7px 16px!important;font-size:13px!important}
+.kurmet-cave-launch[hidden],.kurmet-minigame[hidden],.kg-result[hidden],.kg-hint[hidden]{display:none!important}
+.kurmet-minigame{
+ position:fixed!important;inset:0!important;z-index:700!important;
+ width:100%!important;height:100vh!important;height:100dvh!important;
+ display:flex!important;flex-direction:column!important;
+ background:#111117!important;color:#f6e4b6!important;
+ padding:0!important;overflow:hidden!important;
+}
+.kg-header{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) 13px 8px;background:#222229;min-height:65px;border-bottom:1px solid #51472f}
+.kg-exit{height:43px;min-width:46px;padding:3px!important;font-size:25px!important;font-weight:900!important}
+.kg-heading{display:flex;flex:1;min-width:0;flex-direction:column;gap:3px}
+.kg-heading strong{font-size:clamp(14px,4vw,20px);line-height:1.1;color:#f9d574}
+.kg-heading small{font-size:11px;color:#b9ac95}
+.kg-time{flex:0 0 auto;font-size:20px;font-weight:900;font-variant-numeric:tabular-nums}
+.kg-stats{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 14px;background:#2c2832;font-size:14px;font-weight:800;color:#f6d780}
+.kg-arena{position:relative;flex:1 1 auto;min-height:0;width:100%;overflow:hidden;touch-action:none}
+.kg-arena canvas{display:block;width:100%;height:100%;touch-action:none}
+.kg-hint{position:absolute;top:20%;left:10%;width:80%;text-align:center;padding:14px;background:#16151bbb;color:#ffe8b5;border:1px solid #9e864f;border-radius:11px;pointer-events:none;font-size:13px;line-height:1.4;animation:kgHintFade 4.5s forwards}
+@keyframes kgHintFade{0%,45%{opacity:1}100%{opacity:0}}
+.kg-footer{flex:0 0 auto;display:flex;justify-content:center;align-items:center;gap:10px;padding:10px 12px calc(14px + env(safe-area-inset-bottom,0px));background:#26232b;min-height:56px;text-align:center;font-size:13px;font-weight:750;color:#e6cb8e}
+.kg-footer button[hidden]{display:none!important}
+.kg-result{position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center;background:#101018d8;padding:20px}
+.kg-result-box{width:min(100%,400px);border:2px solid #b8984d;border-radius:19px;background:#29252e;color:#ffe0a0;padding:24px;text-align:center}
+.kg-result-box h2{margin:0 0 18px}.kg-result-box strong{font-size:28px}.kg-result-box button{padding:11px 12px!important;min-width:120px;margin:7px!important}
+@media(min-width:901px) and (pointer:fine){.kurmet-minigame{width:min(100%,760px)!important;left:50%!important;right:auto!important;transform:translateX(-50%)}}
+@media(max-width:420px){.kg-time{font-size:17px}.kg-stats{font-size:12px}.kg-header{padding-left:8px;padding-right:8px}.kg-heading small{font-size:10px}}
+
 </style>
 </head>
 <body>
@@ -997,6 +1027,7 @@ button:not(.kurmet-location-arrow):not(.kurmet-back):not(.kurmet-detail-back):no
   </div>
   <section class="scene">
     <canvas id="game"></canvas>
+    <button type="button" id="openCaveGame" class="kurmet-cave-launch" aria-haspopup="dialog" aria-controls="caveMiniGame">☀ Покорми меня</button>
     <button type="button" id="openPetStatus" class="kurmet-scene-tool top-left" aria-haspopup="dialog" aria-controls="petStatusModal">💗 Состояние</button>
     <button type="button" id="openPetActions" class="kurmet-scene-tool top-right" aria-haspopup="dialog" aria-controls="petActionsModal">✦ Действия</button>
     <button type="button" id="openMainMenu" class="kurmet-scene-tool bottom-right" aria-haspopup="dialog" aria-controls="mainMenuModal">☰ Меню</button>
@@ -1016,6 +1047,29 @@ button:not(.kurmet-location-arrow):not(.kurmet-back):not(.kurmet-detail-back):no
 
 
   <div class="foot">Пещера · тест окружения · редактор дома · тестовые монеты ∞</div>
+</div>
+
+<!-- First KURMET location mini-game: prototype, 60-second catch challenge. -->
+<div id="caveMiniGame" class="kurmet-minigame" role="dialog" aria-modal="true" aria-label="Покорми меня" hidden>
+ <div class="kg-header">
+   <button id="kgExit" class="kg-exit" type="button" aria-label="Вернуться в пещеру">←</button>
+   <div class="kg-heading"><strong>ПОКОРМИ МЕНЯ</strong><small>Пещера · испытание</small></div>
+   <div class="kg-time" aria-live="off"><span id="kgTime">01:00</span> ⏱</div>
+ </div>
+ <div class="kg-stats"><span>☀ Очки: <b id="kgScore">0</b></span><span>🏆 Рекорд: <b id="kgBest">0</b></span></div>
+ <div class="kg-arena">
+   <canvas id="kgCanvas" aria-label="Лови светящиеся солнца чашей, передвигая палец по экрану"></canvas>
+   <div class="kg-hint" id="kgHint">Веди пальцем по экрану, чтобы ловить солнца чашей!</div>
+ </div>
+ <div class="kg-footer">
+   <div id="kgMessage">Лови золотые солнца · +10 очков</div>
+   <button type="button" id="kgStart">Начать игру</button>
+ </div>
+ <div class="kg-result" id="kgResult" hidden>
+  <div class="kg-result-box"><h2>Время вышло!</h2><p>Твои очки: <strong id="kgFinalScore">0</strong></p><p>Лучший результат: <strong id="kgFinalBest">0</strong></p>
+   <button type="button" id="kgAgain">Играть ещё</button><button type="button" id="kgLeave">В пещеру</button>
+  </div>
+ </div>
 </div>
 
 <script>
@@ -1473,6 +1527,7 @@ const refreshLocationNavigation=()=>{
  document.getElementById('locationTitle').textContent=LOCATION_TITLES[state.location];
  document.getElementById('locationLeft').disabled=pos<=0;
  document.getElementById('locationRight').disabled=pos>=LOCATIONS.length-1;
+ document.getElementById('openCaveGame').hidden=state.location!=='cave';
 };
 const changeLocation=(delta)=>{
  const i=LOCATIONS.indexOf(state.location);
@@ -2114,6 +2169,144 @@ function frame(now){
   syncActionTimer(now);
   draw(now); requestAnimationFrame(frame);
 }
+
+// KURMET cave mini-game v1: no new assets or game dependencies, independent overlay.
+const kg={
+ root:document.getElementById('caveMiniGame'),
+ canvas:document.getElementById('kgCanvas'),
+ context:document.getElementById('kgCanvas').getContext('2d'),
+ active:false,opened:false,ended:false,
+ score:0,best:0,drops:[],sparkles:[],
+ bowlX:.5,timeLeft:60,startedAt:0,lastFrame:0,lastSpawn:0,raf:0
+};
+try{kg.best=Math.max(0,Number(localStorage.getItem('kurmet-cave-minigame-best-v1'))||0)}catch(e){}
+const kgTime=document.getElementById('kgTime'),kgScore=document.getElementById('kgScore'),kgBest=document.getElementById('kgBest');
+function kgUpdateLabels(){
+ kgTime.textContent='00:'+String(Math.max(0,Math.ceil(kg.timeLeft))).padStart(2,'0');
+ if(kg.timeLeft>=60)kgTime.textContent='01:00';
+ kgScore.textContent=String(kg.score);
+ kgBest.textContent=String(kg.best);
+}
+function kgSize(){
+ const bounds=kg.canvas.getBoundingClientRect(),dpr=Math.min(2,devicePixelRatio||1);
+ const w=Math.max(10,Math.round(bounds.width*dpr)),h=Math.max(10,Math.round(bounds.height*dpr));
+ if(kg.canvas.width!==w||kg.canvas.height!==h){kg.canvas.width=w;kg.canvas.height=h;}
+}
+function kgMove(ev){
+ if(!kg.opened)return;
+ const rect=kg.canvas.getBoundingClientRect();
+ if(!rect.width)return;
+ kg.bowlX=Math.max(.105,Math.min(.895,(ev.clientX-rect.left)/rect.width));
+}
+kg.canvas.addEventListener('pointerdown',ev=>{kg.canvas.setPointerCapture?.(ev.pointerId);kgMove(ev);});
+kg.canvas.addEventListener('pointermove',ev=>{if(ev.buttons||ev.pointerType==='touch')kgMove(ev);});
+function kgSun(ctx,x,y,r,rotation){
+ ctx.save();ctx.translate(x,y);ctx.rotate(rotation);
+ ctx.fillStyle='#f4bd23';ctx.strokeStyle='#26160f';ctx.lineWidth=2.4;
+ ctx.beginPath();
+ for(let i=0;i<20;i++){const a=i*Math.PI/10,rad=i%2?r*.7:r;const px=Math.cos(a)*rad,py=Math.sin(a)*rad;i?ctx.lineTo(px,py):ctx.moveTo(px,py);}
+ ctx.closePath();ctx.fill();ctx.stroke();
+ ctx.beginPath();ctx.arc(0,0,r*.54,0,Math.PI*2);ctx.fillStyle='#ffec70';ctx.fill();ctx.stroke();
+ ctx.fillStyle='#221910';ctx.beginPath();ctx.arc(-r*.19,-r*.06,1.7,0,7);ctx.arc(r*.19,-r*.06,1.7,0,7);ctx.fill();
+ ctx.restore();
+}
+function kgDraw(now){
+ kgSize();
+ const c=kg.context,w=kg.canvas.width,h=kg.canvas.height,unit=Math.min(w/360,h/660);
+ c.clearRect(0,0,w,h);
+ c.fillStyle='#15151b';c.fillRect(0,0,w,h);
+ // Prototype cave art: simple ink contours and patterned floor, inspired by the user's layout.
+ c.strokeStyle='#4b4652';c.lineWidth=Math.max(1,2*unit);
+ c.beginPath();
+ for(let i=0;i<5;i++){
+  const x=w*(i+.45)/5;c.moveTo(x,0);
+  c.lineTo(x+Math.sin(i*7)*w*.03,h*.12+i%2*h*.05);
+ }
+ c.stroke();
+ c.fillStyle='#302e3b';c.fillRect(0,h*.83,w,h*.17);
+ c.strokeStyle='#715b78';c.beginPath();
+ for(let i=0;i<9;i++){const px=i*w/8;c.moveTo(px,h*.83);c.lineTo(w/2+(px-w/2)*1.3,h);}
+ c.stroke();
+ c.strokeStyle='#574c5b';c.beginPath();
+ for(let i=0;i<4;i++){const y=h*(.86+i*.044);c.moveTo(0,y);c.lineTo(w,y);}c.stroke();
+ // Top source / floating hand with coin
+ c.fillStyle='#e4ba60';c.strokeStyle='#2c201f';c.lineWidth=3*unit;
+ c.beginPath();c.ellipse(w*.5,h*.055,22*unit,27*unit,0,0,Math.PI*2);c.fill();c.stroke();
+ c.strokeStyle='#3b2321';c.lineWidth=4*unit;c.beginPath();c.moveTo(w*.48,h*.036);c.lineTo(w*.48,h*.092);c.stroke();
+ // Moving bowl / character.
+ const bx=kg.bowlX*w,by=h*.864;
+ c.save();c.translate(bx,by);
+ c.fillStyle='#cfb581';c.strokeStyle='#1e1512';c.lineWidth=3.1*unit;
+ c.beginPath();c.ellipse(0,6*unit,42*unit,16*unit,0,0,Math.PI);c.lineTo(30*unit,13*unit);
+ c.quadraticCurveTo(0,39*unit,-30*unit,13*unit);c.closePath();c.fill();c.stroke();
+ c.fillStyle='#ffe9b0';c.beginPath();c.ellipse(0,6*unit,42*unit,10*unit,0,0,7);c.fill();c.stroke();
+ c.beginPath();c.moveTo(0,37*unit);c.lineTo(0,65*unit);c.moveTo(-15*unit,65*unit);c.lineTo(15*unit,65*unit);c.stroke();
+ c.restore();
+ for(const drop of kg.drops)kgSun(c,drop.x*w,drop.y*h,drop.r*unit,drop.rot);
+ for(const spark of kg.sparkles){
+  c.globalAlpha=Math.max(0,spark.life);c.fillStyle='#ffe36a';
+  c.beginPath();c.arc(spark.x*w,spark.y*h,spark.rad*unit,0,7);c.fill();c.globalAlpha=1;
+ }
+ if(!kg.active && !kg.ended){
+  c.fillStyle='#e9d4a3';c.font='bold '+Math.max(15,17*unit)+'px system-ui';
+  c.textAlign='center';c.fillText('Поймай как можно больше солнц!',w/2,h*.48);
+ }
+}
+function kgEnd(){
+ if(!kg.opened)return;
+ kg.active=false;kg.ended=true;kg.timeLeft=0;kgUpdateLabels();
+ if(kg.score>kg.best){kg.best=kg.score;try{localStorage.setItem('kurmet-cave-minigame-best-v1',String(kg.best))}catch(e){}}
+ kgUpdateLabels();document.getElementById('kgFinalScore').textContent=kg.score;
+ document.getElementById('kgFinalBest').textContent=kg.best;
+ document.getElementById('kgResult').hidden=false;
+ document.getElementById('kgStart').hidden=true;
+ document.getElementById('kgMessage').textContent='Испытание завершено';
+}
+function kgFrame(now){
+ if(!kg.opened)return;
+ const dt=Math.min(.06,Math.max(0,(now-kg.lastFrame)/1000));kg.lastFrame=now;
+ if(kg.active){
+  kg.timeLeft=Math.max(0,60-(now-kg.startedAt)/1000);
+  if(kg.timeLeft<=0){kgEnd();}
+  else{
+   if(now-kg.lastSpawn>Math.max(300,850-(60-kg.timeLeft)*6)){
+    kg.lastSpawn=now;kg.drops.push({x:.08+Math.random()*.84,y:-.06,r:13+Math.random()*4,speed:.19+Math.random()*.10,rot:Math.random()*3});
+   }
+   for(const d of kg.drops){
+    d.y+=d.speed*dt;d.rot+=dt*2;
+    if(d.y>=.845 && Math.abs(d.x-kg.bowlX)<.112 && !d.hit){
+     d.hit=true;kg.score+=10;
+     for(let i=0;i<7;i++)kg.sparkles.push({x:d.x+(.5-Math.random())*.06,y:.84,life:1,rad:2+Math.random()*3});
+    }else if(d.y>1.05)d.hit=true;
+   }
+   kg.drops=kg.drops.filter(d=>!d.hit);
+   kg.sparkles.forEach(sp=>{sp.life-=dt*1.6;sp.y-=dt*.055});kg.sparkles=kg.sparkles.filter(sp=>sp.life>0);
+   kgUpdateLabels();
+  }
+ }
+ kgDraw(now);kg.raf=requestAnimationFrame(kgFrame);
+}
+function kgBegin(){
+ cancelAnimationFrame(kg.raf);
+ kg.opened=true;kg.active=true;kg.ended=false;
+ kg.score=0;kg.timeLeft=60;kg.drops=[];kg.sparkles=[];kg.bowlX=.5;
+ kg.startedAt=performance.now();kg.lastFrame=kg.startedAt;kg.lastSpawn=kg.startedAt-500;
+ kg.root.hidden=false;document.getElementById('kgResult').hidden=true;
+ document.getElementById('kgStart').hidden=true;document.getElementById('kgHint').hidden=false;
+ document.getElementById('kgMessage').textContent='Лови золотые солнца · +10 очков';
+ kgUpdateLabels();kg.raf=requestAnimationFrame(kgFrame);
+}
+function kgClose(){
+ kg.opened=false;kg.active=false;cancelAnimationFrame(kg.raf);
+ kg.root.hidden=true;document.getElementById('openCaveGame').focus();
+}
+document.getElementById('openCaveGame').addEventListener('click',()=>{if(state.location==='cave'){closeModals(false);kgBegin();}});
+document.getElementById('kgExit').addEventListener('click',kgClose);
+document.getElementById('kgLeave').addEventListener('click',kgClose);
+document.getElementById('kgAgain').addEventListener('click',kgBegin);
+document.getElementById('kgStart').addEventListener('click',kgBegin);
+kgUpdateLabels();
+
 initLocation();
 requestAnimationFrame(frame);
 </script>
