@@ -1003,6 +1003,39 @@ button:not(.kurmet-location-arrow):not(.kurmet-back):not(.kurmet-detail-back):no
 .kurmet-language-choices button.selected{outline:3px solid #efd26c!important;outline-offset:1px}
 .kurmet-lang-note{font-size:12px;color:#b5a9a0;text-align:center;line-height:1.4}
 
+
+/* KURMET feed-me pause screen: timer and physics freeze until resumed. */
+.kg-header .kg-pause-button{
+ flex:0 0 43px!important;min-width:43px!important;width:43px!important;
+ height:43px!important;min-height:43px!important;padding:3px!important;
+ border-radius:11px!important;background:#312a32!important;background-image:none!important;
+ border:1px solid #c5a963!important;box-shadow:none!important;
+ font-size:25px!important;color:#f4d67a!important;line-height:1!important;
+ text-shadow:none!important;-webkit-tap-highlight-color:transparent;
+}
+.kg-header .kg-pause-button:active{transform:scale(.93)!important}
+.kg-header .kg-pause-button[hidden],.kg-pause-overlay[hidden]{display:none!important}
+.kg-pause-overlay{
+ position:absolute;inset:0;z-index:6;
+ display:flex;justify-content:center;align-items:center;
+ padding:16px;
+ background:#101017d9;
+}
+.kg-pause-card{
+ width:min(100%,380px);padding:24px 20px;
+ background:#27252d;border:2px solid #c5a963;border-radius:19px;
+ text-align:center;color:#f6e2a3;box-shadow:0 12px 35px #000a;
+}
+.kg-pause-card h2{font-size:clamp(25px,7vw,35px);margin:0 0 19px}
+.kg-pause-card p{font-size:clamp(16px,4.5vw,21px);margin:0 0 22px;line-height:1.4}
+.kg-pause-card strong{font-variant-numeric:tabular-nums;font-size:1.3em}
+.kg-pause-card button{min-height:54px!important;width:min(100%,250px);padding:10px 14px!important;font-size:17px!important}
+@media(max-width:360px){
+ .kg-header .kg-pause-button{flex-basis:37px!important;min-width:37px!important;width:37px!important;height:38px!important;min-height:38px!important;font-size:22px!important}
+ .kg-heading strong{font-size:13px!important}
+ .kg-time{font-size:14px!important}
+}
+
 </style>
 </head>
 <body>
@@ -1196,6 +1229,7 @@ button:not(.kurmet-location-arrow):not(.kurmet-back):not(.kurmet-detail-back):no
    <button id="kgExit" class="kg-exit" type="button" aria-label="Вернуться в пещеру">←</button>
    <div class="kg-heading"><strong>ПОКОРМИ МЕНЯ</strong><small>Пещера · испытание</small></div>
    <div class="kg-time" aria-live="off"><span id="kgTime">01:00</span> ⏱</div>
+   <button id="kgPauseButton" type="button" class="kg-pause-button" aria-label="Пауза" title="Пауза">⏸</button>
  </div>
  <div class="kg-stats"><span>☀ Очки: <b id="kgScore">0</b></span><span>🏆 Рекорд: <b id="kgBest">0</b></span></div>
  <div class="kg-arena">
@@ -1205,6 +1239,13 @@ button:not(.kurmet-location-arrow):not(.kurmet-back):not(.kurmet-detail-back):no
  <div class="kg-footer">
    <div id="kgMessage">Лови золотые солнца · +10 очков</div>
    <button type="button" id="kgStart">Начать игру</button>
+ </div>
+ <div class="kg-pause-overlay" id="kgPauseOverlay" role="dialog" aria-modal="true" aria-labelledby="kgPauseTitle" hidden>
+   <div class="kg-pause-card">
+    <h2 id="kgPauseTitle">⏸ Пауза</h2>
+    <p>☀ Текущие очки: <strong id="kgPausedScore">0</strong></p>
+    <button type="button" id="kgResume">▶ Продолжить</button>
+   </div>
  </div>
  <div class="kg-result" id="kgResult" hidden>
   <div class="kg-result-box"><h2>Время вышло!</h2><p>Твои очки: <strong id="kgFinalScore">0</strong></p><p>Лучший результат: <strong id="kgFinalBest">0</strong></p>
@@ -2316,7 +2357,7 @@ const kg={
  root:document.getElementById('caveMiniGame'),
  canvas:document.getElementById('kgCanvas'),
  context:document.getElementById('kgCanvas').getContext('2d'),
- active:false,opened:false,ended:false,
+ active:false,opened:false,ended:false,paused:false,pausedAt:0,
  score:0,best:0,drops:[],sparkles:[],
  bowlX:.5,timeLeft:60,startedAt:0,lastFrame:0,lastSpawn:0,raf:0
 };
@@ -2334,7 +2375,7 @@ function kgSize(){
  if(kg.canvas.width!==w||kg.canvas.height!==h){kg.canvas.width=w;kg.canvas.height=h;}
 }
 function kgMove(ev){
- if(!kg.opened)return;
+ if(!kg.opened||kg.paused)return;
  const rect=kg.canvas.getBoundingClientRect();
  if(!rect.width)return;
  kg.bowlX=Math.max(.105,Math.min(.895,(ev.clientX-rect.left)/rect.width));
@@ -2395,7 +2436,10 @@ function kgDraw(now){
 }
 function kgEnd(){
  if(!kg.opened)return;
- kg.active=false;kg.ended=true;kg.timeLeft=0;kgUpdateLabels();
+ kg.active=false;kg.ended=true;kg.paused=false;
+ document.getElementById('kgPauseOverlay').hidden=true;
+ document.getElementById('kgPauseButton').hidden=true;
+ kg.timeLeft=0;kgUpdateLabels();
  if(kg.score>kg.best){kg.best=kg.score;try{localStorage.setItem('kurmet-cave-minigame-best-v1',String(kg.best))}catch(e){}}
  kgUpdateLabels();document.getElementById('kgFinalScore').textContent=kg.score;
  document.getElementById('kgFinalBest').textContent=kg.best;
@@ -2405,8 +2449,8 @@ function kgEnd(){
 }
 function kgFrame(now){
  if(!kg.opened)return;
- const dt=Math.min(.06,Math.max(0,(now-kg.lastFrame)/1000));kg.lastFrame=now;
- if(kg.active){
+ const dt=kg.paused?0:Math.min(.06,Math.max(0,(now-kg.lastFrame)/1000));kg.lastFrame=now;
+ if(kg.active&&!kg.paused){
   kg.timeLeft=Math.max(0,60-(now-kg.startedAt)/1000);
   if(kg.timeLeft<=0){kgEnd();}
   else{
@@ -2429,7 +2473,9 @@ function kgFrame(now){
 }
 function kgBegin(){
  cancelAnimationFrame(kg.raf);
- kg.opened=true;kg.active=true;kg.ended=false;
+ kg.opened=true;kg.active=true;kg.ended=false;kg.paused=false;kg.pausedAt=0;
+ document.getElementById('kgPauseOverlay').hidden=true;
+ document.getElementById('kgPauseButton').hidden=false;
  kg.score=0;kg.timeLeft=60;kg.drops=[];kg.sparkles=[];kg.bowlX=.5;
  kg.startedAt=performance.now();kg.lastFrame=kg.startedAt;kg.lastSpawn=kg.startedAt-500;
  kg.root.hidden=false;document.getElementById('kgResult').hidden=true;
@@ -2438,7 +2484,9 @@ function kgBegin(){
  kgUpdateLabels();kg.raf=requestAnimationFrame(kgFrame);
 }
 function kgClose(){
- kg.opened=false;kg.active=false;cancelAnimationFrame(kg.raf);
+ kg.opened=false;kg.active=false;kg.paused=false;
+ document.getElementById('kgPauseOverlay').hidden=true;
+ cancelAnimationFrame(kg.raf);
  kg.root.hidden=true;document.getElementById('openCaveGame').focus();
 }
 // Level selector is the entry point. Only the first level can be played in this prototype.
@@ -2485,6 +2533,33 @@ document.getElementById('kgSelectBack').addEventListener('click',kgCloseLevelSel
 document.getElementById('openCaveGame').setAttribute('aria-controls','kgLevelSelect');
 document.getElementById('openCaveGame').addEventListener('click',kgOpenLevelSelect);
 
+
+function kgPause(){
+ if(!kg.opened||!kg.active||kg.paused||kg.ended)return;
+ const now=performance.now();
+ // Stop at the exact elapsed time, not the last animation frame.
+ kg.timeLeft=Math.max(0,60-(now-kg.startedAt)/1000);
+ if(kg.timeLeft<=0){kgEnd();return;}
+ kg.paused=true;kg.pausedAt=now;
+ document.getElementById('kgPausedScore').textContent=String(kg.score);
+ kgUpdateLabels();
+ document.getElementById('kgPauseOverlay').hidden=false;
+ document.getElementById('kgResume').focus();
+}
+function kgResume(){
+ if(!kg.opened||!kg.paused||kg.ended)return;
+ const now=performance.now();
+ const stoppedFor=now-kg.pausedAt;
+ kg.startedAt+=stoppedFor;
+ kg.lastSpawn+=stoppedFor;
+ kg.lastFrame=now;
+ kg.paused=false;kg.pausedAt=0;
+ document.getElementById('kgPauseOverlay').hidden=true;
+ document.getElementById('kgPauseButton').focus();
+}
+document.getElementById('kgPauseButton').addEventListener('click',kgPause);
+document.getElementById('kgResume').addEventListener('click',kgResume);
+
 document.getElementById('kgExit').addEventListener('click',kgClose);
 document.getElementById('kgLeave').addEventListener('click',kgClose);
 document.getElementById('kgAgain').addEventListener('click',kgBegin);
@@ -2497,6 +2572,7 @@ kgUpdateLabels();
 
 // KURMET localization v1. Use a stable language preference independent of save-game data.
 const KURMET_I18N = {
+ '⏸ Пауза':'⏸ Paused','Пауза':'Pause','☀ Текущие очки:':'☀ Current score:','▶ Продолжить':'▶ Resume',
  'Назад':'Back','🎨 Настройки котёнка':'🎨 Kitten settings','НАСТРОЙКА КОТЁНКА':'CUSTOMIZE KITTEN',
  'ИМЯ':'NAME','ШЕРСТЬ':'FUR','Рыжий':'Ginger','Кремовый':'Cream','Серый':'Gray','Ночной':'Midnight',
  'ОШЕЙНИК':'COLLAR','Розовый':'Pink','Мятный':'Mint','Голубой':'Blue','Золотой':'Gold',
