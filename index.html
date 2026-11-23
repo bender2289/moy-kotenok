@@ -752,6 +752,33 @@ button.kurmet-location-arrow:focus-visible img{
  .kurmet-preview-footer .kurmet-detail-actions button{min-height:42px!important}
 }
 
+
+/* Prevent iOS/Safari scroll indicators from overlaying the location artwork and buttons. */
+#locationsModal.preview-active,
+#locationsModal.preview-active .kurmet-locations-modal{
+ overflow:hidden!important;overscroll-behavior:none;
+}
+#locationsModal.preview-active .kurmet-locations-modal{
+ scrollbar-width:none!important;-ms-overflow-style:none!important;
+}
+#locationsModal.preview-active .kurmet-locations-modal::-webkit-scrollbar,
+#locationsModal.preview-active .kurmet-location-detail::-webkit-scrollbar,
+#locationsModal.preview-active::-webkit-scrollbar{
+ display:none!important;width:0!important;height:0!important;
+ background:transparent!important;
+}
+#locationsModal .kurmet-location-detail,
+#locationsModal .kurmet-preview-art,
+#locationsModal .kurmet-preview-footer{
+ scrollbar-width:none!important;-ms-overflow-style:none!important;
+ overflow-x:hidden!important;
+}
+#locationsModal .kurmet-location-detail::-webkit-scrollbar,
+#locationsModal .kurmet-preview-art::-webkit-scrollbar,
+#locationsModal .kurmet-preview-footer::-webkit-scrollbar{
+ display:none!important;width:0!important;height:0!important;
+}
+
 </style>
 </head>
 <body>
@@ -1309,6 +1336,7 @@ let selectedLocationPreview=null;
 let locationScreen='grid'; // grid | preview | story
 function resetLocationScreens(){
  selectedLocationPreview=null;locationScreen='grid';
+ document.getElementById('locationsModal').classList.remove('preview-active');
  const detail=document.getElementById('locationDetail');
  detail.hidden=true;
  document.getElementById('locationStoryPanel').hidden=true;
@@ -1318,6 +1346,7 @@ function resetLocationScreens(){
 function showLocationPreview(id){
  if(!LOCATIONS.includes(id))return;
  selectedLocationPreview=id;locationScreen='preview';
+ document.getElementById('locationsModal').classList.add('preview-active');
  const detail=document.getElementById('locationDetail');
  document.getElementById('locationDetailImage').src=locationImages[id].src;
  document.getElementById('locationDetailImage').alt=LOCATION_TITLES[id];
