@@ -996,6 +996,13 @@ button:not(.kurmet-location-arrow):not(.kurmet-back):not(.kurmet-detail-back):no
  .kg-level-select{width:min(100%,760px)!important;left:50%!important;right:auto!important;transform:translateX(-50%)}
 }
 
+
+/* Bilingual KURMET language switcher: default follows saved preference, never resets progress. */
+.kurmet-language-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:5px 0 12px}
+.kurmet-language-choices button{min-height:64px!important;padding:10px!important;font-size:clamp(13px,3.5vw,17px)!important}
+.kurmet-language-choices button.selected{outline:3px solid #efd26c!important;outline-offset:1px}
+.kurmet-lang-note{font-size:12px;color:#b5a9a0;text-align:center;line-height:1.4}
+
 </style>
 </head>
 <body>
@@ -1077,11 +1084,22 @@ button:not(.kurmet-location-arrow):not(.kurmet-back):not(.kurmet-detail-back):no
       <button class="secondary" id="openShop" aria-haspopup="dialog">🛍️ Магазин</button>
       <button class="secondary" id="editHome">↔ Расставить</button>
       <button class="secondary" id="reset">↻ Заново</button>
+      <button type="button" id="openLanguage" class="secondary" aria-haspopup="dialog" aria-controls="languageModal">🌐 Язык / Language</button>
     </div>
   </header>
  </div>
 </div>
 
+<div class="modal-overlay" id="languageModal" role="dialog" aria-modal="true" aria-labelledby="languageTitle" hidden>
+  <div class="modal-content kurmet-quick-modal">
+    <div class="modal-top"><button type="button" class="modal-close kurmet-back" data-close="languageModal" aria-label="Назад">← <span>Назад</span></button><h2 id="languageTitle">🌐 Язык / Language</h2></div>
+    <div class="kurmet-language-choices">
+      <button type="button" id="langRu" data-language="ru">🇷🇺 Русский</button>
+      <button type="button" id="langEn" data-language="en">🇬🇧 English</button>
+    </div>
+    <p class="kurmet-lang-note">Выбранный язык сохраняется. / Language preference is saved.</p>
+  </div>
+</div>
 <div class="modal-overlay" id="locationsModal" role="dialog" aria-modal="true" aria-labelledby="locationsTitle" hidden>
   <div class="modal-content kurmet-locations-modal">
     <div class="modal-top"><button type="button" class="modal-close kurmet-back" data-close="locationsModal" aria-label="Назад">← <span>Назад</span></button><h2 id="locationsTitle">🗺️ Локации</h2></div>
@@ -2475,6 +2493,143 @@ document.addEventListener('keydown',e=>{
  if(e.key==='Escape'&&!kgLevelSelect.hidden){e.stopPropagation();kgCloseLevelSelect();}
 });
 kgUpdateLabels();
+
+
+// KURMET localization v1. Use a stable language preference independent of save-game data.
+const KURMET_I18N = {
+ 'Назад':'Back','🎨 Настройки котёнка':'🎨 Kitten settings','НАСТРОЙКА КОТЁНКА':'CUSTOMIZE KITTEN',
+ 'ИМЯ':'NAME','ШЕРСТЬ':'FUR','Рыжий':'Ginger','Кремовый':'Cream','Серый':'Gray','Ночной':'Midnight',
+ 'ОШЕЙНИК':'COLLAR','Розовый':'Pink','Мятный':'Mint','Голубой':'Blue','Золотой':'Gold',
+ 'АКСЕССУАР':'ACCESSORY','Без аксессуара':'No accessory','🎀 Бантик':'🎀 Bow','⭐ Звёздочка':'⭐ Star','🧣 Шарфик':'🧣 Scarf',
+ '🐾 Взросление':'🐾 Growth','Малыш':'Kitten','Подросток':'Teen','Взрослый':'Adult','Старший':'Senior',
+ '🧪 +500 опыта (тест)':'🧪 +500 XP (test)','Для проверки всех возрастов. Монеты по-прежнему бесконечные.':'Test all growth stages. Coins remain unlimited.',
+ '📜 Мини-квесты':'📜 Mini quests','МИНИ-КВЕСТЫ':'MINI QUESTS','⭐ Награды:':'⭐ Rewards:',
+ '🏆 Выполнено наборов:':'🏆 Sets completed:','📝 Новые квесты':'📝 New quests',
+ '💗 Состояние':'💗 Status','🍗 Сытость':'🍗 Hunger','💗 Радость':'💗 Happiness','🌙 Энергия':'🌙 Energy',
+ '🫧 Чистота':'🫧 Cleanliness','💞 Связь':'💞 Bond','✦ Действия':'✦ Actions',
+ 'Кормить':'Feed','Гладить':'Pet','Играть':'Play','Спать':'Sleep','Купать':'Bathe',
+ '☰ Меню':'☰ Menu','🎨 Настроить':'🎨 Customize','📜 Квесты':'📜 Quests','🛍️ Магазин':'🛍️ Shop',
+ '↔ Расставить':'↔ Arrange','↻ Заново':'↻ Restart','🌐 Язык / Language':'🌐 Language / Язык',
+ '🗺️ Локации':'🗺️ Locations','Выбери место, куда отправиться.':'Choose where to travel.',
+ 'Перейти':'Travel','Вы здесь · Перейти':'You are here · Travel','История локации':'Location lore',
+ 'История этой локации пока не добавлена.':'This location’s story has not been added yet.',
+ '🛍️ Магазин пещеры':'🛍️ Cave shop','🛋️ Мебель':'🛋️ Furniture','✨ Украшения':'✨ Decorations',
+ '🏠 Комнаты':'🏠 Rooms','Комнаты':'Rooms','Мебель':'Furniture','Украшения':'Decorations',
+ 'монет · ТЕСТ':'coins · TEST','⭐ Ур.':'⭐ Lv.','Цель: вырасти вместе с питомцем!':'Goal: grow together with your pet!',
+ 'Выбери место для предмета':'Choose where to place the item','Убрать':'Remove','✓ Готово':'✓ Done',
+ '☀ Покорми меня':'☀ Feed me','Действие':'Action','Пещера':'Cave','Тюрьма':'Prison','Лаборатория':'Laboratory',
+ 'Нажми на свободное место, чтобы поставить предмет':'Tap an empty spot to place the item',
+ 'Привет! Я уже жду внимания 💗':'Hello! I’m waiting for some attention 💗','🐾 Изучает комнату':'🐾 Exploring the room',
+ 'ПОКОРМИ МЕНЯ':'FEED ME','Выбери уровень сложности':'Choose difficulty level',
+ '☀ Пещера · Испытания':'☀ Cave · Challenges',
+ 'Новые уровни появятся в следующих обновлениях KURMET.':'More levels will arrive in future KURMET updates.',
+ 'Пещера · испытание':'Cave · challenge','☀ Очки:':'☀ Points:','🏆 Рекорд:':'🏆 Best:',
+ 'Веди пальцем по экрану, чтобы ловить солнца чашей!':'Drag your finger to catch suns in the bowl!',
+ 'Лови золотые солнца · +10 очков':'Catch golden suns · +10 points',
+ 'Начать игру':'Start game','Время вышло!':'Time is up!','Твои очки:':'Your score:',
+ 'Лучший результат:':'Best score:','Играть ещё':'Play again','В пещеру':'Back to cave',
+ 'ИГРАТЬ':'PLAY','🔒 Закрыто':'🔒 Locked','Закрыто':'Locked',
+ 'Локации':'Locations','Играть':'Play','Настройки':'Settings','Магазин':'Shop',
+ 'Открыто':'Unlocked','Купить':'Buy','Куплено':'Owned','Установлено':'Placed',
+ 'Назад к выбору':'Back to selection','Начать':'Start','Продолжить':'Continue',
+ 'Осталось':'Remaining','Награда':'Reward','Уровень':'Level','Рекорд':'Best',
+ '⭐ Уровень':'⭐ Level','Состояние':'Status','Действия':'Actions','Меню':'Menu',
+ 'Покорми меня':'Feed me','Заблокировано':'Locked','Выбрать':'Select',
+ 'Вы здесь':'You are here','Не хватает монет':'Not enough coins',
+ 'Звук включён':'Sound on','Звук выключен':'Sound off',
+ 'Выключить звук':'Turn off sound','Включить звук':'Turn on sound',
+ 'Вернуться в пещеру':'Return to cave','текущая локация':'current location',
+ 'Будущая локация заблокирована':'Future location locked',
+ 'Цель: обустрой пещеру':'Goal: furnish the cave',
+ 'Тестовый режим: бесконечные монеты для проверки покупок. Купленные предметы сохраняются после закрытия игры. После покупки укажи место в комнате.':
+ 'Test mode: unlimited coins for purchases. Bought items are saved. Choose where to place each item after buying.',
+ 'Выбранный язык сохраняется. / Language preference is saved.':'Selected language is saved. / Выбранный язык сохраняется.',
+ '🇷🇺 Русский':'🇷🇺 Russian','🇬🇧 English':'🇬🇧 English',
+ 'Уровень 1, начать':'Level 1, start',
+ 'уровень':'level','связь':'bond','предметов':'items','монет':'coins',
+ 'Через':'In','Локация:':'Location:','История:':'Story:',
+ '🔊 Звук: ВКЛ':'🔊 Sound: ON','🔈 Звук: ВЫКЛ':'🔈 Sound: OFF',
+};
+let kurmetLanguage='ru';
+try{kurmetLanguage=localStorage.getItem('kurmet-language-v1')==='en'?'en':'ru'}catch(e){}
+const kurmetOriginalTexts=new WeakMap();
+const kurmetOriginalAttributes=new WeakMap();
+function kurmetTranslateString(s){
+ if(KURMET_I18N[s]!==undefined)return KURMET_I18N[s];
+ const trim=s.trim();if(KURMET_I18N[trim]!==undefined)return s.replace(trim,KURMET_I18N[trim]);
+ let out=s;
+ // Dynamic UI: preserve numbers and user-defined names.
+ const substitutions=[
+ [/^История: (Пещера|Тюрьма|Лаборатория)$/,'Story: $1'],
+ [/^Уровень (\d+), закрыт$/,'Level $1, locked'],
+ [/^Уровень (\d+), начать$/,'Level $1, start'],
+ [/^Цель: обустрой пещеру \((\d+\/\d+) предметов\)$/,'Goal: furnish the cave ($1 items)'],
+ [/^(.+) · уровень (\d+) · связь (\d+)%$/,'$1 · level $2 · bond $3%'],
+ [/^Малыш · уровень (\d+)$/,'Kitten · level $1'],
+ [/^Через (\d+:\d+)$/,'In $1'],
+ [/^(\d+) монет$/,'$1 coins'],
+ [/^История этой локации пока не добавлена\.$/,'This location’s story has not been added yet.'],
+ [/^(.+), текущая локация$/,'$1, current location']
+ ];
+ for(const [pattern,replacement] of substitutions)if(pattern.test(out)){out=out.replace(pattern,replacement);break}
+ for(const ru of ['Пещера','Тюрьма','Лаборатория','Малыш','Подросток','Взрослый']){
+  if(out.includes(ru))out=out.replaceAll(ru,KURMET_I18N[ru]||ru);
+ }
+ return out;
+}
+function kurmetTranslateNode(node){
+ if(node.nodeType!==Node.TEXT_NODE)return;
+ const parent=node.parentElement;
+ if(!parent||parent.closest('script,style,textarea,option,input,[data-no-translate]'))return;
+ const current=node.nodeValue;
+ let prev=kurmetOriginalTexts.get(node);
+ if(!prev||current!==prev.rendered){prev={source:current,rendered:current};kurmetOriginalTexts.set(node,prev)}
+ const desired=kurmetLanguage==='en'?kurmetTranslateString(prev.source):prev.source;
+ if(current!==desired){prev.rendered=desired;node.nodeValue=desired}
+}
+function kurmetTranslateElement(root){
+ if(!root||!(root instanceof Element))return;
+ for(const el of [root,...root.querySelectorAll('[aria-label],[title],[placeholder]')]){
+  if(el.closest('[data-no-translate]'))continue;
+  let originals=kurmetOriginalAttributes.get(el);
+  if(!originals){originals={};kurmetOriginalAttributes.set(el,originals)}
+  for(const attr of ['aria-label','title','placeholder']){
+   if(!el.hasAttribute(attr))continue;
+   const current=el.getAttribute(attr),prior=originals[attr];
+   if(!prior||current!==prior.rendered)originals[attr]={source:current,rendered:current};
+   const ref=originals[attr],desired=kurmetLanguage==='en'?kurmetTranslateString(ref.source):ref.source;
+   if(current!==desired){ref.rendered=desired;el.setAttribute(attr,desired)}
+  }
+ }
+ const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+ while(walker.nextNode())kurmetTranslateNode(walker.currentNode);
+}
+function kurmetSetLanguage(language){
+ kurmetLanguage=language==='en'?'en':'ru';
+ document.documentElement.lang=kurmetLanguage;
+ try{localStorage.setItem('kurmet-language-v1',kurmetLanguage)}catch(e){}
+ document.getElementById('langRu').classList.toggle('selected',kurmetLanguage==='ru');
+ document.getElementById('langEn').classList.toggle('selected',kurmetLanguage==='en');
+ document.getElementById('langRu').setAttribute('aria-pressed',String(kurmetLanguage==='ru'));
+ document.getElementById('langEn').setAttribute('aria-pressed',String(kurmetLanguage==='en'));
+ kurmetTranslateElement(document.body);
+}
+document.getElementById('openLanguage').addEventListener('click',e=>openModal('languageModal',e.currentTarget));
+document.getElementById('langRu').addEventListener('click',()=>kurmetSetLanguage('ru'));
+document.getElementById('langEn').addEventListener('click',()=>kurmetSetLanguage('en'));
+const kurmetLangObserver=new MutationObserver(mutations=>{
+ if(kurmetLanguage!=='en')return;
+ for(const mutation of mutations){
+  if(mutation.type==='characterData')kurmetTranslateNode(mutation.target);
+  else if(mutation.type==='childList')for(const node of mutation.addedNodes){
+   if(node.nodeType===Node.TEXT_NODE)kurmetTranslateNode(node);
+   else if(node.nodeType===Node.ELEMENT_NODE)kurmetTranslateElement(node);
+  }
+  else if(mutation.type==='attributes')kurmetTranslateElement(mutation.target);
+ }
+});
+kurmetLangObserver.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['aria-label','title','placeholder']});
+kurmetSetLanguage(kurmetLanguage);
 
 initLocation();
 requestAnimationFrame(frame);
