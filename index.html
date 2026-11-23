@@ -407,6 +407,27 @@ header .top-actions{width:100%;justify-content:flex-start;align-items:center;min
  .top-actions button{min-height:26px!important}
 }
 
+
+/* KURMET scene update: compact XP/coins HUD above the location.
+   Original artist's arrows are repositioned lower on both sides. */
+button.kurmet-location-arrow{top:72%!important;transform:none!important;}
+button.kurmet-location-arrow:hover,
+button.kurmet-location-arrow:active,
+button.kurmet-location-arrow:focus{transform:none!important;}
+@media(max-width:900px),(pointer:coarse){
+ .app>.progress-panel{
+   order:0!important;flex:none!important;
+   margin:3px 7px 3px!important;
+   padding:4px 7px!important;
+   min-height:30px!important;
+ }
+ .app>.placement-controls{order:1!important;}
+ .app>.scene{order:2!important;}
+ .app>.status-hud{order:3!important;}
+ .app>.actions{order:4!important;}
+ .app>header{order:5!important;}
+}
+
 </style>
 </head>
 <body>
@@ -467,6 +488,12 @@ header .top-actions{width:100%;justify-content:flex-start;align-items:center;min
       <p class="shop-goal" id="shopProgress"></p>
     </div>
   </div>
+  <section class="progress-panel" aria-label="Прогресс котёнка">
+    <div class="currency">🪙 <b id="coins">∞</b> монет · ТЕСТ</div>
+    <div class="level-label">⭐ Ур. <b id="level">1</b> · <span id="ageLabel">Малыш</span></div>
+    <div class="xp-track" title="Опыт до следующего уровня"><div class="xp-fill" id="xpFill"></div></div>
+    <div class="goal-text" id="goalText">Цель: вырасти вместе с питомцем!</div>
+  </section>
   <div class="placement-controls" id="placementControls" hidden>
     <span class="place-state" id="placeState">Выбери место для предмета</span>
     <button type="button" id="removePlaced" class="warn" hidden>Убрать</button>
@@ -504,12 +531,7 @@ header .top-actions{width:100%;justify-content:flex-start;align-items:center;min
     <button data-act="sleep"><span class="action-icon" aria-hidden="true">🌙</span><span>Спать</span></button>
     <button data-act="wash"><span class="action-icon" aria-hidden="true">🫧</span><span>Купать</span></button>
   </section>
-  <section class="progress-panel" aria-label="Прогресс котёнка">
-    <div class="currency">🪙 <b id="coins">∞</b> монет · ТЕСТ</div>
-    <div class="level-label">⭐ Ур. <b id="level">1</b> · <span id="ageLabel">Малыш</span></div>
-    <div class="xp-track" title="Опыт до следующего уровня"><div class="xp-fill" id="xpFill"></div></div>
-    <div class="goal-text" id="goalText">Цель: вырасти вместе с питомцем!</div>
-  </section>
+
   <header>
     <div class="top-actions">
       <button class="secondary" id="openCustom" aria-haspopup="dialog">🎨 Настроить</button>
