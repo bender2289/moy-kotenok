@@ -575,13 +575,71 @@ button.kurmet-location-arrow:focus-visible img{
  .kurmet-quick-modal .top-actions button{min-height:43px!important;flex-shrink:1!important}
 }
 
+
+/* KURMET: left-top back buttons replace X in every dialog. */
+.modal-content .modal-top{justify-content:flex-start!important;gap:12px!important}
+.modal-content .modal-top h2{flex:1;min-width:0}
+.modal-content button.modal-close.kurmet-back{
+ display:inline-flex;align-items:center;justify-content:center;gap:5px;
+ order:-1;flex:0 0 auto;min-height:41px!important;min-width:74px!important;
+ padding:7px 11px!important;
+ border:1px solid #575761!important;background:#34343c!important;
+ color:#f1d88f!important;border-radius:11px!important;
+ box-shadow:none!important;font-size:16px!important;font-weight:800!important;
+ -webkit-tap-highlight-color:transparent;
+}
+.modal-content button.modal-close.kurmet-back span{font-size:12px}
+/* Portrait location preview fills the entire phone viewport, preserving artwork proportions. */
+.kurmet-location-detail[hidden],.kurmet-story-panel[hidden],.kurmet-detail-actions[hidden]{display:none!important}
+.kurmet-location-detail{
+ position:fixed;inset:0;z-index:150;display:flex;flex-direction:column;
+ align-items:center;justify-content:flex-end;overflow:hidden;
+ padding:calc(16px + env(safe-area-inset-top)) 15px calc(22px + env(safe-area-inset-bottom));
+ background:#0e0e12;color:#f2f2f3;
+}
+.kurmet-location-hero{
+ position:absolute;inset:0;width:100%;height:100%;
+ object-fit:contain;object-position:center;pointer-events:none;
+}
+.kurmet-location-detail-shade{
+ position:absolute;inset:0;pointer-events:none;
+ background:linear-gradient(180deg,#08080dbd 0%,transparent 26%,transparent 54%,#09090de8 100%);
+}
+.kurmet-detail-back{
+ position:absolute!important;z-index:3;top:calc(12px + env(safe-area-inset-top));left:14px;
+ background:#29292ee9!important;color:#f6d880!important;border:1px solid #8c7a4d!important;
+ border-radius:11px!important;padding:9px 13px!important;min-height:42px!important;
+ display:flex;gap:8px;align-items:center;font-size:19px!important;box-shadow:0 3px 10px #0008!important;
+ -webkit-tap-highlight-color:transparent;
+}
+.kurmet-detail-back span{font-size:14px}
+.kurmet-detail-name{position:relative;z-index:2;max-width:95%;margin:0 0 16px;text-shadow:0 2px 9px #000,0 2px 3px #000;font-size:clamp(25px,6vw,36px);text-align:center;color:#ffdf92}
+.kurmet-detail-actions{position:relative;z-index:2;width:min(100%,480px);display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.kurmet-detail-actions button{
+ min-height:55px!important;padding:9px 10px!important;border-radius:13px!important;
+ background:#302e2c!important;color:#f5dc9b!important;
+ border:1px solid #bda368!important;box-shadow:0 3px 15px #0008!important;
+ font-size:clamp(12px,3vw,16px)!important;font-weight:900!important;
+}
+.kurmet-detail-actions button:first-child{background:#6a5026!important;color:#fff3ca!important}
+.kurmet-story-panel{
+ position:relative;z-index:3;width:min(100%,540px);margin-bottom:4px;
+ background:#232329ef;border:1px solid #756340;border-radius:16px;
+ padding:22px 16px;color:#d6d3cd;text-align:center;box-shadow:0 8px 35px #0008;
+}
+.kurmet-story-panel h3{margin:0 0 12px;color:#f5d98e;font-size:20px}
+.kurmet-story-panel p{line-height:1.5;margin:0}
+@media(min-width:901px) and (pointer:fine){
+ .kurmet-location-detail{width:min(100%,760px);left:50%;right:auto;transform:translateX(-50%);border-left:1px solid #444;border-right:1px solid #444}
+}
+
 </style>
 </head>
 <body>
 <div class="app">
 
   <div class="modal-overlay" id="customModal" role="dialog" aria-modal="true" aria-labelledby="customTitle" hidden>
-    <div class="modal-content"><div class="modal-top"><h2 id="customTitle">🎨 Настройки котёнка</h2><button type="button" class="modal-close" data-close="customModal" aria-label="Закрыть">✕</button></div>
+    <div class="modal-content"><div class="modal-top"><button type="button" class="modal-close kurmet-back" data-close="customModal" aria-label="Назад">← <span>Назад</span></button><h2 id="customTitle">🎨 Настройки котёнка</h2></div>
 <div class="panel">
       <h3>НАСТРОЙКА КОТЁНКА</h3>
       <div class="namebox"><span class="label">ИМЯ</span><input id="nameInput" maxlength="16" value="Пушок"></div>
@@ -610,7 +668,7 @@ button.kurmet-location-arrow:focus-visible img{
     </div>
   </div>
   <div class="modal-overlay" id="questsModal" role="dialog" aria-modal="true" aria-labelledby="questsTitle" hidden>
-    <div class="modal-content"><div class="modal-top"><h2 id="questsTitle">📜 Мини-квесты</h2><button type="button" class="modal-close" data-close="questsModal" aria-label="Закрыть">✕</button></div>
+    <div class="modal-content"><div class="modal-top"><button type="button" class="modal-close kurmet-back" data-close="questsModal" aria-label="Назад">← <span>Назад</span></button><h2 id="questsTitle">📜 Мини-квесты</h2></div>
 <div class="panel">
       <h3>МИНИ-КВЕСТЫ</h3>
       <ul class="quest-list" id="questList"></ul>
@@ -624,7 +682,7 @@ button.kurmet-location-arrow:focus-visible img{
   
 <div class="modal-overlay" id="petStatusModal" role="dialog" aria-modal="true" aria-labelledby="petStatusTitle" hidden>
  <div class="modal-content kurmet-quick-modal">
-  <div class="modal-top"><h2 id="petStatusTitle">💗 Состояние</h2><button type="button" class="modal-close" data-close="petStatusModal" aria-label="Закрыть">✕</button></div>
+  <div class="modal-top"><button type="button" class="modal-close kurmet-back" data-close="petStatusModal" aria-label="Назад">← <span>Назад</span></button><h2 id="petStatusTitle">💗 Состояние</h2></div>
   <div class="status-hud kurmet-quick-status">  <section class="stats">
     <div class="stat">🍗 Сытость<div class="bar"><div id="food" class="fill" style="background:#f9a660"></div></div></div>
     <div class="stat">💗 Радость<div class="bar"><div id="happy" class="fill" style="background:#f18c9b"></div></div></div>
@@ -636,7 +694,7 @@ button.kurmet-location-arrow:focus-visible img{
 </div>
 <div class="modal-overlay" id="petActionsModal" role="dialog" aria-modal="true" aria-labelledby="petActionsTitle" hidden>
  <div class="modal-content kurmet-quick-modal">
-  <div class="modal-top"><h2 id="petActionsTitle">✦ Действия</h2><button type="button" class="modal-close" data-close="petActionsModal" aria-label="Закрыть">✕</button></div>
+  <div class="modal-top"><button type="button" class="modal-close kurmet-back" data-close="petActionsModal" aria-label="Назад">← <span>Назад</span></button><h2 id="petActionsTitle">✦ Действия</h2></div>
     <section class="actions">
     <button data-act="feed"><span class="action-icon" aria-hidden="true">🥣</span><span>Кормить</span></button>
     <button data-act="pet"><span class="action-icon" aria-hidden="true">🤍</span><span>Гладить</span></button>
@@ -648,7 +706,7 @@ button.kurmet-location-arrow:focus-visible img{
 </div>
 <div class="modal-overlay" id="mainMenuModal" role="dialog" aria-modal="true" aria-labelledby="mainMenuTitle" hidden>
  <div class="modal-content kurmet-quick-modal">
-  <div class="modal-top"><h2 id="mainMenuTitle">☰ Меню</h2><button type="button" class="modal-close" data-close="mainMenuModal" aria-label="Закрыть">✕</button></div>
+  <div class="modal-top"><button type="button" class="modal-close kurmet-back" data-close="mainMenuModal" aria-label="Назад">← <span>Назад</span></button><h2 id="mainMenuTitle">☰ Меню</h2></div>
     <header>
     <div class="top-actions">
       <button class="secondary" id="openCustom" aria-haspopup="dialog">🎨 Настроить</button>
@@ -664,14 +722,28 @@ button.kurmet-location-arrow:focus-visible img{
 
 <div class="modal-overlay" id="locationsModal" role="dialog" aria-modal="true" aria-labelledby="locationsTitle" hidden>
   <div class="modal-content kurmet-locations-modal">
-    <div class="modal-top"><h2 id="locationsTitle">🗺️ Локации</h2><button type="button" class="modal-close" data-close="locationsModal" aria-label="Закрыть">✕</button></div>
+    <div class="modal-top"><button type="button" class="modal-close kurmet-back" data-close="locationsModal" aria-label="Назад">← <span>Назад</span></button><h2 id="locationsTitle">🗺️ Локации</h2></div>
     <p class="kurmet-locations-help">Выбери место, куда отправиться.</p>
     <div id="locationsGrid" class="kurmet-locations-grid"></div>
+    <div class="kurmet-location-detail" id="locationDetail" hidden>
+      <img id="locationDetailImage" class="kurmet-location-hero" alt="" />
+      <div class="kurmet-location-detail-shade"></div>
+      <button type="button" class="kurmet-detail-back" id="locationDetailBack" aria-label="Назад">← <span>Назад</span></button>
+      <h2 id="locationDetailTitle" class="kurmet-detail-name"></h2>
+      <div class="kurmet-detail-actions" id="locationDetailActions">
+        <button type="button" id="locationGo">Перейти</button>
+        <button type="button" id="locationStory">История локации</button>
+      </div>
+      <div class="kurmet-story-panel" id="locationStoryPanel" hidden>
+        <h3 id="locationStoryTitle"></h3>
+        <p>История этой локации пока не добавлена.</p>
+      </div>
+    </div>
   </div>
 </div>
 
 <div class="modal-overlay" id="shopModal" role="dialog" aria-modal="true" aria-labelledby="shopTitle" hidden>
-    <div class="modal-content"><div class="modal-top"><h2 id="shopTitle">🛍️ Магазин пещеры</h2><button type="button" class="modal-close" data-close="shopModal" aria-label="Закрыть">✕</button></div>
+    <div class="modal-content"><div class="modal-top"><button type="button" class="modal-close kurmet-back" data-close="shopModal" aria-label="Назад">← <span>Назад</span></button><h2 id="shopTitle">🛍️ Магазин пещеры</h2></div>
       <p class="shop-intro">Тестовый режим: бесконечные монеты для проверки покупок. Купленные предметы сохраняются после закрытия игры. После покупки укажи место в комнате.</p>
       <div id="shopNotice" class="shop-notice" role="status" aria-live="polite" hidden></div>
       <div class="shop-tabs" role="tablist" aria-label="Разделы магазина">
@@ -1086,15 +1158,7 @@ const renderLocationsMenu=()=>{
    label.className='kurmet-location-caption';
    label.textContent=LOCATION_TITLES[id];
    button.append(art,label);
-   button.addEventListener('click',()=>{
-    if(id!==state.location){
-     state.location=id;
-     refreshLocationNavigation();
-     if(state.sound)playSound('room');
-     store();
-    }
-    closeModals();
-   });
+   button.addEventListener('click',()=>showLocationPreview(id));
    grid.append(button);
   }else{
    const locked=document.createElement('div');
@@ -1116,6 +1180,64 @@ const renderLocationsMenu=()=>{
  });
 };
 
+
+let selectedLocationPreview=null;
+let locationScreen='grid'; // grid | preview | story
+function resetLocationScreens(){
+ selectedLocationPreview=null;locationScreen='grid';
+ const detail=document.getElementById('locationDetail');
+ detail.hidden=true;
+ document.getElementById('locationStoryPanel').hidden=true;
+ document.getElementById('locationDetailActions').hidden=false;
+ document.getElementById('locationsTitle').textContent='🗺️ Локации';
+}
+function showLocationPreview(id){
+ if(!LOCATIONS.includes(id))return;
+ selectedLocationPreview=id;locationScreen='preview';
+ const detail=document.getElementById('locationDetail');
+ document.getElementById('locationDetailImage').src=locationImages[id].src;
+ document.getElementById('locationDetailImage').alt=LOCATION_TITLES[id];
+ document.getElementById('locationDetailTitle').textContent=LOCATION_TITLES[id];
+ document.getElementById('locationStoryPanel').hidden=true;
+ document.getElementById('locationDetailActions').hidden=false;
+ document.getElementById('locationGo').textContent=id===state.location?'Вы здесь · Перейти':'Перейти';
+ detail.hidden=false;
+ document.getElementById('locationDetailBack').focus();
+}
+function goBackLocation(){
+ if(locationScreen==='story'){
+  locationScreen='preview';
+  document.getElementById('locationStoryPanel').hidden=true;
+  document.getElementById('locationDetailActions').hidden=false;
+  return;
+ }
+ if(locationScreen==='preview'){
+  resetLocationScreens();
+  const card=document.querySelector('.kurmet-location-tile.selected');
+  if(card)card.focus();
+  return;
+ }
+ closeModals();
+}
+document.getElementById('locationDetailBack').addEventListener('click',goBackLocation);
+document.getElementById('locationStory').addEventListener('click',()=>{
+ if(!selectedLocationPreview)return;
+ locationScreen='story';
+ document.getElementById('locationStoryTitle').textContent='История: '+LOCATION_TITLES[selectedLocationPreview];
+ document.getElementById('locationStoryPanel').hidden=false;
+ document.getElementById('locationDetailActions').hidden=true;
+});
+document.getElementById('locationGo').addEventListener('click',()=>{
+ if(!selectedLocationPreview)return;
+ if(state.location!==selectedLocationPreview){
+  state.location=selectedLocationPreview;
+  refreshLocationNavigation();
+  if(state.sound)playSound('room');
+  store();
+ }
+ resetLocationScreens();
+ closeModals();
+});
 const refreshLocationNavigation=()=>{
  const pos=LOCATIONS.indexOf(state.location);
  document.getElementById('locationTitle').textContent=LOCATION_TITLES[state.location];
@@ -1561,11 +1683,11 @@ document.getElementById('openMainMenu').addEventListener('click',e=>openModal('m
 document.getElementById('editHome').addEventListener('click',()=>closeModals(false));
 document.getElementById('openCustom').addEventListener('click',e=>openModal('customModal',e.currentTarget));
 document.getElementById('openQuests').addEventListener('click',e=>openModal('questsModal',e.currentTarget));
-document.getElementById('openLocations').addEventListener('click',e=>{renderLocationsMenu();openModal('locationsModal',e.currentTarget);});
+document.getElementById('openLocations').addEventListener('click',e=>{resetLocationScreens();renderLocationsMenu();openModal('locationsModal',e.currentTarget);});
 document.getElementById('openShop').addEventListener('click',e=>{document.getElementById('shopNotice').hidden=true;renderShop();setShopTab(activeShopTab);openModal('shopModal',e.currentTarget);});
-for(const b of document.querySelectorAll('[data-close]'))b.addEventListener('click',()=>closeModals());
-for(const modal of document.querySelectorAll('.modal-overlay'))modal.addEventListener('click',e=>{if(e.target===modal)closeModals();});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModals(); if(e.key==='Tab'){const open=[...document.querySelectorAll('.modal-overlay')].find(m=>!m.hidden);if(open){const items=[...open.querySelectorAll('button,input')].filter(el=>!el.disabled);if(!items.length)return;const first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){last.focus();e.preventDefault();}else if(!e.shiftKey&&document.activeElement===last){first.focus();e.preventDefault();}}}});
+for(const b of document.querySelectorAll('[data-close]'))b.addEventListener('click',()=>{if(b.dataset.close==='locationsModal')goBackLocation();else closeModals();});
+for(const modal of document.querySelectorAll('.modal-overlay'))modal.addEventListener('click',e=>{if(e.target===modal){if(modal.id==='locationsModal')goBackLocation();else closeModals();}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!document.getElementById('locationsModal').hidden && locationScreen!=='grid')goBackLocation();else closeModals();} if(e.key==='Tab'){const open=[...document.querySelectorAll('.modal-overlay')].find(m=>!m.hidden);if(open){const items=[...open.querySelectorAll('button,input')].filter(el=>!el.disabled);if(!items.length)return;const first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){last.focus();e.preventDefault();}else if(!e.shiftKey&&document.activeElement===last){first.focus();e.preventDefault();}}}});
 
 
 // v20: tap-to-place and drag-to-move directly on the room canvas.
