@@ -779,6 +779,29 @@ button.kurmet-location-arrow:focus-visible img{
  display:none!important;width:0!important;height:0!important;
 }
 
+
+/* Compact always-visible sound toggle beside the level and XP bar. */
+.app>.progress-panel{flex-wrap:nowrap!important}
+.app>.progress-panel .kurmet-sound-toggle{
+ flex:0 0 38px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ width:38px!important;height:34px!important;min-width:38px!important;min-height:34px!important;
+ margin-left:auto!important;padding:1px!important;border-radius:10px!important;
+ font-size:21px!important;line-height:1!important;
+ background:#313139!important;color:#ecd286!important;border:1px solid #5e5540!important;
+ box-shadow:none!important;cursor:pointer;white-space:nowrap!important;-webkit-tap-highlight-color:transparent;
+}
+.app>.progress-panel .kurmet-sound-toggle:active{transform:scale(.91)!important}
+.app>.progress-panel .kurmet-sound-toggle.sound-off{opacity:.65}
+@media(max-width:900px),(pointer:coarse){
+ .app>.progress-panel{gap:5px!important}
+ .app>.progress-panel .kurmet-sound-toggle{
+  flex-basis:32px!important;width:32px!important;min-width:32px!important;
+  height:30px!important;min-height:30px!important;font-size:18px!important;
+  border-radius:8px!important;
+ }
+ .app>.progress-panel .xp-track{min-width:15px!important}
+}
+
 </style>
 </head>
 <body>
@@ -859,7 +882,6 @@ button.kurmet-location-arrow:focus-visible img{
       <button class="secondary" id="openQuests" aria-haspopup="dialog">📜 Квесты</button>
       <button class="secondary" id="openShop" aria-haspopup="dialog">🛍️ Магазин</button>
       <button class="secondary" id="editHome">↔ Расставить</button>
-      <button class="secondary sound-on" id="soundBtn">🔊 Звук: ВКЛ</button>
       <button class="secondary" id="reset">↻ Заново</button>
     </div>
   </header>
@@ -912,6 +934,7 @@ button.kurmet-location-arrow:focus-visible img{
     <div class="level-label">⭐ Ур. <b id="level">1</b> · <span id="ageLabel">Малыш</span></div>
     <div class="xp-track" title="Опыт до следующего уровня"><div class="xp-fill" id="xpFill"></div></div>
     <div class="goal-text" id="goalText">Цель: вырасти вместе с питомцем!</div>
+    <button type="button" class="kurmet-sound-toggle sound-on" id="soundBtn" aria-label="Выключить звук" title="Звук включён">🔊</button>
   </section>
   <div class="placement-controls" id="placementControls" hidden>
     <span class="place-state" id="placeState">Выбери место для предмета</span>
@@ -1209,7 +1232,7 @@ function updateQuestCooldown(){
 }
 function restoreUI(){nameInput.value=state.custom.name;
  [['room',state.room],['fur',state.custom.fur],['collar',state.custom.collar],['accessory',state.custom.accessory]].forEach(([type,val])=>document.querySelectorAll(`[data-${type}]`).forEach(b=>b.classList.toggle('active',b.dataset[type]===val)));
- soundBtn.textContent=state.sound?'🔊 Звук: ВКЛ':'🔈 Звук: ВЫКЛ';soundBtn.classList.toggle('sound-on',state.sound);soundBtn.classList.toggle('sound-off',!state.sound);
+ soundBtn.textContent=state.sound?'🔊':'🔇';soundBtn.classList.toggle('sound-on',state.sound);soundBtn.classList.toggle('sound-off',!state.sound);soundBtn.setAttribute('aria-label',state.sound?'Выключить звук':'Включить звук');soundBtn.title=state.sound?'Звук включён':'Звук выключен';
  setBars();renderQuests();progressUI();renderRoomButtons();updateQuestCooldown();
 }
 function createQuestSet(){
@@ -1805,7 +1828,7 @@ nameInput.addEventListener('input',()=>{state.custom.name=nameInput.value.trim()
 nameInput.addEventListener('change',()=>{setBubble(`Теперь котёнка зовут ${state.custom.name}!`); playSound('meow');store();});
 
 document.getElementById('newQuests').addEventListener('click',()=>{if(Date.now()<state.questRefreshAt){updateQuestCooldown();return;}createQuestSet();setBubble('Новый набор мини-квестов готов! Следующий через 10 минут.');playSound('quest');});
-soundBtn.addEventListener('click',()=>{state.sound=!state.sound; soundBtn.textContent=state.sound?'🔊 Звук: ВКЛ':'🔈 Звук: ВЫКЛ'; soundBtn.classList.toggle('sound-on',state.sound); soundBtn.classList.toggle('sound-off',!state.sound); if(state.sound){playSound('meow');startMusic();}else stopMusic();store();});
+soundBtn.addEventListener('click',()=>{state.sound=!state.sound; soundBtn.textContent=state.sound?'🔊':'🔇';soundBtn.classList.toggle('sound-on',state.sound);soundBtn.classList.toggle('sound-off',!state.sound);soundBtn.setAttribute('aria-label',state.sound?'Выключить звук':'Включить звук');soundBtn.title=state.sound?'Звук включён':'Звук выключен'; if(state.sound){playSound('meow');startMusic();}else stopMusic();store();});
 document.getElementById('reset').addEventListener('click',()=>{
   finishPlacement();
   state.action='idle'; syncActionTimer(performance.now()); state.room='cozy'; state.stats={food:68,happy:73,energy:80,clean:80,bond:10}; state.custom={name:'Пушок',fur:'ginger',collar:'rose',accessory:'none'}; state.stars=0; state.questSetsDone=0; state.questSetAwarded=false;state.coins=40;state.xp=0;state.totalCare=0;state.owned=[];state.equipped=null;state.placements={cozy:[],night:[],playroom:[],garden:[]};state.roomOwned=['cozy'];state.idleLast=performance.now();state.idleEvent=null;state.life={mode:'idle',x:0,y:0,targetX:0,until:0,walking:false,started:performance.now(),next:performance.now()+3600,actionFromX:0,actionFromY:0,greetCooldown:0,lastSeen:Date.now()};stopMusic();setBars(); createQuestSet(); setBubble('Привет! Я уже жду внимания 💗');
