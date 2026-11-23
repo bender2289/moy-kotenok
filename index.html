@@ -340,15 +340,29 @@ button.kurmet-location-arrow,button.kurmet-location-arrow:hover,button.kurmet-lo
  background:transparent!important;border:0!important;box-shadow:none!important;
 }
 
+
+/* KURMET compact top: no game title, maximum room for the location. */
+header{padding:10px 16px 7px!important;gap:0!important;min-height:0!important}
+header .top-actions{width:100%;justify-content:flex-start;align-items:center;min-width:0}
+.progress-panel{margin-top:0!important;margin-bottom:7px!important}
+.scene{flex-grow:1}
+@media(max-width:900px),(pointer:coarse){
+ header{flex:0 0 auto!important;padding:calc(3px + env(safe-area-inset-top)) 10px 2px!important;gap:0!important;align-items:stretch!important}
+ .top-actions{gap:6px!important;min-height:36px!important;padding:1px 0 3px!important;overflow-x:auto!important}
+ .top-actions button{flex-shrink:0}
+ .progress-panel{margin:3px 9px 5px!important;padding:5px 8px!important;min-height:36px!important}
+ .scene{width:calc(100% - 18px)!important;margin:0 9px!important;flex:1 1 auto!important;min-height:0!important;max-height:none!important}
+}
+@media(max-height:700px) and (max-width:900px){
+ header{padding-top:calc(1px + env(safe-area-inset-top))!important}
+ .progress-panel{margin-top:2px!important;margin-bottom:3px!important}
+}
+
 </style>
 </head>
 <body>
 <div class="app">
   <header>
-    <div class="title">
-      <h1>🐾 Мой котёнок</h1>
-      <small>Маленькие лапки. Новая пещера.</small>
-    </div>
     <div class="top-actions">
       <button class="secondary" id="openCustom" aria-haspopup="dialog">🎨 Настроить</button>
       <button class="secondary" id="openQuests" aria-haspopup="dialog">📜 Квесты</button>
