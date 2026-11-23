@@ -32,11 +32,29 @@ button.sound-on{background:#dbffe5}button.sound-off{background:#ffe4e1}
 .swatches,.accessories,.rooms{display:flex;gap:8px;flex-wrap:wrap}
 .swatch i,.accessory i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-1px;border:1px solid #00000022}
 .quest-list{display:grid;gap:8px;margin:0;padding:0;list-style:none}.quest{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:9px 10px;border-radius:12px;background:#fff6ed;border:1px solid #eed7c8;font-size:13px}.quest.done{background:#eaf9e8;border-color:#b8e0b7}.quest b{font-size:12px;color:#7c6057}.reward{font-size:13px;font-weight:900;color:#8c695d;margin-top:8px}
-.kurmet-location-arrow{position:absolute;z-index:8;top:50%;transform:translateY(-50%);width:58px;height:72px;border:0;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5))}
-.kurmet-location-arrow.left{left:3px}.kurmet-location-arrow.right{right:3px}
-.kurmet-location-arrow img{display:block;width:100%;height:auto;object-fit:contain}
-.kurmet-location-arrow:disabled{opacity:.3;filter:grayscale(.6);cursor:default}
-.kurmet-location-arrow:focus-visible{outline:2px solid #ffe082;border-radius:12px}
+/* Location navigation uses the original drawn arrow only, never the browser/button skin. */
+button.kurmet-location-arrow{
+ position:absolute;z-index:8;top:9px;transform:none;
+ width:58px;height:72px;display:flex;align-items:center;justify-content:center;
+ padding:0;margin:0;appearance:none;-webkit-appearance:none;
+ border:0!important;border-radius:0!important;background:transparent!important;
+ box-shadow:none!important;outline:none;cursor:pointer;overflow:visible;
+ filter:none;transition:opacity .15s ease;
+}
+button.kurmet-location-arrow.left{left:5px}
+button.kurmet-location-arrow.right{right:5px}
+button.kurmet-location-arrow img{
+ display:block;width:100%;height:auto;object-fit:contain;
+ filter:drop-shadow(0 2px 2px rgba(0,0,0,.35));pointer-events:none;
+}
+button.kurmet-location-arrow:hover,
+button.kurmet-location-arrow:active,
+button.kurmet-location-arrow:focus{
+ background:transparent!important;border:0!important;box-shadow:none!important;
+ transform:none!important;
+}
+button.kurmet-location-arrow:disabled{opacity:.25;filter:grayscale(.55);cursor:default}
+button.kurmet-location-arrow:focus-visible{outline:2px solid #ffe082;outline-offset:2px;border-radius:6px!important}
 .kurmet-location-title{position:absolute;z-index:7;left:50%;bottom:9px;transform:translateX(-50%);background:#1e1829c9;border:1px solid #ffd46c;color:#ffda75;border-radius:10px;padding:4px 11px;font-size:12px;font-weight:800;pointer-events:none;white-space:nowrap}
 .scene{position:relative;height:min(58vh,470px);min-height:330px;background:linear-gradient(#cfe5f0 0 67%,#e6cab1 67%);overflow:hidden;border-top:2px solid #ecd5c8;border-bottom:2px solid #ecd5c8}
 canvas{display:block;width:100%;height:100%;touch-action:manipulation}
