@@ -904,7 +904,7 @@ button:not(.kurmet-location-arrow):not(.kurmet-back):not(.kurmet-detail-back):no
  max-width:31%!important;
  padding:8px 13px!important;
  margin:0!important;
- background-color:#e3b62a!important;
+ background-color:transparent!important;
  background-image:var(--kurmet-plaque)!important;
  background-position:center!important;
  background-repeat:no-repeat!important;
@@ -930,6 +930,9 @@ button:not(.kurmet-location-arrow):not(.kurmet-back):not(.kurmet-detail-back):no
   font-size:11px!important;
  }
 }
+
+/* The title artwork has transparent corners; no rectangular fill behind it. */
+.scene .kurmet-location-title{background-color:transparent!important;}
 
 </style>
 </head>
