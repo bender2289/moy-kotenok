@@ -685,6 +685,73 @@ button.kurmet-location-arrow:focus-visible img{
  .kurmet-location-detail button.kurmet-detail-back img{transition:none}
 }
 
+
+/* Safari-safe full-screen preview: three distinct rows, no overlapping controls. */
+.kurmet-location-detail{
+ position:fixed!important;inset:0!important;top:0!important;bottom:0!important;
+ width:100%!important;height:100vh!important;height:100dvh!important;
+ padding:0!important;margin:0!important;
+ display:flex!important;flex-direction:column!important;justify-content:stretch!important;
+ align-items:stretch!important;overflow:hidden!important;
+ background:#0d0d11!important;
+}
+.kurmet-location-detail[hidden]{display:none!important}
+.kurmet-preview-head{
+ flex:0 0 auto;display:flex;align-items:center;
+ min-height:66px;padding:calc(5px + env(safe-area-inset-top,0px)) 14px 5px;
+ background:#121216;
+}
+.kurmet-location-detail .kurmet-detail-back{
+ position:relative!important;top:auto!important;left:auto!important;
+ z-index:3!important;
+}
+.kurmet-preview-art{
+ flex:1 1 0%;min-height:0!important;min-width:0;overflow:hidden;
+ position:relative;display:flex;justify-content:center;align-items:center;
+ background:#111116;
+}
+.kurmet-preview-art .kurmet-location-hero{
+ position:relative!important;inset:auto!important;
+ display:block;width:100%!important;height:100%!important;
+ max-height:100%!important;object-fit:contain!important;object-position:center!important;
+}
+.kurmet-preview-footer{
+ flex:0 0 auto;position:relative;z-index:4;
+ display:flex;flex-direction:column;align-items:center;gap:9px;
+ padding:10px 14px calc(20px + env(safe-area-inset-bottom,0px));
+ background:#15151a;
+}
+.kurmet-preview-footer .kurmet-detail-name{
+ margin:0!important;font-size:clamp(20px,5.5vw,29px)!important;
+ color:#ffdf92;text-align:center;text-shadow:none!important;
+}
+.kurmet-preview-footer .kurmet-detail-actions{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ width:min(100%,480px)!important;gap:10px!important;
+ margin:0!important;padding:0!important;
+}
+.kurmet-preview-footer .kurmet-detail-actions[hidden]{display:none!important}
+.kurmet-preview-footer .kurmet-detail-actions button{
+ min-height:48px!important;padding:8px 8px!important;
+ font-size:clamp(11px,3.1vw,15px)!important;
+ line-height:1.2!important;
+}
+.kurmet-preview-footer .kurmet-story-panel{
+ position:relative!important;width:min(100%,520px)!important;
+ margin:0!important;max-height:30dvh;overflow-y:auto;
+}
+@media(min-width:901px) and (pointer:fine){
+ .kurmet-location-detail{
+  width:min(100%,760px)!important;left:50%!important;right:auto!important;
+  transform:translateX(-50%)!important;
+ }
+}
+@media(max-height:680px){
+ .kurmet-preview-head{min-height:48px;padding-top:calc(2px + env(safe-area-inset-top,0px));padding-bottom:2px}
+ .kurmet-preview-footer{gap:5px;padding-top:6px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))}
+ .kurmet-preview-footer .kurmet-detail-actions button{min-height:42px!important}
+}
+
 </style>
 </head>
 <body>
@@ -778,17 +845,22 @@ button.kurmet-location-arrow:focus-visible img{
     <p class="kurmet-locations-help">Выбери место, куда отправиться.</p>
     <div id="locationsGrid" class="kurmet-locations-grid"></div>
     <div class="kurmet-location-detail" id="locationDetail" hidden>
-      <img id="locationDetailImage" class="kurmet-location-hero" alt="" />
-      <div class="kurmet-location-detail-shade"></div>
-      <button type="button" class="kurmet-detail-back" id="locationDetailBack" aria-label="Назад">← <span>Назад</span></button>
-      <h2 id="locationDetailTitle" class="kurmet-detail-name"></h2>
-      <div class="kurmet-detail-actions" id="locationDetailActions">
-        <button type="button" id="locationGo">Перейти</button>
-        <button type="button" id="locationStory">История локации</button>
+      <div class="kurmet-preview-head">
+        <button type="button" class="kurmet-detail-back" id="locationDetailBack" aria-label="Назад">← <span>Назад</span></button>
       </div>
-      <div class="kurmet-story-panel" id="locationStoryPanel" hidden>
-        <h3 id="locationStoryTitle"></h3>
-        <p>История этой локации пока не добавлена.</p>
+      <div class="kurmet-preview-art">
+        <img id="locationDetailImage" class="kurmet-location-hero" alt="" />
+      </div>
+      <div class="kurmet-preview-footer">
+        <h2 id="locationDetailTitle" class="kurmet-detail-name"></h2>
+        <div class="kurmet-detail-actions" id="locationDetailActions">
+          <button type="button" id="locationGo">Перейти</button>
+          <button type="button" id="locationStory">История локации</button>
+        </div>
+        <div class="kurmet-story-panel" id="locationStoryPanel" hidden>
+          <h3 id="locationStoryTitle"></h3>
+          <p>История этой локации пока не добавлена.</p>
+        </div>
       </div>
     </div>
   </div>
