@@ -953,6 +953,7 @@ button:not(.kurmet-location-arrow):not(.kurmet-back):not(.kurmet-detail-back):no
 .pk-top button{padding:9px 12px!important;min-width:72px;background:#40343a!important;color:#f3dba5!important;border:1px solid #796443!important;border-radius:9px}
 .pk-stage{flex:1;position:relative;min-height:0;overflow:hidden;touch-action:manipulation}
 .pk-stage canvas{width:100%;height:100%;display:block;touch-action:manipulation}
+.pk-remaining{position:absolute;z-index:2;top:16px;left:12px;padding:9px 12px;border:1px solid #796443;border-radius:9px;background:#27232be8;color:#f6d27a;font-size:clamp(12px,3.5vw,16px);font-weight:800;pointer-events:none}
 .pk-overlay{position:absolute;inset:0;background:#101016d9;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
 .pk-overlay h2{color:#f6d27a;font-size:clamp(24px,6vw,36px);margin:0 0 15px}
 .pk-overlay p{max-width:350px;line-height:1.6;font-size:15px}
@@ -1195,7 +1196,7 @@ html.kurmet-boot-already-entered #kurmet-boot-screen{display:none!important}
 <!-- Prison: playable placeholder knife-throwing mini-game. -->
 <div id="prisonKnifeGame" class="pk-game" role="dialog" aria-modal="true" aria-label="Испытание клинков" hidden>
  <div class="pk-top"><button id="pkExit" type="button">← Назад</button><strong>🗡 ИСПЫТАНИЕ КЛИНКОВ</strong><span id="pkCount">0 / 5</span></div>
- <div class="pk-stage"><canvas id="pkCanvas" aria-label="Вращающаяся мишень. Нажми, чтобы бросить клинок."></canvas><div id="pkOverlay" class="pk-overlay"><h2 id="pkHeadline">Испытание клинков</h2><p id="pkDescription">Попади 5 клинками во вращающуюся мишень. Не задень уже воткнутые клинки!</p><button id="pkPlay" type="button">▶ Начать</button><button id="pkLevels" type="button" hidden>↻ Повторить</button></div></div>
+ <div class="pk-stage"><div id="pkRemaining" class="pk-remaining" aria-live="polite">🗡 Осталось: 5</div><canvas id="pkCanvas" aria-label="Вращающаяся мишень. Нажми, чтобы бросить клинок."></canvas><div id="pkOverlay" class="pk-overlay"><h2 id="pkHeadline">Испытание клинков</h2><p id="pkDescription">Попади 5 клинками во вращающуюся мишень. Не задень уже воткнутые клинки!</p><button id="pkPlay" type="button">▶ Начать</button><button id="pkLevels" type="button" hidden>↻ Повторить</button></div></div>
  <div class="pk-bottom"><span id="pkTip">Коснись экрана, чтобы бросить клинок</span><button id="pkThrow" type="button" disabled>🗡 Бросить</button></div>
 </div>
 <!-- First KURMET location mini-game: prototype, 60-second catch challenge. -->
@@ -2366,7 +2367,7 @@ kgUpdateLabels();
  ctx.restore();
  const bottom=Math.min(h-58,cy+rad+110);if(projectile)knife(cx,projectile.y,0);else if(running)knife(cx,bottom,0)}
  function show(title,message,button){overlay.hidden=false;headline.textContent=title;desc.textContent=message;play.textContent=button}
- function updateCount(){count.textContent=tr('Ур. ','Lv. ')+(stage+1)+' · '+knives.length+' / '+stages[stage].goal}
+ function updateCount(){count.textContent=tr('Ур. ','Lv. ')+(stage+1)+' · '+knives.length+' / '+stages[stage].goal;document.getElementById('pkRemaining').textContent=tr('🗡 Осталось: ','🗡 Left: ')+Math.max(0,stages[stage].goal-knives.length)}
  function nextAfterBreak(){breaking=null;stage++;if(stage>=stages.length){stage=0;show(tr('Все уровни пройдены!','All levels completed!'),tr('Ты прошёл все 5 испытаний!','You cleared all 5 challenges!'),tr('↻ Сначала','↻ Restart'))}else show(tr('Уровень пройден!','Level complete!'),tr('Мишень разбита! Следующий уровень быстрее.','Target shattered! The next stage is faster.'),tr('▶ Следующий уровень','▶ Next level'));updateCount()}
  function shatter(){running=false;projectile=null;throwBtn.disabled=true;const {rad}=dim();breaking={time:1.1,parts:[],flying:[]};for(let i=0;i<8;i++){const t=i*TAU/8;breaking.parts.push({start:t,end:t+TAU/8,x:0,y:0,vx:Math.cos(t+.4)*(90+Math.random()*90),vy:Math.sin(t+.4)*(90+Math.random()*90)-50,spin:0,vr:(Math.random()-.5)*7})}
  for(const a of knives){const theta=angle+a;breaking.flying.push({x:Math.sin(-theta)*(rad+30),y:Math.cos(theta)*(rad+30),vx:Math.sin(-theta)*170,vy:Math.cos(theta)*170-60,rot:theta,vr:(Math.random()-.5)*6})}
