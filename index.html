@@ -1659,7 +1659,7 @@ function drawAtmosphere(t){
  const factor=Math.max(600/bg.naturalWidth,roomH/bg.naturalHeight),w=bg.naturalWidth*factor,h=bg.naturalHeight*factor,ox=(600-w)/2,oy=(roomH-h)/2;
  for(const d of caveDrips){
  if(cavePuddleSheet.naturalWidth){
- const phase=((t+(d.endX<.3?0:1.1))*9/2.8)%9,rf=Math.floor(phase),mix=phase-rf;
+ const phase=((t+(d.endX<.3?0:1.65))*9/4.2)%9,rf=Math.floor(phase),mix=phase-rf;
  const pw=w*(d.endX<.3?.083:.113),ph=pw;
  const px=ox+w*d.endX,py=oy+h*d.endY;
  ctx.save();
