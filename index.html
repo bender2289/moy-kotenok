@@ -1635,7 +1635,7 @@ let cavePassageOpen=false,caveOpeningAt=null;
 try{cavePassageOpen=localStorage.getItem('kurmet-cave-passage-v1')==='1'}catch(e){}
 function caveGeometry(){const bg=locationImages.cave;if(!bg.naturalWidth)return null;const k=Math.max(600/bg.naturalWidth,roomH/bg.naturalHeight),w=bg.naturalWidth*k,h=bg.naturalHeight*k;return {w,h,x:(600-w)/2,y:(roomH-h)/2}}
 function drawRoomPortrait(t){
- if(caveOpeningAt!==null&&t-caveOpeningAt>=.48&&!cavePassageOpen){cavePassageOpen=true;try{localStorage.setItem('kurmet-cave-passage-v1','1')}catch(e){}}
+ if(caveOpeningAt!==null&&t-caveOpeningAt>=.60&&!cavePassageOpen){cavePassageOpen=true;try{localStorage.setItem('kurmet-cave-passage-v1','1')}catch(e){}}
 
   const H=roomH;
   ctx.save();
@@ -1672,11 +1672,11 @@ function drawAtmosphere(t){
 
 function drawCaveOpening(t){
  if(caveOpeningAt===null)return;
- const e=t-caveOpeningAt;if(e>=1.2){caveOpeningAt=null;return}
+ const e=t-caveOpeningAt;if(e>=1.5){caveOpeningAt=null;return}
  if(state.location!=='cave'||!caveOpenSmoke.naturalWidth)return;
  const g=caveGeometry();if(!g)return;
- const size=g.w*.49,frame=Math.min(7,Math.max(0,Math.floor(e/1.2*8))),sw=caveOpenSmoke.naturalWidth/8;
- ctx.save();ctx.globalAlpha=e>.85?Math.max(0,(1.2-e)/.35):1;
+ const size=g.w*.392,frame=Math.min(7,Math.max(0,Math.floor(e/1.5*8))),sw=caveOpenSmoke.naturalWidth/8;
+ ctx.save();ctx.globalAlpha=e>1.0625?Math.max(0,(1.5-e)/.4375):1;
  ctx.drawImage(caveOpenSmoke,frame*sw,0,sw,caveOpenSmoke.naturalHeight,g.x+g.w*.32-size/2,g.y+g.h*.40-size/2,size,size);ctx.restore();
 }
 function drawBowl(x,y){ellipse(x,y+10,66,18,'#bf8078','#956057',3);ellipse(x,y,50,12,'#fff4df','#b17f73',2);for(let i=0;i<7;i++)ellipse(x-26+i*9,y-2+Math.sin(i)*2,4,3,'#a57145',null,0,1);}
