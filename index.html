@@ -946,6 +946,19 @@ button:not(.kurmet-location-arrow):not(.kurmet-back):not(.kurmet-detail-back):no
 }
 
 
+/* Level briefing: full-screen dimmed overlay, scroll-safe on mobile. */
+.kg-level-briefing[hidden]{display:none!important}
+.kg-level-briefing{position:fixed;inset:0;z-index:690;display:flex;align-items:center;justify-content:center;padding:18px;background:#0c0b10f2;color:#f5e3b3;overflow-y:auto}
+.kg-briefing-card{width:min(100%,470px);max-height:calc(100dvh - 36px);overflow-y:auto;background:linear-gradient(165deg,#302b30,#1b1a21);border:1px solid #a17c38;border-radius:18px;padding:24px 20px;box-shadow:0 12px 50px #000a;text-align:center}
+.kg-briefing-kicker{font-size:12px;letter-spacing:2px;color:#d4ae61;font-weight:800}
+.kg-briefing-card h2{font-size:clamp(25px,7vw,35px);color:#ffe3a1;margin:10px 0 22px}
+.kg-briefing-card section{text-align:left;background:#17151bb0;border:1px solid #554631;border-radius:12px;padding:14px 16px;margin:12px 0}
+.kg-briefing-card h3{font-size:17px;color:#f2cc77;margin:0 0 8px}
+.kg-briefing-card p{font-size:14px;line-height:1.55;color:#d9d0c1;margin:0}
+.kg-briefing-card button{display:block;width:100%;min-height:49px;margin-top:14px;border-radius:11px;font-size:16px;font-weight:800}
+.kg-briefing-card #kgBriefingStart{background:linear-gradient(145deg,#f6d26a,#b67b23)!important;color:#241910!important;border:1px solid #f9e3a0!important}
+.kg-briefing-card .kg-briefing-secondary{background:#37323a!important;color:#f1dba8!important;border:1px solid #716044!important}
+
 /* Bilingual KURMET language switcher: default follows saved preference, never resets progress. */
 .kurmet-language-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:5px 0 12px}
 .kurmet-language-choices button{min-height:64px!important;padding:10px!important;font-size:clamp(13px,3.5vw,17px)!important}
@@ -1149,6 +1162,18 @@ html.kurmet-boot-already-entered #kurmet-boot-screen{display:none!important}
  </div>
 </div>
 
+<!-- Placeholder level briefing: shown before gameplay. -->
+<div id="kgLevelBriefing" class="kg-level-briefing" role="dialog" aria-modal="true" aria-labelledby="kgBriefingTitle" hidden>
+ <div class="kg-briefing-card">
+  <div class="kg-briefing-kicker">☀ ПОКОРМИ МЕНЯ</div>
+  <h2 id="kgBriefingTitle">Уровень 1</h2>
+  <section><h3>📜 Правила</h3><p>Тестовый текст. Здесь появятся правила выбранного уровня.</p></section>
+  <section><h3>🎯 Цель уровня</h3><p>Тестовый текст. Здесь появятся условия прохождения и награды.</p></section>
+  <button type="button" id="kgBriefingStart">▶ Начать</button>
+  <button type="button" id="kgBriefingBack" class="kg-briefing-secondary">← Выбор уровня</button>
+ </div>
+</div>
+
 <!-- First KURMET location mini-game: prototype, 60-second catch challenge. -->
 <div id="caveMiniGame" class="kurmet-minigame" role="dialog" aria-modal="true" aria-label="Покорми меня" hidden>
  <div class="kg-header">
@@ -1175,7 +1200,7 @@ html.kurmet-boot-already-entered #kurmet-boot-screen{display:none!important}
  </div>
  <div class="kg-result" id="kgResult" hidden>
   <div class="kg-result-box"><h2>Время вышло!</h2><p>Твои очки: <strong id="kgFinalScore">0</strong></p><p>Лучший результат: <strong id="kgFinalBest">0</strong></p>
-   <button type="button" id="kgAgain">Играть ещё</button><button type="button" id="kgLeave">В пещеру</button>
+   <button type="button" id="kgAgain">Играть ещё</button><button type="button" id="kgResultLevels">Выбор уровня</button><button type="button" id="kgLeave">В пещеру</button>
   </div>
  </div>
 </div>
@@ -2190,6 +2215,22 @@ function kgClose(){
 // Level selector is the entry point. Only the first level can be played in this prototype.
 const kgLevelSelect=document.getElementById('kgLevelSelect');
 const kgLevelGrid=document.getElementById('kgLevels');
+const kgLevelBriefing=document.getElementById('kgLevelBriefing');
+function kgShowBriefing(level){
+ document.getElementById('kgBriefingTitle').textContent='Уровень '+level;
+ kgLevelSelect.hidden=true;
+ kgLevelBriefing.hidden=false;
+ document.getElementById('kgBriefingStart').focus();
+}
+function kgBackFromBriefing(){
+ kgLevelBriefing.hidden=true;
+ kgOpenLevelSelect();
+}
+document.getElementById('kgBriefingBack').addEventListener('click',kgBackFromBriefing);
+document.getElementById('kgBriefingStart').addEventListener('click',()=>{
+ kgLevelBriefing.hidden=true;
+ kgBegin();
+});
 function kgCloseLevelSelect(){
  kgLevelSelect.hidden=true;
  document.getElementById('openCaveGame').focus();
@@ -2212,8 +2253,7 @@ function kgOpenLevelSelect(){
   label.textContent=unlocked?'ИГРАТЬ':'🔒 Закрыто';
   tile.append(n,label);
   if(unlocked)tile.addEventListener('click',()=>{
-   kgLevelSelect.hidden=true;
-   kgBegin();
+   kgShowBriefing(level);
   });
   kgLevelGrid.appendChild(tile);
  }
@@ -2261,9 +2301,14 @@ document.getElementById('kgResume').addEventListener('click',kgResume);
 document.getElementById('kgExit').addEventListener('click',kgClose);
 document.getElementById('kgLeave').addEventListener('click',kgClose);
 document.getElementById('kgAgain').addEventListener('click',kgBegin);
+document.getElementById('kgResultLevels').addEventListener('click',()=>{
+ kgClose();
+ kgOpenLevelSelect();
+});
 document.getElementById('kgStart').addEventListener('click',kgBegin);
 document.addEventListener('keydown',e=>{
- if(e.key==='Escape'&&!kgLevelSelect.hidden){e.stopPropagation();kgCloseLevelSelect();}
+ if(e.key==='Escape'&&!kgLevelBriefing.hidden){e.stopPropagation();kgBackFromBriefing();}
+ else if(e.key==='Escape'&&!kgLevelSelect.hidden){e.stopPropagation();kgCloseLevelSelect();}
 });
 kgUpdateLabels();
 
@@ -2320,6 +2365,11 @@ const KURMET_I18N = {
  'Выбранный язык сохраняется. / Language preference is saved.':'Selected language is saved. / Выбранный язык сохраняется.',
  '🇷🇺 Русский':'🇷🇺 Russian','🇬🇧 English':'🇬🇧 English',
  'Уровень 1, начать':'Level 1, start',
+ '📜 Правила':'📜 Rules','🎯 Цель уровня':'🎯 Level objective',
+ 'Тестовый текст. Здесь появятся правила выбранного уровня.':'Placeholder text. Rules for the selected level will appear here.',
+ 'Тестовый текст. Здесь появятся условия прохождения и награды.':'Placeholder text. Completion requirements and rewards will appear here.',
+ '▶ Начать':'▶ Start','← Выбор уровня':'← Level selection','Выбор уровня':'Level selection',
+ '☀ ПОКОРМИ МЕНЯ':'☀ FEED ME',
  'уровень':'level','связь':'bond','предметов':'items','монет':'coins',
  'Через':'In','Локация:':'Location:','История:':'Story:',
  '🔊 Звук: ВКЛ':'🔊 Sound: ON','🔈 Звук: ВЫКЛ':'🔈 Sound: OFF',
@@ -2336,6 +2386,7 @@ function kurmetTranslateString(s){
  const substitutions=[
  [/^История: (Пещера|Тюрьма|Лаборатория)$/,'Story: $1'],
  [/^Уровень (\d+), закрыт$/,'Level $1, locked'],
+ [/^Уровень (\d+)$/,'Level $1'],
  [/^Уровень (\d+), начать$/,'Level $1, start'],
  [/^Цель: обустрой пещеру \((\d+\/\d+) предметов\)$/,'Goal: furnish the cave ($1 items)'],
  [/^(.+) · уровень (\d+) · связь (\d+)%$/,'$1 · level $2 · bond $3%'],
