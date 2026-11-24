@@ -2100,11 +2100,11 @@ document.addEventListener('visibilitychange',()=>{
 window.addEventListener('pagehide',rememberLastVisit);
 // Tapping the kitten is a tiny direct interaction even outside the five care actions.
 canvas.addEventListener('pointerdown',e=>{
- if(state.location==='cave'&&!cavePassageOpen&&caveOpeningAt===null){
+ if(state.location==='cave'&&caveOpeningAt===null){
   const g=caveGeometry(),r=canvas.getBoundingClientRect(),scale=Math.min(canvas.width/600,canvas.height/roomH);
   const x=((e.clientX-r.left)*canvas.width/r.width-(canvas.width-600*scale)/2)/scale;
   const y=((e.clientY-r.top)*canvas.height/r.height-(canvas.height-roomH*scale)/2)/scale;
-  if(g&&x>=g.x+g.w*.15&&x<=g.x+g.w*.49&&y>=g.y+g.h*.33&&y<=g.y+g.h*.44&&caveOpenBg.naturalWidth&&caveOpenSmoke.naturalWidth){caveOpeningAt=performance.now()/1000;return}
+  if(g&&x>=g.x+g.w*.15&&x<=g.x+g.w*.49&&y>=g.y+g.h*.33&&y<=g.y+g.h*.44&&caveOpenBg.naturalWidth&&caveOpenSmoke.naturalWidth){if(cavePassageOpen){cavePassageOpen=false;try{localStorage.removeItem('kurmet-cave-passage-v1')}catch(e){}}else{caveOpeningAt=performance.now()/1000;}return}
  }
  if(state.action!=='idle')return;
  const rect=canvas.getBoundingClientRect(),l=state.life;
