@@ -2345,7 +2345,7 @@ kgUpdateLabels();
  const overlay=document.getElementById('pkOverlay'),play=document.getElementById('pkPlay'),throwBtn=document.getElementById('pkThrow');
  const headline=document.getElementById('pkHeadline'),desc=document.getElementById('pkDescription'),count=document.getElementById('pkCount');
  const stages=[{goal:5,speed:1.25},{goal:6,speed:1.7},{goal:7,speed:2.15},{goal:8,speed:2.7},{goal:9,speed:3.3}],TAU=Math.PI*2;
- let stage=0,running=false,angle=0,knives=[],last=0,raf=0,projectile=null,breaking=null,rotation=1,reverseIn=1,speedFactor=1;
+ let stage=0,running=false,angle=0,knives=[],last=0,raf=0,projectile=null,breaking=null,bounce=null,rotation=1,reverseIn=1,speedFactor=1;
  const lang=()=>{try{return localStorage.getItem('kurmet-language-v1')==='en'}catch(e){return false}};
  const tr=(ru,en)=>lang()?en:ru;
  function resize(){const r=canvas.getBoundingClientRect(),d=Math.min(2,devicePixelRatio||1);canvas.width=Math.max(1,Math.round(r.width*d));canvas.height=Math.max(1,Math.round(r.height*d));ctx.setTransform(d,0,0,d,0,0)}
@@ -2365,7 +2365,7 @@ kgUpdateLabels();
  ctx.save();ctx.translate(cx,cy);ctx.rotate(angle);disk(rad);
  for(const a of knives){ctx.save();ctx.rotate(a);knife(0,rad+30,0);ctx.restore()}
  ctx.restore();
- const bottom=Math.min(h-58,cy+rad+110);if(projectile)knife(cx,projectile.y,0);else if(running)knife(cx,bottom,0)}
+ const bottom=Math.min(h-58,cy+rad+110);if(bounce)knife(bounce.x,bounce.y,bounce.rot);else if(projectile)knife(cx,projectile.y,0);else if(running)knife(cx,bottom,0)}
  function show(title,message,button){overlay.hidden=false;headline.textContent=title;desc.textContent=message;play.textContent=button}
  function updateCount(){count.textContent=tr('Ур. ','Lv. ')+(stage+1)+' · '+knives.length+' / '+stages[stage].goal;document.getElementById('pkRemaining').textContent=tr('🗡 Осталось: ','🗡 Left: ')+Math.max(0,stages[stage].goal-knives.length)}
  function nextAfterBreak(){breaking=null;stage++;if(stage>=stages.length){stage=0;show(tr('Все уровни пройдены!','All levels completed!'),tr('Ты прошёл все 5 испытаний!','You cleared all 5 challenges!'),tr('↻ Сначала','↻ Restart'))}else show(tr('Уровень пройден!','Level complete!'),tr('Мишень разбита! Следующий уровень быстрее.','Target shattered! The next stage is faster.'),tr('▶ Следующий уровень','▶ Next level'));updateCount()}
@@ -2374,6 +2374,22 @@ kgUpdateLabels();
  overlay.hidden=true}
  function frame(t){if(root.hidden)return;const dt=Math.min(.04,Math.max(0,(t-(last||t))/1000));last=t;
  if(breaking){breaking.time-=dt;for(const p of breaking.parts){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=260*dt;p.spin+=p.vr*dt}for(const k of breaking.flying){k.x+=k.vx*dt;k.y+=k.vy*dt;k.vy+=260*dt;k.rot+=k.vr*dt}if(breaking.time<=0)nextAfterBreak()}
+ else if(bounce){
+  bounce.time+=dt;
+  // Impact recoil: a fast initial kick followed by visibly damped, slow-motion falling.
+  const slow=0.38;
+  bounce.x+=bounce.vx*dt*slow;
+  bounce.y+=bounce.vy*dt*slow;
+  bounce.vy+=650*dt*slow;
+  bounce.rot+=bounce.vrot*dt*slow;
+  bounce.vx*=Math.exp(-1.8*dt);
+  bounce.vrot*=Math.exp(-1.5*dt);
+  if(bounce.time>=1.05){
+   bounce=null;stage=0;
+   show(tr('Клинки столкнулись!','Knives collided!'),tr('Прогресс сброшен. Начни снова с уровня 1.','Progress reset. Start again from level 1.'),tr('↻ Уровень 1','↻ Level 1'));
+   updateCount();
+  }
+ }
  else if(running){
  reverseIn-=dt;
  if(reverseIn<=0){
@@ -2383,12 +2399,15 @@ kgUpdateLabels();
   reverseIn=Math.max(.45,1.65-stage*.17)+Math.random()*(1.55-stage*.12);
  }
  angle=(angle+rotation*stages[stage].speed*speedFactor*dt+TAU)%TAU;
- if(projectile){projectile.y-=dt*1250;const {cy,rad}=dim();if(projectile.y<=cy+rad+47){const impact=(-angle+TAU)%TAU;const clash=knives.some(a=>Math.abs(Math.atan2(Math.sin(a-impact),Math.cos(a-impact)))<Math.atan2(13,rad+30));projectile=null;if(clash){running=false;throwBtn.disabled=true;stage=0;show(tr('Клинки столкнулись!','Knives collided!'),tr('Прогресс сброшен. Начни снова с уровня 1.','Progress reset. Start again from level 1.'),tr('↻ Уровень 1','↻ Level 1'));updateCount()}else{knives.push(impact);updateCount();if(knives.length>=stages[stage].goal)shatter();else throwBtn.disabled=false}}}}
+ if(projectile){projectile.y-=dt*1250;const {cy,rad}=dim();if(projectile.y<=cy+rad+47){const impact=(-angle+TAU)%TAU;const clash=knives.some(a=>Math.abs(Math.atan2(Math.sin(a-impact),Math.cos(a-impact)))<Math.atan2(13,rad+30));projectile=null;if(clash){
+ running=false;throwBtn.disabled=true;
+ bounce={x:dim().cx,y:cy+rad+47,rot:0,vx:(Math.random()<.5?-1:1)*(100+Math.random()*80),vy:210,vrot:(Math.random()<.5?-1:1)*7,time:0};
+ }else{knives.push(impact);updateCount();if(knives.length>=stages[stage].goal)shatter();else throwBtn.disabled=false}}}}
  draw();raf=requestAnimationFrame(frame)}
- function start(){angle=0;knives=[];projectile=null;breaking=null;running=true;rotation=Math.random()<.5?-1:1;reverseIn=1+Math.random()*1.5;speedFactor=1;updateCount();overlay.hidden=true;throwBtn.disabled=false;last=0;cancelAnimationFrame(raf);resize();raf=requestAnimationFrame(frame)}
+ function start(){angle=0;knives=[];projectile=null;breaking=null;bounce=null;running=true;rotation=Math.random()<.5?-1:1;reverseIn=1+Math.random()*1.5;speedFactor=1;updateCount();overlay.hidden=true;throwBtn.disabled=false;last=0;cancelAnimationFrame(raf);resize();raf=requestAnimationFrame(frame)}
  function throwKnife(){if(!running||projectile)return;const {cy,rad,h}=dim();projectile={y:Math.min(h-58,cy+rad+110)};throwBtn.disabled=true}
  function close(){running=false;root.hidden=true;cancelAnimationFrame(raf);document.getElementById('openPrisonGame').focus()}
- document.getElementById('openPrisonGame').addEventListener('click',()=>{if(state.location!=='prison')return;closeModals(false);stage=0;root.hidden=false;running=false;breaking=null;projectile=null;updateCount();show(tr('Испытание клинков','Knife challenge'),tr('5 уровней. Попадай лезвиями в мишень, не задев другие клинки.','5 stages. Stick blades into the target without hitting other knives.'),tr('▶ Начать','▶ Start'));throwBtn.disabled=true;resize();draw();play.focus()});
+ document.getElementById('openPrisonGame').addEventListener('click',()=>{if(state.location!=='prison')return;closeModals(false);stage=0;root.hidden=false;running=false;breaking=null;bounce=null;projectile=null;updateCount();show(tr('Испытание клинков','Knife challenge'),tr('5 уровней. Попадай лезвиями в мишень, не задев другие клинки.','5 stages. Stick blades into the target without hitting other knives.'),tr('▶ Начать','▶ Start'));throwBtn.disabled=true;resize();draw();play.focus()});
  document.getElementById('pkExit').addEventListener('click',close);play.addEventListener('click',start);throwBtn.addEventListener('click',throwKnife);canvas.addEventListener('pointerdown',throwKnife);
  window.addEventListener('resize',()=>{if(!root.hidden){resize();draw()}});
  document.addEventListener('keydown',e=>{if(root.hidden)return;if(e.key==='Escape'){e.stopPropagation();close()}else if(e.code==='Space'&&running){e.preventDefault();throwKnife()}});
