@@ -2338,40 +2338,48 @@ document.addEventListener('keydown',e=>{
 kgUpdateLabels();
 
 
-// Prison mini-game. Geometry is canvas-only, ready for future sprite replacements.
+// Prison knife challenge: 5 progressively faster stages, placeholder canvas art.
 (function(){
  const root=document.getElementById('prisonKnifeGame'),canvas=document.getElementById('pkCanvas'),ctx=canvas.getContext('2d');
  const overlay=document.getElementById('pkOverlay'),play=document.getElementById('pkPlay'),throwBtn=document.getElementById('pkThrow');
  const headline=document.getElementById('pkHeadline'),desc=document.getElementById('pkDescription'),count=document.getElementById('pkCount');
- let running=false,angle=0,knives=[],last=0,raf=0,anim=null,ended=false,round=0;
- const goal=5,TAU=Math.PI*2;
- function lang(){try{return localStorage.getItem('kurmet-language-v1')==='en'}catch(e){return false}}
- function label(ru,en){return lang()?en:ru}
+ const stages=[{goal:5,speed:1.25},{goal:6,speed:1.7},{goal:7,speed:2.15},{goal:8,speed:2.7},{goal:9,speed:3.3}],TAU=Math.PI*2;
+ let stage=0,running=false,angle=0,knives=[],last=0,raf=0,projectile=null,breaking=null,rotation=1;
+ const lang=()=>{try{return localStorage.getItem('kurmet-language-v1')==='en'}catch(e){return false}};
+ const tr=(ru,en)=>lang()?en:ru;
  function resize(){const r=canvas.getBoundingClientRect(),d=Math.min(2,devicePixelRatio||1);canvas.width=Math.max(1,Math.round(r.width*d));canvas.height=Math.max(1,Math.round(r.height*d));ctx.setTransform(d,0,0,d,0,0)}
- function dimensions(){const w=canvas.clientWidth,h=canvas.clientHeight;return {w,h,cx:w/2,cy:Math.max(100,Math.min(h*.38,h-125)),rad:Math.min(w*.25,h*.19,100)}}
- function knife(x,y,a,scale=1){ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.scale(scale,scale);ctx.fillStyle='#d4d9e2';ctx.strokeStyle='#30313b';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,-47);ctx.lineTo(9,-20);ctx.lineTo(6,-4);ctx.lineTo(-6,-4);ctx.lineTo(-9,-20);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#c5a05a';ctx.fillRect(-12,-4,24,6);ctx.fillStyle='#5d3c35';ctx.fillRect(-5,2,10,25);ctx.restore()}
- function draw(){const {w,h,cx,cy,rad}=dimensions();ctx.clearRect(0,0,w,h);ctx.fillStyle='#1d1a21';ctx.fillRect(0,0,w,h);
- ctx.strokeStyle='#382f34';ctx.lineWidth=2;for(let i=0;i<9;i++){const x=w*i/8;ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke()}
- ctx.save();ctx.translate(cx,cy);ctx.rotate(angle);
- ctx.fillStyle='#54413c';ctx.strokeStyle='#d4a65d';ctx.lineWidth=7;ctx.beginPath();ctx.arc(0,0,rad,0,TAU);ctx.fill();ctx.stroke();
+ function dim(){const w=canvas.clientWidth,h=canvas.clientHeight;return {w,h,cx:w/2,cy:Math.max(100,Math.min(h*.36,h-125)),rad:Math.min(w*.25,h*.19,100)}}
+ // Blade points up in local coordinates. Attached knives are rotated so their tips enter the rim.
+ function knife(x,y,rotationAngle,scale=1){ctx.save();ctx.translate(x,y);ctx.rotate(rotationAngle);ctx.scale(scale,scale);
+ ctx.fillStyle='#d4d9e2';ctx.strokeStyle='#30313b';ctx.lineWidth=2;
+ ctx.beginPath();ctx.moveTo(0,-47);ctx.lineTo(9,-20);ctx.lineTo(6,-4);ctx.lineTo(-6,-4);ctx.lineTo(-9,-20);ctx.closePath();ctx.fill();ctx.stroke();
+ ctx.fillStyle='#c5a05a';ctx.fillRect(-12,-4,24,6);ctx.fillStyle='#5d3c35';ctx.fillRect(-5,2,10,25);ctx.restore()}
+ function disk(rad){ctx.fillStyle='#54413c';ctx.strokeStyle='#d4a65d';ctx.lineWidth=7;ctx.beginPath();ctx.arc(0,0,rad,0,TAU);ctx.fill();ctx.stroke();
  for(let r=rad*.7;r>10;r-=rad*.26){ctx.strokeStyle='#8c6d52';ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,0,r,0,TAU);ctx.stroke()}
- ctx.fillStyle='#b98d4b';ctx.beginPath();ctx.arc(0,0,9,0,TAU);ctx.fill();
- for(const a of knives){ctx.save();ctx.rotate(a);knife(0,rad+24,Math.PI);ctx.restore()}
+ ctx.fillStyle='#b98d4b';ctx.beginPath();ctx.arc(0,0,9,0,TAU);ctx.fill()}
+ function draw(){const {w,h,cx,cy,rad}=dim();ctx.clearRect(0,0,w,h);ctx.fillStyle='#1d1a21';ctx.fillRect(0,0,w,h);
+ ctx.strokeStyle='#382f34';ctx.lineWidth=2;for(let i=0;i<9;i++){ctx.beginPath();ctx.moveTo(w*i/8,0);ctx.lineTo(w*i/8,h);ctx.stroke()}
+ if(breaking){for(const part of breaking.parts){ctx.save();ctx.translate(cx+part.x,cy+part.y);ctx.rotate(part.spin);ctx.globalAlpha=Math.max(0,breaking.time/1.1);ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,rad,part.start,part.end);ctx.closePath();ctx.fillStyle='#665047';ctx.strokeStyle='#d4a65d';ctx.lineWidth=3;ctx.fill();ctx.stroke();ctx.restore()}
+ for(const k of breaking.flying)knife(cx+k.x,cy+k.y,k.rot);return}
+ ctx.save();ctx.translate(cx,cy);ctx.rotate(angle);disk(rad);
+ for(const a of knives){ctx.save();ctx.rotate(a);knife(0,rad+30,0);ctx.restore()}
  ctx.restore();
- const bottom=Math.min(h-58,cy+rad+110);if(anim){knife(cx,anim.y,0)}else if(running){knife(cx,bottom,0)}
- }
- function finish(win){running=false;ended=true;anim=null;throwBtn.disabled=true;overlay.hidden=false;headline.textContent=win?label('Уровень пройден!','Level complete!'):label('Клинки столкнулись!','Knives collided!');
- desc.textContent=win?label('Все 5 клинков попали в мишень.','All 5 knives hit the target.'):label('Попробуй подобрать другой момент для броска.','Try timing your next throw differently.');
- play.textContent=label('↻ Играть ещё','↻ Play again');}
- function frame(t){if(root.hidden)return;const dt=Math.min(.04,(t-(last||t))/1000);last=t;if(running){angle=(angle+dt*(1.3+round*.08))%TAU;if(anim){anim.y-=dt*1150;const {cy,rad}=dimensions();if(anim.y<=cy+rad+48){const impact=(Math.PI/2-angle+TAU)%TAU;const clash=knives.some(a=>Math.abs(Math.atan2(Math.sin(a-impact),Math.cos(a-impact)))<.34);anim=null;if(clash)finish(false);else{knives.push(impact);count.textContent=knives.length+' / '+goal;if(knives.length>=goal)finish(true);else throwBtn.disabled=false}}}}
+ const bottom=Math.min(h-58,cy+rad+110);if(projectile)knife(cx,projectile.y,0);else if(running)knife(cx,bottom,0)}
+ function show(title,message,button){overlay.hidden=false;headline.textContent=title;desc.textContent=message;play.textContent=button}
+ function updateCount(){count.textContent=tr('Ур. ','Lv. ')+(stage+1)+' · '+knives.length+' / '+stages[stage].goal}
+ function nextAfterBreak(){breaking=null;stage++;if(stage>=stages.length){stage=0;show(tr('Все уровни пройдены!','All levels completed!'),tr('Ты прошёл все 5 испытаний!','You cleared all 5 challenges!'),tr('↻ Сначала','↻ Restart'))}else show(tr('Уровень пройден!','Level complete!'),tr('Мишень разбита! Следующий уровень быстрее.','Target shattered! The next stage is faster.'),tr('▶ Следующий уровень','▶ Next level'));updateCount()}
+ function shatter(){running=false;projectile=null;throwBtn.disabled=true;const {rad}=dim();breaking={time:1.1,parts:[],flying:[]};for(let i=0;i<8;i++){const t=i*TAU/8;breaking.parts.push({start:t,end:t+TAU/8,x:0,y:0,vx:Math.cos(t+.4)*(90+Math.random()*90),vy:Math.sin(t+.4)*(90+Math.random()*90)-50,spin:0,vr:(Math.random()-.5)*7})}
+ for(const a of knives){const theta=angle+a;breaking.flying.push({x:Math.sin(-theta)*(rad+30),y:Math.cos(theta)*(rad+30),vx:Math.sin(-theta)*170,vy:Math.cos(theta)*170-60,rot:theta,vr:(Math.random()-.5)*6})}
+ overlay.hidden=true}
+ function frame(t){if(root.hidden)return;const dt=Math.min(.04,Math.max(0,(t-(last||t))/1000));last=t;
+ if(breaking){breaking.time-=dt;for(const p of breaking.parts){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=260*dt;p.spin+=p.vr*dt}for(const k of breaking.flying){k.x+=k.vx*dt;k.y+=k.vy*dt;k.vy+=260*dt;k.rot+=k.vr*dt}if(breaking.time<=0)nextAfterBreak()}
+ else if(running){angle=(angle+rotation*stages[stage].speed*dt+TAU)%TAU;if(projectile){projectile.y-=dt*1250;const {cy,rad}=dim();if(projectile.y<=cy+rad+47){const impact=(Math.PI/2-angle+TAU)%TAU;const clash=knives.some(a=>Math.abs(Math.atan2(Math.sin(a-impact),Math.cos(a-impact)))<.34);projectile=null;if(clash){running=false;throwBtn.disabled=true;show(tr('Клинки столкнулись!','Knives collided!'),tr('Попробуй ещё раз.','Try again.'),tr('↻ Повторить уровень','↻ Retry level'))}else{knives.push(impact);updateCount();if(knives.length>=stages[stage].goal)shatter();else throwBtn.disabled=false}}}}
  draw();raf=requestAnimationFrame(frame)}
- function start(){round++;angle=0;knives=[];anim=null;ended=false;running=true;count.textContent='0 / '+goal;overlay.hidden=true;throwBtn.disabled=false;last=0;cancelAnimationFrame(raf);resize();raf=requestAnimationFrame(frame)}
- function throwKnife(){if(!running||anim)return;const {cy,rad,h}=dimensions();anim={y:Math.min(h-58,cy+rad+110)};throwBtn.disabled=true}
+ function start(){angle=0;knives=[];projectile=null;breaking=null;running=true;rotation=stage%2?-1:1;updateCount();overlay.hidden=true;throwBtn.disabled=false;last=0;cancelAnimationFrame(raf);resize();raf=requestAnimationFrame(frame)}
+ function throwKnife(){if(!running||projectile)return;const {cy,rad,h}=dim();projectile={y:Math.min(h-58,cy+rad+110)};throwBtn.disabled=true}
  function close(){running=false;root.hidden=true;cancelAnimationFrame(raf);document.getElementById('openPrisonGame').focus()}
- document.getElementById('openPrisonGame').addEventListener('click',()=>{if(state.location!=='prison')return;closeModals(false);root.hidden=false;running=false;overlay.hidden=false;headline.textContent=label('Испытание клинков','Knife challenge');desc.textContent=label('Попади 5 клинками во вращающуюся мишень. Не задень уже воткнутые клинки!','Stick 5 knives into the rotating target. Avoid the knives already there!');play.textContent=label('▶ Начать','▶ Start');throwBtn.disabled=true;count.textContent='0 / '+goal;resize();draw();play.focus()});
- document.getElementById('pkExit').addEventListener('click',close);
- play.addEventListener('click',start);throwBtn.addEventListener('click',throwKnife);
- canvas.addEventListener('pointerdown',throwKnife);
+ document.getElementById('openPrisonGame').addEventListener('click',()=>{if(state.location!=='prison')return;closeModals(false);stage=0;root.hidden=false;running=false;breaking=null;projectile=null;updateCount();show(tr('Испытание клинков','Knife challenge'),tr('5 уровней. Попадай лезвиями в мишень, не задев другие клинки.','5 stages. Stick blades into the target without hitting other knives.'),tr('▶ Начать','▶ Start'));throwBtn.disabled=true;resize();draw();play.focus()});
+ document.getElementById('pkExit').addEventListener('click',close);play.addEventListener('click',start);throwBtn.addEventListener('click',throwKnife);canvas.addEventListener('pointerdown',throwKnife);
  window.addEventListener('resize',()=>{if(!root.hidden){resize();draw()}});
  document.addEventListener('keydown',e=>{if(root.hidden)return;if(e.key==='Escape'){e.stopPropagation();close()}else if(e.code==='Space'&&running){e.preventDefault();throwKnife()}});
 })();
