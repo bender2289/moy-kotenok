@@ -1641,7 +1641,26 @@ function drawRoomPortrait(t){
   ctx.restore();
 }
 
-function drawAtmosphere(t){ /* Cave drawing preserved without filters or a drawn rug. */ }
+const caveDropSheet=new Image(),caveSplashSheet=new Image();
+caveDropSheet.src='./cave_drop_sprites.png';caveSplashSheet.src='./cave_splash_sprites.png';
+const caveDrips=[{x:.131,y:.291,endX:.139,endY:.655,next:0},{x:.675,y:.319,endX:.684,endY:.608,next:1.8}];
+function drawAtmosphere(t){
+ if(state.location!=='cave')return;
+ const bg=locationImages.cave;if(!bg.naturalWidth||!caveDropSheet.naturalWidth||!caveSplashSheet.naturalWidth)return;
+ const factor=Math.max(600/bg.naturalWidth,roomH/bg.naturalHeight),w=bg.naturalWidth*factor,h=bg.naturalHeight*factor,ox=(600-w)/2,oy=(roomH-h)/2;
+ for(const d of caveDrips){
+ if(!d.start && t>=d.next)d.start=t||.00001;
+ if(!d.start)continue;
+ const e=t-d.start,fall=1.05,splash=.49,size=w*.105;
+ if(e>=fall+splash){d.start=0;d.next=t+1.5+Math.random()*3.5;continue}
+ const isSplash=e>=fall,progress=Math.min(1,e/fall),p=progress*progress;
+ const x=ox+w*(d.x+(d.endX-d.x)*p),y=oy+h*(d.y+(d.endY-d.y)*p);
+ const sheet=isSplash?caveSplashSheet:caveDropSheet;
+ const frame=isSplash?Math.min(6,Math.floor((e-fall)/splash*7)):Math.min(6,Math.floor(progress*7));
+ const sw=sheet.naturalWidth/7,sh=sheet.naturalHeight;
+ ctx.drawImage(sheet,frame*sw,0,sw,sh,x-size*.5,y-size*(isSplash?.56:.5),size,size);
+ }
+}
 
 function drawBowl(x,y){ellipse(x,y+10,66,18,'#bf8078','#956057',3);ellipse(x,y,50,12,'#fff4df','#b17f73',2);for(let i=0;i<7;i++)ellipse(x-26+i*9,y-2+Math.sin(i)*2,4,3,'#a57145',null,0,1);}
 function drawYarn(x,y,rot){ctx.save();ctx.translate(x,y);ctx.rotate(rot);ellipse(0,0,30,30,'#d97dad','#8e5a80',3);for(let i=0;i<5;i++)line([[-18,-10+i*8],[18,10-i*8]],'#efb4cf',2);line([[10,-25],[26,-38],[38,-34]],'#efb4cf',3);ctx.restore();}
