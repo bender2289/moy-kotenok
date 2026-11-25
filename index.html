@@ -1694,20 +1694,20 @@ function drawCaveOpening(t){
  ctx.save();
  if(e<.60&&caveBoards.naturalWidth){const w=g.w*.32,h=w*caveBoards.naturalHeight/caveBoards.naturalWidth;ctx.drawImage(caveBoards,x-w/2,y-h*.72,w,h)}
  if(e>=2.7&&caveLight.naturalWidth){
- const p=clamp((e-2.7)/1.5),w=g.w*.34,h=w*caveLight.naturalHeight/(caveLight.naturalWidth/7);
+ const p=clamp((e-2.7)/.75),w=g.w*.43,h=g.h*.19;
  ctx.globalAlpha=.55*(p===1?(.94+.06*Math.sin(t*1.6)):ease(p));
- frame(caveLight,7,Math.floor(p*6),x-w/2,y-g.h*.012,w,h);
+ frame(caveLight,7,Math.floor(p*6),x-w*.51,y+g.h*.003,w,h);
  ctx.globalAlpha=1;
  }
- if(e>=4.2&&caveLadder.naturalWidth){
- const p=ease(clamp((e-4.2)/2)),h=g.h*.225,w=h*caveLadder.naturalWidth/caveLadder.naturalHeight;
+ if(e>=3.45&&caveLadder.naturalWidth){
+ const p=ease(clamp((e-3.45)/2)),h=g.h*.143,w=h*caveLadder.naturalWidth/caveLadder.naturalHeight;
  ctx.save();ctx.beginPath();ctx.rect(x-g.w*.14,y-g.h*.008,g.w*.28,g.h*.30);ctx.clip();
  ctx.drawImage(caveLadder,x-w/2,y-h+h*p,w,h);ctx.restore();
  }
  if(e>=0&&e<1.5){const size=g.w*.392;ctx.globalAlpha=e>1.0625?clamp((1.5-e)/.4375):1;frame(caveOpenSmoke,8,Math.floor(e/1.5*8),x-size/2,g.y+g.h*.40-size/2,size,size);ctx.globalAlpha=1}
  if(e>=1.5&&e<2.7&&caveDust.naturalWidth){const p=(e-1.5)/1.2,w=g.w*.36,h=w*caveDust.naturalHeight/(caveDust.naturalWidth/6);ctx.globalAlpha=clamp((1-p)*5);frame(caveDust,6,Math.floor(p*6),x-w/2,y-h*.15+p*g.h*.035,w,h)}
  ctx.restore();
- if(caveOpeningAt!==null&&e>=6.2){caveOpeningAt=null;cavePassageOpen=true;try{localStorage.setItem('kurmet-cave-passage-v2','1')}catch(err){}}
+ if(caveOpeningAt!==null&&e>=5.45){caveOpeningAt=null;cavePassageOpen=true;try{localStorage.setItem('kurmet-cave-passage-v2','1')}catch(err){}}
 }
 function drawBowl(x,y){ellipse(x,y+10,66,18,'#bf8078','#956057',3);ellipse(x,y,50,12,'#fff4df','#b17f73',2);for(let i=0;i<7;i++)ellipse(x-26+i*9,y-2+Math.sin(i)*2,4,3,'#a57145',null,0,1);}
 function drawYarn(x,y,rot){ctx.save();ctx.translate(x,y);ctx.rotate(rot);ellipse(0,0,30,30,'#d97dad','#8e5a80',3);for(let i=0;i<5;i++)line([[-18,-10+i*8],[18,10-i*8]],'#efb4cf',2);line([[10,-25],[26,-38],[38,-34]],'#efb4cf',3);ctx.restore();}
