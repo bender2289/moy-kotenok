@@ -1117,12 +1117,58 @@ html.kurmet-boot-already-entered #kurmet-boot-screen{display:none!important}
 }
 </style>
 <style>
-#locationsModal:not(.preview-active) #locationsGrid{left:14%!important;width:65%!important;gap:4px!important;padding:0!important;scrollbar-width:none!important;grid-auto-rows:auto!important}
-#locationsModal:not(.preview-active) #locationsGrid::-webkit-scrollbar{display:none!important}
-#locationsModal:not(.preview-active) .kurmet-location-tile.artist-location-card .kurmet-location-picture img{transform:scale(1.27);transform-origin:center}
-#locationsModal:not(.preview-active) .kurmet-location-tile.artist-location-card .kurmet-location-picture{overflow:visible!important}
-#locationsModal:not(.preview-active) .kurmet-location-tile.artist-location-card{overflow:visible!important;aspect-ratio:.65!important}
-#locationsModal:not(.preview-active) .kurmet-location-tile.locked.artist-location-card{aspect-ratio:.65!important}
+/* Location gallery: compact floating parchment, correctly spaced cards and a real touch scroll area. */
+#locationsModal:not(.preview-active){
+ position:fixed!important;inset:0!important;display:flex!important;align-items:center!important;justify-content:center!important;
+ padding:0!important;background:rgba(0,0,0,.38)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+ overflow:hidden!important;z-index:1000!important;
+}
+#locationsModal:not(.preview-active) .kurmet-locations-modal{
+ position:relative!important;flex:none!important;
+ width:min(90vw,650px)!important;height:min(76dvh,1180px)!important;
+ max-width:650px!important;max-height:1180px!important;min-height:0!important;
+ margin:0 auto!important;padding:0!important;overflow:hidden!important;
+ background:transparent url('./локации 02.png') center center / 100% 100% no-repeat!important;
+}
+#locationsModal:not(.preview-active) .kurmet-locations-modal>.modal-top{
+ top:5.2%!important;left:20%!important;right:20%!important;height:8%!important;
+}
+#locationsModal:not(.preview-active) #locationsGrid{
+ left:15.5%!important;right:15%!important;top:14.2%!important;width:auto!important;height:73.5%!important;
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ grid-auto-rows:max-content!important;align-content:start!important;align-items:start!important;
+ column-gap:clamp(12px,2.3vw,20px)!important;row-gap:clamp(18px,2.6vw,30px)!important;
+ padding:0 8px 26px 2px!important;margin:0!important;
+ overflow-x:hidden!important;overflow-y:scroll!important;
+ overscroll-behavior-y:contain!important;-webkit-overflow-scrolling:touch!important;
+ touch-action:pan-y!important;scrollbar-width:thin!important;scrollbar-color:#e4d6a8 transparent!important;
+}
+#locationsModal:not(.preview-active) #locationsGrid::-webkit-scrollbar{width:10px!important;display:block!important}
+#locationsModal:not(.preview-active) #locationsGrid::-webkit-scrollbar-track{background:transparent!important}
+#locationsModal:not(.preview-active) #locationsGrid::-webkit-scrollbar-thumb{background:#e4d6a8!important;border:2px solid #c6b98d!important;border-radius:10px!important}
+#locationsModal:not(.preview-active) .kurmet-location-tile.artist-location-card,
+#locationsModal:not(.preview-active) .kurmet-location-tile.locked.artist-location-card{
+ position:relative!important;display:block!important;width:100%!important;min-width:0!important;
+ height:auto!important;aspect-ratio:.56!important;min-height:0!important;
+ padding:0!important;margin:0!important;overflow:hidden!important;
+ border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;
+}
+#locationsModal:not(.preview-active) .kurmet-location-tile.artist-location-card .kurmet-location-picture{
+ position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;
+ margin:0!important;padding:0!important;aspect-ratio:auto!important;overflow:hidden!important;
+ border:0!important;border-radius:0!important;background:transparent!important;
+}
+#locationsModal:not(.preview-active) .kurmet-location-tile.artist-location-card .kurmet-location-picture img{
+ display:block!important;width:100%!important;height:100%!important;object-fit:fill!important;object-position:center!important;
+ transform:none!important;
+}
+#locationsModal:not(.preview-active) .kurmet-location-tile.artist-location-card .kurmet-location-caption,
+#locationsModal:not(.preview-active) .kurmet-location-tile.artist-location-card .kurmet-location-selected{display:none!important}
+#locationsModal:not(.preview-active) .kurmet-location-tile.locked.artist-location-card{opacity:1!important;cursor:default!important}
+@media(max-width:480px){
+ #locationsModal:not(.preview-active) .kurmet-locations-modal{width:90vw!important;height:76dvh!important}
+ #locationsModal:not(.preview-active) #locationsGrid{left:15.5%!important;right:15%!important;column-gap:10px!important;row-gap:18px!important}
+}
 </style></head>
 <body>
 <div id="kurmet-boot-screen" role="status" aria-live="polite" aria-label="KURMET UNIVERSE — загрузка">
@@ -1570,7 +1616,7 @@ const renderLocationsMenu=()=>{
  const grid=document.getElementById('locationsGrid');
  if(!grid)return;
  grid.replaceChildren();
- // Three currently available places plus six reserved spaces for future KURMET locations.
+ // One available cave and 23 reserved spaces for future KURMET locations.
  const slots=['cave',...Array(23).fill(null)];
  slots.forEach((id,index)=>{
   if(id){
