@@ -1133,40 +1133,15 @@ html.kurmet-boot-already-entered #kurmet-boot-screen{display:none!important}
 }
 #locationsModal:not(.preview-active) .kurmet-location-detail{z-index:10!important}
 
-/* Bring the original illustrated hands back above the cards.
-   The contour follows the hand-and-shadow silhouette instead of a coarse box. */
-#locationsModal:not(.preview-active) .kurmet-locations-modal::before,
-#locationsModal:not(.preview-active) .kurmet-locations-modal::after{
-  content:""!important;display:block!important;position:absolute!important;inset:0!important;
-  z-index:5!important;pointer-events:none!important;
-  background:url('./локации%20без%20скроллбара.png') center center / 100% 100% no-repeat!important;
+/* Pixel-exact foreground hands from the unchanged artist PNG.
+   The canvas removes only parchment-colored pixels; no angular clip-paths. */
+#locationsModal .kurmet-hand-foreground{
+  position:absolute!important;display:block!important;z-index:5!important;
+  pointer-events:none!important;margin:0!important;padding:0!important;
+  border:0!important;background:transparent!important;
 }
-#locationsModal:not(.preview-active) .kurmet-locations-modal::before{
-  clip-path:polygon(
-    8% 51.7%, 9.4% 51.6%, 10.7% 52%, 12.2% 52.5%, 13.7% 53.1%,
-    15.2% 53.9%, 16.7% 54.8%, 18% 55.8%, 19.2% 57%, 20.3% 58.3%,
-    21.2% 59.8%, 22% 61.3%, 21% 62.6%, 22.1% 64%, 21% 65.3%,
-    21.9% 66.7%, 20.6% 68%, 19.2% 69.3%, 17.7% 70.5%,
-    16% 71.6%, 14.1% 72.5%, 12% 73.2%, 9.8% 73.7%,
-    7.6% 73.7%, 5.6% 73.1%, 3.8% 72%, 2.4% 70.6%,
-    1.3% 68.8%, .8% 66.9%, 1.3% 65.2%, .8% 63.5%,
-    1.4% 61.8%, .9% 60.1%, 1.6% 58.4%, 2.4% 56.9%,
-    3.6% 55.5%, 5% 54.3%, 6.5% 53.2%, 7.4% 52.3%
-  )!important;
-}
-#locationsModal:not(.preview-active) .kurmet-locations-modal::after{
-  clip-path:polygon(
-    92% 51.7%, 90.6% 51.6%, 89.3% 52%, 87.8% 52.5%, 86.3% 53.1%,
-    84.8% 53.9%, 83.3% 54.8%, 82% 55.8%, 80.8% 57%, 79.7% 58.3%,
-    78.8% 59.8%, 78% 61.3%, 79% 62.6%, 77.9% 64%, 79% 65.3%,
-    78.1% 66.7%, 79.4% 68%, 80.8% 69.3%, 82.3% 70.5%,
-    84% 71.6%, 85.9% 72.5%, 88% 73.2%, 90.2% 73.7%,
-    92.4% 73.7%, 94.4% 73.1%, 96.2% 72%, 97.6% 70.6%,
-    98.7% 68.8%, 99.2% 66.9%, 98.7% 65.2%, 99.2% 63.5%,
-    98.6% 61.8%, 99.1% 60.1%, 98.4% 58.4%, 97.6% 56.9%,
-    96.4% 55.5%, 95% 54.3%, 93.5% 53.2%, 92.6% 52.3%
-  )!important;
-}
+#locationsModal[hidden] .kurmet-hand-foreground,
+#locationsModal.preview-active .kurmet-hand-foreground{display:none!important}
 @media(max-width:480px){
   #locationsModal:not(.preview-active) .kurmet-locations-modal{
     width:90vw!important;height:76dvh!important;max-height:76dvh!important;
@@ -1675,6 +1650,66 @@ const renderLocationsMenu=()=>{
  grid.scrollTop=0;
 };
 
+/* Separate the original hand ink from the parchment with a pixel alpha mask.
+   All visible pixels come from the user's own PNG; no artwork is redrawn.
+   Process small cropped canvases instead of the full-size source image. */
+const kurmetHandSource=new Image();
+kurmetHandSource.decoding='async';
+kurmetHandSource.src='./локации%20без%20скроллбара.png';
+function renderKurmetHands(){
+ const modal=document.getElementById('locationsModal');
+ const paper=modal?.querySelector('.kurmet-locations-modal');
+ if(!paper||modal.hidden||modal.classList.contains('preview-active'))return;
+ if(!kurmetHandSource.complete||!kurmetHandSource.naturalWidth)return;
+ const fullWidth=paper.clientWidth,fullHeight=paper.clientHeight;
+ if(!fullWidth||!fullHeight)return;
+ const density=Math.min(window.devicePixelRatio||1,3);
+ const regions=[
+  {side:'left',x:0,y:.50,width:.25,height:.27},
+  {side:'right',x:.75,y:.50,width:.25,height:.27}
+ ];
+ for(const region of regions){
+  let canvas=paper.querySelector('.kurmet-hand-foreground[data-side="'+region.side+'"]');
+  if(!canvas){
+   canvas=document.createElement('canvas');
+   canvas.className='kurmet-hand-foreground';
+   canvas.dataset.side=region.side;
+   canvas.setAttribute('aria-hidden','true');
+   paper.append(canvas);
+  }
+  canvas.style.left=(region.x*100)+'%';
+  canvas.style.top=(region.y*100)+'%';
+  canvas.style.width=(region.width*100)+'%';
+  canvas.style.height=(region.height*100)+'%';
+  const scaledWidth=Math.round(fullWidth*density);
+  const scaledHeight=Math.round(fullHeight*density);
+  canvas.width=Math.max(1,Math.round(scaledWidth*region.width));
+  canvas.height=Math.max(1,Math.round(scaledHeight*region.height));
+  const ctx=canvas.getContext('2d',{willReadFrequently:true});
+  if(!ctx)continue;
+  // Match the source image's 100% x 100% CSS background stretch.
+  ctx.drawImage(kurmetHandSource,
+   -Math.round(scaledWidth*region.x),-Math.round(scaledHeight*region.y),
+   scaledWidth,scaledHeight);
+  try{
+   const pixels=ctx.getImageData(0,0,canvas.width,canvas.height);
+   const rgba=pixels.data;
+   for(let i=0;i<rgba.length;i+=4){
+    // Dark-brown outline and golden fingers have a low blue channel.
+    // Pale parchment/shadow is high-blue and becomes fully transparent.
+    const blue=rgba[i+2];
+    const opacity=blue<=110?1:blue>=155?0:(155-blue)/45;
+    rgba[i+3]=Math.round(rgba[i+3]*opacity);
+   }
+   ctx.putImageData(pixels,0,0);
+  }catch(err){
+   // Never display unmasked parchment over cards if pixel reading fails.
+   canvas.style.display='none';
+  }
+ }
+}
+kurmetHandSource.addEventListener('load',()=>requestAnimationFrame(renderKurmetHands));
+window.addEventListener('resize',()=>requestAnimationFrame(renderKurmetHands));
 
 let selectedLocationPreview=null;
 let locationScreen='grid'; // grid | preview | story
@@ -2196,7 +2231,7 @@ document.getElementById('openPetStatus').addEventListener('click',e=>openModal('
 document.getElementById('openPetActions').addEventListener('click',e=>openModal('petActionsModal',e.currentTarget));
 document.getElementById('openMainMenu').addEventListener('click',e=>openModal('mainMenuModal',e.currentTarget));
 document.getElementById('openQuests').addEventListener('click',e=>openModal('questsModal',e.currentTarget));
-document.getElementById('openLocations').addEventListener('click',e=>{resetLocationScreens();renderLocationsMenu();openModal('locationsModal',e.currentTarget);});
+document.getElementById('openLocations').addEventListener('click',e=>{resetLocationScreens();renderLocationsMenu();openModal('locationsModal',e.currentTarget);requestAnimationFrame(renderKurmetHands);});
 // Back controls reuse the artist's exact original left location arrow artwork.
 const originalBackArrow=document.querySelector('#locationLeft img');
 if(originalBackArrow){
