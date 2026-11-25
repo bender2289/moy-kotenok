@@ -1043,12 +1043,12 @@ html.kurmet-boot-already-entered #kurmet-boot-screen{display:none!important}
  min-height:0!important;min-width:0!important;max-width:none!important;height:auto!important;
  color:transparent!important;text-shadow:none!important;font-size:0!important;line-height:0!important;
 }
-.scene button#openPetStatus{background-image:url("./%D0%B8%D0%BA%D0%BE%D0%BD%D0%BA%D0%B0%20%D1%81%D0%BE%D1%81%D1%82%D0%BE%D1%8F%D0%BD%D0%B8%D1%8F.png")!important;left:4.2%!important;top:1.8%!important;right:auto!important;bottom:auto!important;width:15%!important;aspect-ratio:687/716}
-.scene button#openPetActions{background-image:url("./%D0%B8%D0%BA%D0%BE%D0%BD%D0%BA%D0%B0%20%D0%B4%D0%B5%D0%B9%D1%81%D1%82%D0%B2%D0%B8%D1%8F.png")!important;right:2.2%!important;top:1.8%!important;left:auto!important;bottom:auto!important;width:17%!important;aspect-ratio:782/725}
-.scene button#openLocations{background-image:url("./%D0%B8%D0%BA%D0%BE%D0%BD%D0%BA%D0%B0%20%D0%BB%D0%BE%D0%BA%D0%B0%D1%86%D0%B8%D0%B8.png")!important;left:6.1%!important;bottom:3%!important;top:auto!important;right:auto!important;width:17%!important;aspect-ratio:756/753}
-.scene button#openMainMenu{background-image:url("./%D0%B8%D0%BA%D0%BE%D0%BD%D0%BA%D0%B0%20%D0%BC%D0%B5%D0%BD%D1%8E.png")!important;right:1.8%!important;bottom:2.5%!important;left:auto!important;top:auto!important;width:23%!important;aspect-ratio:995/833}
+.scene button#openPetStatus{background-image:url("./optimized/%D0%B8%D0%BA%D0%BE%D0%BD%D0%BA%D0%B0%20%D1%81%D0%BE%D1%81%D1%82%D0%BE%D1%8F%D0%BD%D0%B8%D1%8F.webp")!important;left:4.2%!important;top:1.8%!important;right:auto!important;bottom:auto!important;width:15%!important;aspect-ratio:687/716}
+.scene button#openPetActions{background-image:url("./optimized/%D0%B8%D0%BA%D0%BE%D0%BD%D0%BA%D0%B0%20%D0%B4%D0%B5%D0%B9%D1%81%D1%82%D0%B2%D0%B8%D1%8F.webp")!important;right:2.2%!important;top:1.8%!important;left:auto!important;bottom:auto!important;width:17%!important;aspect-ratio:782/725}
+.scene button#openLocations{background-image:url("./optimized/%D0%B8%D0%BA%D0%BE%D0%BD%D0%BA%D0%B0%20%D0%BB%D0%BE%D0%BA%D0%B0%D1%86%D0%B8%D0%B8.webp")!important;left:6.1%!important;bottom:3%!important;top:auto!important;right:auto!important;width:17%!important;aspect-ratio:756/753}
+.scene button#openMainMenu{background-image:url("./optimized/%D0%B8%D0%BA%D0%BE%D0%BD%D0%BA%D0%B0%20%D0%BC%D0%B5%D0%BD%D1%8E.webp")!important;right:1.8%!important;bottom:2.5%!important;left:auto!important;top:auto!important;width:23%!important;aspect-ratio:995/833}
 .scene #locationTitle{top:2.8%!important;max-width:40%!important;}
-.scene #locationTitle.cave-art-title{background-image:url("./%D0%B8%D0%BA%D0%BE%D0%BD%D0%BA%D0%B0%20%D0%9F%D0%95%D0%A9%D0%95%D0%A0%D0%90.png")!important;background-size:contain!important;width:40%!important;aspect-ratio:1803/567;min-height:0!important;height:auto!important;padding:0!important;color:transparent!important;text-shadow:none!important;font-size:0!important;}
+.scene #locationTitle.cave-art-title{background-image:url("./optimized/%D0%B8%D0%BA%D0%BE%D0%BD%D0%BA%D0%B0%20%D0%9F%D0%95%D0%A9%D0%95%D0%A0%D0%90.webp")!important;background-size:contain!important;width:40%!important;aspect-ratio:1803/567;min-height:0!important;height:auto!important;padding:0!important;color:transparent!important;text-shadow:none!important;font-size:0!important;}
 
 </style>
 
@@ -1070,7 +1070,7 @@ html.kurmet-boot-already-entered #kurmet-boot-screen{display:none!important}
   margin:0 auto!important;padding:0!important;overflow:hidden!important;
   border:0!important;border-radius:0!important;box-shadow:none!important;
   isolation:isolate!important;
-  background:transparent url('./локации%20без%20скроллбара.png') center center / 100% 100% no-repeat!important;
+  background:transparent url('./optimized/%D0%BB%D0%BE%D0%BA%D0%B0%D1%86%D0%B8%D0%B8%20%D0%B1%D0%B5%D0%B7%20%D1%81%D0%BA%D1%80%D0%BE%D0%BB%D0%BB%D0%B1%D0%B0%D1%80%D0%B0.webp') center center / 100% 100% no-repeat!important;
 }
 #locationsModal:not(.preview-active) .kurmet-locations-modal>.modal-top{
   position:absolute!important;z-index:6!important;left:20%!important;right:20%!important;
@@ -1722,7 +1722,7 @@ const renderLocationsMenu=()=>{
    const art=document.createElement('span');
    art.className='kurmet-location-picture';
    const image=document.createElement('img');
-   image.src=id==='cave'?'./локации 04 превью пещера.png':locationImages[id].src; // Artist-supplied cave card; preserve existing previews for other unlocked locations.
+   image.src=id==='cave'?'./optimized/%D0%BB%D0%BE%D0%BA%D0%B0%D1%86%D0%B8%D0%B8%2004%20%D0%BF%D1%80%D0%B5%D0%B2%D1%8C%D1%8E%20%D0%BF%D0%B5%D1%89%D0%B5%D1%80%D0%B0.webp':locationImages[id].src; // Artist-supplied cave card; preserve existing previews for other unlocked locations.
    if(id==='cave')button.classList.add('artist-location-card');
    image.alt='';
    image.loading='lazy';
@@ -1748,7 +1748,7 @@ const renderLocationsMenu=()=>{
    const art=document.createElement('span');
    art.className='kurmet-location-picture';
    const lockImage=document.createElement('img');
-   lockImage.src='./локации 03.png';
+   lockImage.src='./optimized/%D0%BB%D0%BE%D0%BA%D0%B0%D1%86%D0%B8%D0%B8%2003.webp';
    lockImage.alt='';lockImage.loading='lazy';lockImage.draggable=false;
    locked.classList.add('artist-location-card');
    art.append(lockImage);
@@ -1764,7 +1764,7 @@ const renderLocationsMenu=()=>{
    Process small cropped canvases instead of the full-size source image. */
 const kurmetHandSource=new Image();
 kurmetHandSource.decoding='async';
-kurmetHandSource.src='./локации%20без%20скроллбара.png';
+kurmetHandSource.src='./optimized/%D0%BB%D0%BE%D0%BA%D0%B0%D1%86%D0%B8%D0%B8%20%D0%B1%D0%B5%D0%B7%20%D1%81%D0%BA%D1%80%D0%BE%D0%BB%D0%BB%D0%B1%D0%B0%D1%80%D0%B0.webp';
 function renderKurmetHands(){
  const modal=document.getElementById('locationsModal');
  const paper=modal?.querySelector('.kurmet-locations-modal');
@@ -1916,10 +1916,10 @@ const initLocation=()=>{
 };
 
 const caveOpenSmoke=new Image(),caveBoards=new Image(),caveLadder=new Image(),caveDust=new Image(),caveLight=new Image();
-caveBoards.src='./%D0%B4%D0%BE%D1%81%D0%BA%D0%B8.png';caveLadder.src='./%D0%BB%D0%B5%D1%81%D1%82%D0%BD%D0%B8%D1%86%D0%B0.png';caveDust.src='./%D0%BF%D1%8B%D0%BB%D1%8C%20%D0%BF%D0%BE%D1%81%D0%BB%D0%B5%20%D0%BE%D0%B1%D1%80%D1%83%D1%88%D0%B5%D0%BD%D0%B8%D1%8F%20%D0%B4%D0%BE%D1%81%D0%BE%D0%BA.png';caveLight.src='./%D1%81%D0%BF%D1%80%D0%B0%D0%B9%D1%82%D1%8B%20%D1%81%D0%B2%D0%B5%D1%82%D0%B0.png';
-caveOpenSmoke.src='./cave_open_smoke_sprites.png';
+caveBoards.src='./optimized/%D0%B4%D0%BE%D1%81%D0%BA%D0%B8.webp';caveLadder.src='./optimized/%D0%BB%D0%B5%D1%81%D1%82%D0%BD%D0%B8%D1%86%D0%B0.webp';caveDust.src='./optimized/%D0%BF%D1%8B%D0%BB%D1%8C%20%D0%BF%D0%BE%D1%81%D0%BB%D0%B5%20%D0%BE%D0%B1%D1%80%D1%83%D1%88%D0%B5%D0%BD%D0%B8%D1%8F%20%D0%B4%D0%BE%D1%81%D0%BE%D0%BA.webp';caveLight.src='./optimized/%D1%81%D0%BF%D1%80%D0%B0%D0%B9%D1%82%D1%8B%20%D1%81%D0%B2%D0%B5%D1%82%D0%B0.webp';
+caveOpenSmoke.src='./optimized/cave_open_smoke_sprites.webp';
 const caveLockImage=new Image(),cavePaperFirst=new Image(),cavePaperSecond=new Image();
-caveLockImage.src='./%D0%B7%D0%B0%D0%BC%D0%BE%D0%BA.png';
+caveLockImage.src='./optimized/%D0%B7%D0%B0%D0%BC%D0%BE%D0%BA.webp';
 cavePaperFirst.src='./optimized/%D0%B1%D1%83%D0%BC%D0%B0%D0%B3%D0%B0%2001.webp';
 cavePaperSecond.src='./optimized/%D0%B1%D1%83%D0%BC%D0%B0%D0%B3%D0%B0-02.webp';
 const CAVE_OPEN_DURATION=5.45,CAVE_PASSAGE_KEY='kurmet-cave-passage-v3';
@@ -1941,8 +1941,8 @@ function drawRoomPortrait(t){
 }
 
 const caveDropSheet=new Image(),caveSplashSheet=new Image(),cavePuddleSheet=new Image();
-cavePuddleSheet.src='./cave_puddle_sprites.png';
-caveDropSheet.src='./cave_drop_sprites.png';caveSplashSheet.src='./cave_splash_sprites.png';
+cavePuddleSheet.src='./optimized/cave_puddle_sprites.webp';
+caveDropSheet.src='./optimized/cave_drop_sprites.webp';caveSplashSheet.src='./optimized/cave_splash_sprites.webp';
 const caveDrips=[{x:.131,y:.291,endX:.142,endY:.625,next:0},{x:.675,y:.319,endX:.684,endY:.608,next:1.8}];
 function drawAtmosphere(t){
  if(state.location!=='cave')return;
