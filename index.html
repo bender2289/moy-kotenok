@@ -1152,6 +1152,62 @@ html.kurmet-boot-already-entered #kurmet-boot-screen{display:none!important}
   }
 }
 </style>
+<style>
+/* KURMET main menu — single original parchment PNG with three independent hit areas. */
+#mainMenuModal[hidden]{display:none!important}
+#mainMenuModal.kurmet-main-menu-overlay{
+ position:fixed!important;inset:0!important;z-index:120!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ padding:0!important;overflow:hidden!important;
+ background:rgba(0,0,0,.48)!important;
+ backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+}
+#mainMenuModal .kurmet-main-menu-art{
+ position:relative!important;display:block!important;flex:none!important;
+ width:min(92vw,920px)!important;aspect-ratio:2048 / 1135!important;
+ height:auto!important;max-width:92vw!important;max-height:82dvh!important;
+ margin:0!important;padding:0!important;overflow:visible!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;
+ background:transparent!important;isolation:isolate!important;
+}
+#mainMenuModal .kurmet-main-menu-image{
+ position:absolute!important;inset:0!important;display:block!important;
+ width:100%!important;height:100%!important;max-width:none!important;
+ object-fit:contain!important;object-position:center!important;
+ margin:0!important;padding:0!important;border:0!important;
+ pointer-events:none!important;user-select:none!important;-webkit-user-drag:none!important;
+}
+#mainMenuModal .kurmet-main-menu-title{
+ position:absolute!important;width:1px!important;height:1px!important;padding:0!important;
+ margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;
+ white-space:nowrap!important;border:0!important;
+}
+#mainMenuModal button.kurmet-menu-hitbox{
+ position:absolute!important;z-index:2!important;display:block!important;
+ top:34%!important;height:43%!important;min-width:0!important;min-height:0!important;
+ margin:0!important;padding:0!important;max-width:none!important;
+ border:0!important;border-radius:0!important;outline-offset:4px!important;
+ background:transparent!important;background-image:none!important;
+ box-shadow:none!important;color:transparent!important;text-shadow:none!important;
+ font-size:0!important;line-height:0!important;
+ cursor:pointer!important;touch-action:manipulation!important;
+ -webkit-tap-highlight-color:transparent!important;
+}
+#mainMenuModal button.kurmet-menu-hitbox-quests{left:19%!important;width:22%!important}
+#mainMenuModal button.kurmet-menu-hitbox-reset{left:41%!important;width:21%!important}
+#mainMenuModal button.kurmet-menu-hitbox-language{left:63%!important;width:22%!important}
+#mainMenuModal button.kurmet-menu-hitbox:active,
+#mainMenuModal button.kurmet-menu-hitbox:hover{
+ transform:none!important;background:transparent!important;background-image:none!important;
+ box-shadow:none!important;filter:none!important;
+}
+#mainMenuModal button.kurmet-menu-hitbox:focus-visible{
+ outline:3px solid rgba(255,224,90,.95)!important;
+}
+@media(max-height:520px) and (orientation:landscape){
+ #mainMenuModal .kurmet-main-menu-art{width:min(88vw, 920px)!important;max-height:86dvh!important}
+}
+</style>
 </head>
 <body>
 <div id="kurmet-boot-screen" role="status" aria-live="polite" aria-label="KURMET UNIVERSE — загрузка">
@@ -1204,16 +1260,13 @@ html.kurmet-boot-already-entered #kurmet-boot-screen{display:none!important}
   </section>
  </div>
 </div>
-<div class="modal-overlay" id="mainMenuModal" role="dialog" aria-modal="true" aria-labelledby="mainMenuTitle" hidden>
- <div class="modal-content kurmet-quick-modal">
-  <div class="modal-top"><button type="button" class="modal-close kurmet-back" data-close="mainMenuModal" aria-label="Назад">← <span>Назад</span></button><h2 id="mainMenuTitle">☰ Меню</h2></div>
-    <header>
-    <div class="top-actions">
-      <button class="secondary" id="openQuests" aria-haspopup="dialog">📜 Квесты</button>
-      <button class="secondary" id="reset">↻ Заново</button>
-      <button type="button" id="openLanguage" class="secondary" aria-haspopup="dialog" aria-controls="languageModal">🌐 Язык / Language</button>
-    </div>
-  </header>
+<div class="modal-overlay kurmet-main-menu-overlay" id="mainMenuModal" role="dialog" aria-modal="true" aria-labelledby="mainMenuTitle" hidden>
+ <div class="kurmet-main-menu-art" role="group" aria-labelledby="mainMenuTitle">
+  <h2 id="mainMenuTitle" class="kurmet-main-menu-title">Меню</h2>
+  <img class="kurmet-main-menu-image" src="./%D0%BE%D1%82%D0%BA%D1%80%D1%8B%D1%82%D0%BE%D0%B5%20%D0%BC%D0%B5%D0%BD%D1%8E.png" alt="" aria-hidden="true" draggable="false">
+  <button type="button" id="openQuests" class="kurmet-menu-hitbox kurmet-menu-hitbox-quests" aria-label="Квесты" aria-haspopup="dialog"></button>
+  <button type="button" id="reset" class="kurmet-menu-hitbox kurmet-menu-hitbox-reset" aria-label="Заново"></button>
+  <button type="button" id="openLanguage" class="kurmet-menu-hitbox kurmet-menu-hitbox-language" aria-label="Язык / Language" aria-haspopup="dialog" aria-controls="languageModal"></button>
  </div>
 </div>
 
