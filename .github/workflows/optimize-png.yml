@@ -3,7 +3,7 @@ name: KURMET lossless PNG optimization preview
 on:
   push:
     branches:
-      - optimize-png
+      - optimize-png-round2
     paths:
       - .github/workflows/optimize-png.yml
       - tools/optimize_png.py
@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   build-optimized-assets:
-    if: github.ref_name == 'optimize-png'
+    if: github.ref_name == 'optimize-png-round2'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -37,5 +37,5 @@ jobs:
             echo "No optimized assets changed."
           else
             git commit -m "Add verified lossless WebP candidates [skip ci]"
-            git push origin HEAD:optimize-png
+            git push origin HEAD:optimize-png-round2
           fi
