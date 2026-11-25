@@ -1914,7 +1914,7 @@ caveLockImage.src='./%D0%B7%D0%B0%D0%BC%D0%BE%D0%BA.png';
 cavePaperFirst.src='./%D0%B1%D1%83%D0%BC%D0%B0%D0%B3%D0%B0%2001.png';
 cavePaperSecond.src='./%D0%B1%D1%83%D0%BC%D0%B0%D0%B3%D0%B0-02.png';
 const CAVE_OPEN_DURATION=5.45,CAVE_PASSAGE_KEY='kurmet-cave-passage-v3';
-let cavePassageOpen=false,caveOpeningAt=null,caveClosingAt=null;
+let cavePassageOpen=false,caveOpeningAt=null;
 try{cavePassageOpen=localStorage.getItem(CAVE_PASSAGE_KEY)==='1'}catch(e){}
 function caveGeometry(){const bg=locationImages.cave;if(!bg.naturalWidth)return null;const k=Math.max(600/bg.naturalWidth,roomH/bg.naturalHeight),w=bg.naturalWidth*k,h=bg.naturalHeight*k;return {w,h,x:(600-w)/2,y:(roomH-h)/2}}
 function drawRoomPortrait(t){
@@ -1970,13 +1970,7 @@ function drawCaveOpening(t){
  if(state.location!=='cave')return;
  const g=caveGeometry();if(!g)return;
  let e=-1;
- if(caveClosingAt!==null){
-  e=CAVE_OPEN_DURATION-(t-caveClosingAt);
-  if(e<=0){
-   e=-1;caveClosingAt=null;cavePassageOpen=false;
-   try{localStorage.removeItem(CAVE_PASSAGE_KEY)}catch(err){}
-  }
- }else if(caveOpeningAt!==null){
+ if(caveOpeningAt!==null){
   e=Math.max(0,t-caveOpeningAt);
   if(e>=CAVE_OPEN_DURATION){
    e=CAVE_OPEN_DURATION;caveOpeningAt=null;cavePassageOpen=true;
@@ -2030,20 +2024,14 @@ function drawCaveOpening(t){
 }
 
 function toggleCavePassageTest(){
- const t=performance.now()/1000;
- let progress=-1;
- if(caveClosingAt!==null)progress=Math.max(0,CAVE_OPEN_DURATION-(t-caveClosingAt));
- else if(caveOpeningAt!==null)progress=Math.min(CAVE_OPEN_DURATION,Math.max(0,t-caveOpeningAt));
- else if(cavePassageOpen)progress=CAVE_OPEN_DURATION;
- if(caveClosingAt!==null){
-  // Reverse a close-in-progress smoothly back toward the open passage.
-  caveClosingAt=null;caveOpeningAt=t-progress;cavePassageOpen=false;
- }else if(progress>=0){
-  // Reverse the existing opening timeline; no abrupt jump to the locked frame.
-  caveOpeningAt=null;caveClosingAt=t-(CAVE_OPEN_DURATION-progress);cavePassageOpen=false;
+ // Closing is an instant test reset: never play the opening animation backwards.
+ if(caveOpeningAt!==null||cavePassageOpen){
+  caveOpeningAt=null;
+  cavePassageOpen=false;
   try{localStorage.removeItem(CAVE_PASSAGE_KEY)}catch(e){}
  }else{
-  caveClosingAt=null;caveOpeningAt=t;cavePassageOpen=false;
+  caveOpeningAt=performance.now()/1000;
+  cavePassageOpen=false;
  }
 }
 
@@ -2061,8 +2049,7 @@ function updateCavePassageTestButton(){
  const vx=g.x+g.w*.535,vy=g.y+g.h*.385;
  button.style.left=(cr.left-sr.left+ox+vx*scale)+'px';
  button.style.top=(cr.top-sr.top+oy+vy*scale)+'px';
- const closing=caveClosingAt!==null;
- const openingOrOpen=!closing&&(caveOpeningAt!==null||cavePassageOpen);
+ const openingOrOpen=caveOpeningAt!==null||cavePassageOpen;
  const label=openingOrOpen?'ТЕСТ: ЗАКРЫТЬ':'ТЕСТ: ОТКРЫТЬ';
  if(button.textContent!==label)button.textContent=label;
  button.setAttribute('aria-pressed',String(openingOrOpen));
@@ -2410,7 +2397,7 @@ function closeModals(restore=true){
 }
 
 const CAVE_PAPER_FIRST_FRAMES=8,CAVE_PAPER_SECOND_FRAMES=6;
-const CAVE_PAPER_FIRST_FRAME_MS=100,CAVE_PAPER_SECOND_FRAME_MS=130;
+const CAVE_PAPER_FIRST_FRAME_MS=50,CAVE_PAPER_SECOND_FRAME_MS=65;
 let caveLockedNoticeRaf=0;
 function drawCavePaperFrame(sheet,count,index,drawMessage=false){
  const canvasEl=document.getElementById('caveLockedCanvas');
@@ -2424,7 +2411,7 @@ function drawCavePaperFrame(sheet,count,index,drawMessage=false){
  if(!c)return;
  c.clearRect(0,0,width,height);
  const sw=sheet.naturalWidth/count,sh=sheet.naturalHeight;
- const fit=Math.min(width/sw,height/sh);
+ const fit=Math.min(width/sw,height/sh)*.70;
  const dw=sw*fit,dh=sh*fit,dx=(width-dw)/2,dy=(height-dh)/2;
  c.drawImage(sheet,Math.min(count-1,index)*sw,0,sw,sh,dx,dy,dw,dh);
  if(drawMessage){
@@ -2552,7 +2539,7 @@ window.addEventListener('pagehide',rememberLastVisit);
 // Tapping the kitten is a tiny direct interaction even outside the five care actions.
 canvas.addEventListener('pointerdown',e=>{
  if(state.location==='cave'&&!document.getElementById('caveLockedModal').hidden)return;
- if(state.location==='cave'&&!cavePassageOpen&&caveOpeningAt===null&&caveClosingAt===null){
+ if(state.location==='cave'&&!cavePassageOpen&&caveOpeningAt===null){
   const g=caveGeometry(),r=canvas.getBoundingClientRect(),scale=Math.min(canvas.width/600,canvas.height/roomH);
   const x=((e.clientX-r.left)*canvas.width/r.width-(canvas.width-600*scale)/2)/scale;
   const y=((e.clientY-r.top)*canvas.height/r.height-(canvas.height-roomH*scale)/2)/scale;
