@@ -1101,6 +1101,7 @@ html.kurmet-boot-already-entered #kurmet-boot-screen{display:none!important}
 #locationsModal:not(.preview-active) .kurmet-location-tile.artist-location-card .kurmet-location-caption,
 #locationsModal:not(.preview-active) .kurmet-location-tile.artist-location-card .kurmet-location-selected{display:none!important}
 #locationsModal:not(.preview-active) .kurmet-location-tile.locked.artist-location-card{opacity:1!important;cursor:default!important}
+#locationsModal:not(.preview-active) .kurmet-location-tile.locked.artist-location-card{aspect-ratio:.731!important}
 #locationsModal:not(.preview-active) .kurmet-location-tile.locked.artist-location-card:active{transform:none!important}
 #locationsModal:not(.preview-active) .kurmet-location-tile:not(.artist-location-card){background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important}
 #locationsModal:not(.preview-active) .kurmet-location-tile:not(.artist-location-card) .kurmet-location-picture{
@@ -1621,7 +1622,7 @@ function resetLocationScreens(){
  detail.hidden=true;
  document.getElementById('locationStoryPanel').hidden=true;
  document.getElementById('locationDetailActions').hidden=false;
- document.getElementById('locationsTitle').textContent='🗺️ Локации';
+ document.getElementById('locationsTitle').textContent='ЛОКАЦИИ';
 }
 function showLocationPreview(id){
  if(!LOCATIONS.includes(id))return;
