@@ -2567,6 +2567,34 @@ if(originalBackArrow){
 }
 for(const b of document.querySelectorAll('[data-close]'))b.addEventListener('click',()=>{if(b.dataset.close==='locationsModal')goBackLocation();else closeModals();});
 for(const modal of document.querySelectorAll('.modal-overlay'))modal.addEventListener('click',e=>{if(e.target===modal)closeModals();});
+// The sprite uses only part of the popup canvas. Transparent pixels around the
+// drawn parchment must act like the backdrop, including above and below it.
+const caveLockedCanvasEl=document.getElementById('caveLockedCanvas');
+caveLockedCanvasEl.addEventListener('pointerdown',e=>{
+ const modal=document.getElementById('caveLockedModal');
+ if(modal.hidden)return;
+ const rect=caveLockedCanvasEl.getBoundingClientRect();
+ if(rect.width<=0||rect.height<=0)return;
+ const px=Math.floor((e.clientX-rect.left)*caveLockedCanvasEl.width/rect.width);
+ const py=Math.floor((e.clientY-rect.top)*caveLockedCanvasEl.height/rect.height);
+ let outside=px<0||py<0||px>=caveLockedCanvasEl.width||py>=caveLockedCanvasEl.height;
+ if(!outside){
+  try{
+   const context=caveLockedCanvasEl.getContext('2d',{willReadFrequently:true});
+   // This is a same-origin sprite. Its alpha channel identifies the actual parchment silhouette.
+   outside=!context||context.getImageData(px,py,1,1).data[3]<20;
+  }catch(err){
+   // If pixels cannot be inspected, do not accidentally dismiss a tap on the artwork.
+   outside=false;
+  }
+ }
+ if(outside){
+  e.preventDefault();
+  e.stopPropagation();
+  closeModals();
+ }
+});
+
 document.getElementById('cavePassageTest').addEventListener('click',e=>{e.preventDefault();e.stopPropagation();toggleCavePassageTest();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!document.getElementById('locationsModal').hidden && locationScreen!=='grid')goBackLocation();else closeModals();} if(e.key==='Tab'){const open=[...document.querySelectorAll('.modal-overlay')].find(m=>!m.hidden);if(open){const items=[...open.querySelectorAll('button,input')].filter(el=>!el.disabled);if(!items.length)return;const first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){last.focus();e.preventDefault();}else if(!e.shiftKey&&document.activeElement===last){first.focus();e.preventDefault();}}}});
 
