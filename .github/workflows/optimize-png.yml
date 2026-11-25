@@ -39,5 +39,7 @@ jobs:
             echo "No optimized assets changed."
           else
             git commit -m "Add verified lossless WebP candidates [skip ci]"
+            git fetch origin optimize-png-round2
+            git rebase origin/optimize-png-round2
             git push origin HEAD:optimize-png-round2
           fi
