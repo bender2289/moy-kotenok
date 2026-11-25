@@ -1692,7 +1692,7 @@ function drawCaveOpening(t){
  const ease=v=>v*v*(3-2*v);
  function frame(im,n,i,dx,dy,w,h){if(!im.naturalWidth)return;const sw=im.naturalWidth/n;ctx.drawImage(im,sw*Math.min(n-1,Math.max(0,i)),0,sw,im.naturalHeight,dx,dy,w,h)}
  ctx.save();
- if(e<.60&&caveBoards.naturalWidth){const w=g.w*.32,h=w*caveBoards.naturalHeight/caveBoards.naturalWidth;ctx.drawImage(caveBoards,x-w/2,y-h*.72,w,h)}
+ if(e<.60&&caveBoards.naturalWidth){const w=g.w*.32,h=w*caveBoards.naturalHeight/caveBoards.naturalWidth;ctx.drawImage(caveBoards,x-w/2,y-h*.72+g.h*.018,w,h)}
  if(e>=2.7&&caveLight.naturalWidth){
  const p=clamp((e-2.7)/.75),w=g.w*.43,h=g.h*.19;
  ctx.globalAlpha=.55*(p===1?(.94+.06*Math.sin(t*1.6)):ease(p));
