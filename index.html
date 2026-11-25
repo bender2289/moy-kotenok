@@ -48,7 +48,7 @@ button.kurmet-location-arrow:hover,
 button.kurmet-location-arrow:active,
 button.kurmet-location-arrow:focus{
  background:transparent!important;border:0!important;box-shadow:none!important;
- transform:none!important;
+ transform:none!important;object-fit:contain!important;
 }
 button.kurmet-location-arrow:disabled{opacity:.25;filter:grayscale(.55);cursor:default}
 button.kurmet-location-arrow:focus-visible{outline:2px solid #ffe082;outline-offset:2px;border-radius:6px!important}
@@ -1134,10 +1134,10 @@ html.kurmet-boot-already-entered #kurmet-boot-screen{display:none!important}
  top:5.2%!important;left:20%!important;right:20%!important;height:8%!important;
 }
 #locationsModal:not(.preview-active) #locationsGrid{
- left:15.5%!important;right:15%!important;top:14.2%!important;width:auto!important;height:73.5%!important;
+ left:11.5%!important;right:11.5%!important;top:14.2%!important;width:auto!important;height:73.5%!important;
  display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
  grid-auto-rows:max-content!important;align-content:start!important;align-items:start!important;
- column-gap:clamp(12px,2.3vw,20px)!important;row-gap:clamp(18px,2.6vw,30px)!important;
+ column-gap:8px!important;row-gap:14px!important;
  padding:0 8px 26px 2px!important;margin:0!important;
  overflow-x:hidden!important;overflow-y:scroll!important;
  overscroll-behavior-y:contain!important;-webkit-overflow-scrolling:touch!important;
@@ -1149,7 +1149,7 @@ html.kurmet-boot-already-entered #kurmet-boot-screen{display:none!important}
 #locationsModal:not(.preview-active) .kurmet-location-tile.artist-location-card,
 #locationsModal:not(.preview-active) .kurmet-location-tile.locked.artist-location-card{
  position:relative!important;display:block!important;width:100%!important;min-width:0!important;
- height:auto!important;aspect-ratio:.56!important;min-height:0!important;
+ height:auto!important;aspect-ratio:.60!important;min-height:0!important;
  padding:0!important;margin:0!important;overflow:hidden!important;
  border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;
 }
