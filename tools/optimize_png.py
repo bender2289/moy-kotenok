@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Lossless, reversible PNG-to-WebP experiment for KURMET UNIVERSE.
 
+Second-batch run: always build from the latest optimize-png-round2 branch head.
+
 Run from repository root:
     python -m pip install Pillow
     python tools/optimize_png.py
