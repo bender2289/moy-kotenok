@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Lossless, reversible PNG-to-WebP experiment for KURMET UNIVERSE.
 
+Second-batch run: always build from the latest optimize-png-round2 branch head.
+
 Run from repository root:
     python -m pip install Pillow
     python tools/optimize_png.py
@@ -24,6 +26,23 @@ ASSETS = (
     "бумага-02.png",
     "бумага 01.png",
     "открытое меню.png",
+    "локации без скроллбара.png",
+    "локации 04 превью пещера.png",
+    "cave_open_smoke_sprites.png",
+    "спрайты света.png",
+    "cave_puddle_sprites.png",
+    "пыль после обрушения досок.png",
+    "локации 03.png",
+    "доски.png",
+    "иконка ПЕЩЕРА.png",
+    "лестница.png",
+    "иконка меню.png",
+    "иконка действия.png",
+    "замок.png",
+    "cave_splash_sprites.png",
+    "иконка состояния.png",
+    "иконка локации.png",
+    "cave_drop_sprites.png",
 )
 
 
