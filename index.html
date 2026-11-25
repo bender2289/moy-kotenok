@@ -1084,10 +1084,6 @@ html.kurmet-boot-already-entered #kurmet-boot-screen{display:none!important}
   font-size:clamp(23px,6vw,43px)!important;font-weight:950!important;
   letter-spacing:-1.5px!important;text-align:center!important;
 }
-#locationsModal:not(.preview-active) .kurmet-locations-modal>.modal-top .kurmet-back{
-  position:absolute!important;left:-16%!important;top:-4%!important;
-  width:38px!important;height:38px!important;min-width:38px!important;min-height:38px!important;
-}
 #locationsModal:not(.preview-active) .kurmet-locations-help{display:none!important}
 #locationsModal:not(.preview-active) #locationsGrid{
   position:absolute!important;z-index:2!important;
@@ -1282,7 +1278,7 @@ html.kurmet-boot-already-entered #kurmet-boot-screen{display:none!important}
 </div>
 <div class="modal-overlay" id="locationsModal" role="dialog" aria-modal="true" aria-labelledby="locationsTitle" hidden>
   <div class="modal-content kurmet-locations-modal">
-    <div class="modal-top"><button type="button" class="modal-close kurmet-back" data-close="locationsModal" aria-label="Назад">← <span>Назад</span></button><h2 id="locationsTitle">ЛОКАЦИИ</h2></div>
+    <div class="modal-top"><h2 id="locationsTitle">ЛОКАЦИИ</h2></div>
     <p class="kurmet-locations-help">Выбери место, куда отправиться.</p>
     <div id="locationsGrid" class="kurmet-locations-grid"></div>
     <div class="kurmet-location-detail" id="locationDetail" hidden>
@@ -2300,7 +2296,7 @@ if(originalBackArrow){
  }
 }
 for(const b of document.querySelectorAll('[data-close]'))b.addEventListener('click',()=>{if(b.dataset.close==='locationsModal')goBackLocation();else closeModals();});
-for(const modal of document.querySelectorAll('.modal-overlay'))modal.addEventListener('click',e=>{if(e.target===modal){if(modal.id==='locationsModal')goBackLocation();else closeModals();}});
+for(const modal of document.querySelectorAll('.modal-overlay'))modal.addEventListener('click',e=>{if(e.target===modal)closeModals();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!document.getElementById('locationsModal').hidden && locationScreen!=='grid')goBackLocation();else closeModals();} if(e.key==='Tab'){const open=[...document.querySelectorAll('.modal-overlay')].find(m=>!m.hidden);if(open){const items=[...open.querySelectorAll('button,input')].filter(el=>!el.disabled);if(!items.length)return;const first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){last.focus();e.preventDefault();}else if(!e.shiftKey&&document.activeElement===last){first.focus();e.preventDefault();}}}});
 
 
