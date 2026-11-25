@@ -1054,8 +1054,10 @@ html.kurmet-boot-already-entered #kurmet-boot-screen{display:none!important}
 
 <style>
 /* KURMET locations screen — consolidated layout matched to the supplied reference. */
+/* A closed locations modal must stay closed, including on initial load. */
+#locationsModal[hidden]{display:none!important;}
 #locationsModal:not(.preview-active){
-  position:fixed!important;inset:0!important;display:flex!important;
+  position:fixed!important;inset:0!important;
   align-items:center!important;justify-content:center!important;
   padding:0!important;background:rgba(0,0,0,.38)!important;
   backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
