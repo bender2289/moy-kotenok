@@ -1246,7 +1246,15 @@ html.kurmet-boot-already-entered #kurmet-boot-screen{display:none!important}
 @media(max-height:520px) and (orientation:landscape){
  #caveLockedModal .kurmet-cave-locked-art{width:min(48vw,340px)!important;height:78dvh!important}
 }
-</style>
+/* Mobile viewport: remove the faint white frame around the playable area. */
+@media(max-width:900px),(pointer:coarse){
+ html,body,.app,.app>.scene,.app>.scene>canvas{
+  border:0!important;outline:0!important;
+ }
+ .app{width:100vw!important;max-width:100vw!important;box-shadow:none!important}
+ .app>.scene{box-shadow:none!important}
+ .app>.scene::after{display:none!important}
+}
 </head>
 <body>
 <div id="kurmet-boot-screen" role="status" aria-live="polite" aria-label="KURMET UNIVERSE — загрузка">
@@ -2016,7 +2024,7 @@ function drawCaveOpening(t){
  if(e<0&&caveLockImage.naturalWidth){
   const pulse=1+.045*Math.sin(t*2.35);
   const w=g.w*.18*pulse,h=w*caveLockImage.naturalHeight/caveLockImage.naturalWidth;
-  const lockY=y+g.h*.018;
+  const lockY=y+g.h*.055;
   ctx.globalAlpha=1;
   ctx.drawImage(caveLockImage,x-w/2,lockY-h/2,w,h);
  }
@@ -2399,6 +2407,78 @@ function closeModals(restore=true){
 const CAVE_PAPER_FIRST_FRAMES=8,CAVE_PAPER_SECOND_FRAMES=6;
 const CAVE_PAPER_FIRST_FRAME_MS=50,CAVE_PAPER_SECOND_FRAME_MS=65;
 let caveLockedNoticeRaf=0;
+const cavePaperFrameCache=new WeakMap();
+function getCavePaperFrames(sheet,count){
+ if(!sheet||!sheet.naturalWidth||!sheet.naturalHeight)return null;
+ const cached=cavePaperFrameCache.get(sheet);
+ if(cached&&cached.count===count)return cached.frames;
+ // These artist-made strips contain individually positioned drawings, not equal grid cells.
+ // Detect each drawing from the PNG transparency so no wavy edge gets sliced off.
+ const scanWidth=Math.min(1400,sheet.naturalWidth);
+ const scanScale=scanWidth/sheet.naturalWidth;
+ const scanHeight=Math.max(1,Math.round(sheet.naturalHeight*scanScale));
+ const scan=document.createElement('canvas');
+ scan.width=scanWidth;scan.height=scanHeight;
+ const scanCtx=scan.getContext('2d',{willReadFrequently:true});
+ if(!scanCtx)return null;
+ scanCtx.clearRect(0,0,scanWidth,scanHeight);
+ scanCtx.drawImage(sheet,0,0,scanWidth,scanHeight);
+ let pixels;
+ try{pixels=scanCtx.getImageData(0,0,scanWidth,scanHeight).data}catch(e){return null}
+ const occupied=new Uint8Array(scanWidth);
+ for(let x=0;x<scanWidth;x++){
+  let hits=0;
+  for(let y=0;y<scanHeight;y+=2){
+   if(pixels[(y*scanWidth+x)*4+3]>12&&++hits>=2)break;
+  }
+  if(hits>=2)occupied[x]=1;
+ }
+ let runs=[],start=-1;
+ for(let x=0;x<=scanWidth;x++){
+  if(x<scanWidth&&occupied[x]){
+   if(start<0)start=x;
+  }else if(start>=0){
+   runs.push({left:start,right:x-1});start=-1;
+  }
+ }
+ // Join tiny alpha gaps inside a single drawing, then reconcile any stray fragments.
+ for(let i=0;i<runs.length-1;){
+  if(runs[i+1].left-runs[i].right<=3){
+   runs[i].right=runs[i+1].right;runs.splice(i+1,1);
+  }else i++;
+ }
+ while(runs.length>count){
+  let best=0,bestGap=Infinity;
+  for(let i=0;i<runs.length-1;i++){
+   const gap=runs[i+1].left-runs[i].right;
+   if(gap<bestGap){bestGap=gap;best=i}
+  }
+  runs[best].right=runs[best+1].right;runs.splice(best+1,1);
+ }
+ if(runs.length!==count){
+  // Safe fallback for an unexpected export: retain the original frame count.
+  runs=Array.from({length:count},(_,i)=>({
+   left:Math.floor(i*scanWidth/count),
+   right:Math.max(Math.floor(i*scanWidth/count),Math.ceil((i+1)*scanWidth/count)-1)
+  }));
+ }
+ const frames=runs.map(run=>{
+  let top=scanHeight,bottom=-1;
+  for(let x=run.left;x<=run.right;x++){
+   for(let y=0;y<scanHeight;y++){
+    if(pixels[(y*scanWidth+x)*4+3]>12){if(y<top)top=y;if(y>bottom)bottom=y}
+   }
+  }
+  const pad=2;
+  const sx=Math.max(0,Math.floor((run.left-pad)/scanScale));
+  const sy=Math.max(0,Math.floor((top-pad)/scanScale));
+  const ex=Math.min(sheet.naturalWidth,Math.ceil((run.right+1+pad)/scanScale));
+  const ey=Math.min(sheet.naturalHeight,Math.ceil((bottom+1+pad)/scanScale));
+  return {sx,sy,sw:Math.max(1,ex-sx),sh:Math.max(1,ey-sy)};
+ });
+ cavePaperFrameCache.set(sheet,{count,frames});
+ return frames;
+}
 function drawCavePaperFrame(sheet,count,index,drawMessage=false){
  const canvasEl=document.getElementById('caveLockedCanvas');
  if(!canvasEl||!sheet.naturalWidth||!sheet.naturalHeight)return;
@@ -2410,10 +2490,19 @@ function drawCavePaperFrame(sheet,count,index,drawMessage=false){
  const c=canvasEl.getContext('2d');
  if(!c)return;
  c.clearRect(0,0,width,height);
- const sw=sheet.naturalWidth/count,sh=sheet.naturalHeight;
- const fit=Math.min(width/sw,height/sh)*.70;
- const dw=sw*fit,dh=sh*fit,dx=(width-dw)/2,dy=(height-dh)/2;
- c.drawImage(sheet,Math.min(count-1,index)*sw,0,sw,sh,dx,dy,dw,dh);
+ const frames=getCavePaperFrames(sheet,count);
+ if(!frames||!frames.length)return;
+ const frame=frames[Math.max(0,Math.min(count-1,index))];
+ const firstFrames=getCavePaperFrames(cavePaperFirst,CAVE_PAPER_FIRST_FRAMES);
+ const secondFrames=getCavePaperFrames(cavePaperSecond,CAVE_PAPER_SECOND_FRAMES);
+ const referenceA=firstFrames?.[firstFrames.length-1]||frame;
+ const referenceB=secondFrames?.[secondFrames.length-1]||frame;
+ const refW=Math.max(referenceA.sw,referenceB.sw);
+ const refH=Math.max(referenceA.sh,referenceB.sh);
+ // Keep the final sheet at 70% of the display area; earlier frames grow naturally.
+ const fit=Math.min(width*.70/refW,height*.70/refH);
+ const dw=frame.sw*fit,dh=frame.sh*fit,dx=(width-dw)/2,dy=(height-dh)/2;
+ c.drawImage(sheet,frame.sx,frame.sy,frame.sw,frame.sh,dx,dy,dw,dh);
  if(drawMessage){
   const size=Math.max(18,Math.min(31,dw*.085));
   c.save();c.textAlign='center';c.textBaseline='middle';
@@ -2545,7 +2634,7 @@ canvas.addEventListener('pointerdown',e=>{
   const y=((e.clientY-r.top)*canvas.height/r.height-(canvas.height-roomH*scale)/2)/scale;
   if(g){
    const hitW=g.w*.205,hitH=hitW*(caveLockImage.naturalHeight||747)/(caveLockImage.naturalWidth||726);
-   const lockX=g.x+g.w*.32,lockY=g.y+g.h*.385+g.h*.018;
+   const lockX=g.x+g.w*.32,lockY=g.y+g.h*.385+g.h*.055;
    if(x>=lockX-hitW/2&&x<=lockX+hitW/2&&y>=lockY-hitH/2&&y<=lockY+hitH/2){
     openCaveLockedNotice();return;
    }
