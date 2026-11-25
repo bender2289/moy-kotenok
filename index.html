@@ -1564,7 +1564,7 @@ const renderLocationsMenu=()=>{
  if(!grid)return;
  grid.replaceChildren();
  // Three currently available places plus six reserved spaces for future KURMET locations.
- const slots=[...LOCATIONS,null,null,null,null,null,null];
+ const slots=['cave',null,null,null,null,null,null,null];
  slots.forEach((id,index)=>{
   if(id){
    const button=document.createElement('button');
