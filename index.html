@@ -1169,7 +1169,59 @@ html.kurmet-boot-already-entered #kurmet-boot-screen{display:none!important}
  #locationsModal:not(.preview-active) .kurmet-locations-modal{width:90vw!important;height:76dvh!important}
  #locationsModal:not(.preview-active) #locationsGrid{left:15.5%!important;right:15%!important;column-gap:10px!important;row-gap:18px!important}
 }
-</style></head>
+</style>
+<style>
+/* KURMET locations menu — sizing aligned to the user's reference screenshot. */
+@media (max-width:900px),(pointer:coarse){
+  #locationsModal:not(.preview-active) .kurmet-locations-modal{
+    width:90vw!important;
+    height:76dvh!important;
+    max-height:76dvh!important;
+  }
+  #locationsModal:not(.preview-active) #locationsGrid{
+    left:10%!important;
+    right:16%!important;
+    width:auto!important;
+    top:14.2%!important;
+    height:73.5%!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    column-gap:5px!important;
+    row-gap:10px!important;
+    padding:0 10px 28px 2px!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    -webkit-overflow-scrolling:touch!important;
+    overscroll-behavior-y:contain!important;
+    touch-action:pan-y!important;
+    scrollbar-width:thin!important;
+    scrollbar-color:#c8b987 transparent!important;
+  }
+  #locationsModal:not(.preview-active) #locationsGrid::-webkit-scrollbar{
+    display:block!important;width:9px!important;
+  }
+  #locationsModal:not(.preview-active) #locationsGrid::-webkit-scrollbar-track{
+    background:transparent!important;
+  }
+  #locationsModal:not(.preview-active) #locationsGrid::-webkit-scrollbar-thumb{
+    background:#c8b987!important;
+    border:2px solid #eee3b8!important;
+    border-radius:9px!important;
+  }
+  #locationsModal:not(.preview-active) .kurmet-location-tile.artist-location-card,
+  #locationsModal:not(.preview-active) .kurmet-location-tile.locked.artist-location-card{
+    width:100%!important;
+    aspect-ratio:.575!important;
+    height:auto!important;
+    margin:0!important;
+  }
+  #locationsModal:not(.preview-active) .kurmet-location-tile.artist-location-card .kurmet-location-picture img{
+    transform:scale(1.22)!important;
+    transform-origin:center center!important;
+  }
+}
+</style>
+
+</head>
 <body>
 <div id="kurmet-boot-screen" role="status" aria-live="polite" aria-label="KURMET UNIVERSE — загрузка">
   <div class="kurmet-boot-inner">
