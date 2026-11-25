@@ -1204,6 +1204,49 @@ html.kurmet-boot-already-entered #kurmet-boot-screen{display:none!important}
  #mainMenuModal .kurmet-main-menu-art{width:min(88vw, 140dvh)!important;max-height:none!important}
 }
 </style>
+<style>
+/* KURMET cave passage lock and one-shot paper notice. */
+#cavePassageTest[hidden],#caveLockedModal[hidden]{display:none!important}
+#cavePassageTest.kurmet-cave-passage-test{
+ position:absolute!important;z-index:18!important;
+ left:0;top:0;transform:translateY(-50%)!important;
+ width:104px!important;min-width:0!important;min-height:32px!important;height:32px!important;
+ padding:4px 6px!important;margin:0!important;
+ border:2px solid #d9b83e!important;border-radius:8px!important;
+ background:#242019f2!important;color:#ffe45b!important;
+ box-shadow:0 3px 0 #090807!important;
+ font:900 9px/1.05 system-ui,sans-serif!important;
+ letter-spacing:.15px!important;white-space:normal!important;
+ text-align:center!important;touch-action:manipulation!important;
+}
+#cavePassageTest.kurmet-cave-passage-test:active{transform:translateY(-50%) scale(.97)!important}
+#cavePassageTest.kurmet-cave-passage-test:focus-visible{outline:2px solid #fff2a0!important;outline-offset:3px!important}
+#caveLockedModal.kurmet-cave-locked-overlay{
+ z-index:180!important;padding:12px!important;
+ background:rgba(8,7,5,.48)!important;
+ backdrop-filter:blur(2px)!important;-webkit-backdrop-filter:blur(2px)!important;
+}
+#caveLockedModal .kurmet-cave-locked-art{
+ position:relative!important;display:block!important;
+ width:min(78vw,380px)!important;height:min(74dvh,570px)!important;
+ margin:0!important;padding:0!important;overflow:visible!important;
+ border:0!important;border-radius:0!important;background:transparent!important;
+ box-shadow:none!important;
+}
+#caveLockedCanvas{
+ display:block!important;width:100%!important;height:100%!important;
+ margin:0!important;padding:0!important;border:0!important;
+ background:transparent!important;touch-action:manipulation!important;
+}
+#caveLockedModal .kurmet-visually-hidden{
+ position:absolute!important;width:1px!important;height:1px!important;padding:0!important;
+ margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;
+ white-space:nowrap!important;border:0!important;
+}
+@media(max-height:520px) and (orientation:landscape){
+ #caveLockedModal .kurmet-cave-locked-art{width:min(48vw,340px)!important;height:78dvh!important}
+}
+</style>
 </head>
 <body>
 <div id="kurmet-boot-screen" role="status" aria-live="polite" aria-label="KURMET UNIVERSE — загрузка">
@@ -1303,6 +1346,13 @@ html.kurmet-boot-already-entered #kurmet-boot-screen{display:none!important}
   </div>
 </div>
 
+<div class="modal-overlay kurmet-cave-locked-overlay" id="caveLockedModal" role="dialog" aria-modal="true" aria-labelledby="caveLockedAccessibleTitle" tabindex="-1" hidden>
+ <div class="kurmet-cave-locked-art">
+  <canvas id="caveLockedCanvas" aria-hidden="true"></canvas>
+  <p id="caveLockedAccessibleTitle" class="kurmet-visually-hidden">Проход пока закрыт</p>
+ </div>
+</div>
+
 <section class="progress-panel" aria-label="Прогресс котёнка">
     <div class="currency">🪙 <b id="coins">∞</b> монет · ТЕСТ</div>
     <div class="level-label">⭐ Ур. <b id="level">1</b> · <span id="ageLabel">Малыш</span></div>
@@ -1314,6 +1364,7 @@ html.kurmet-boot-already-entered #kurmet-boot-screen{display:none!important}
     <canvas id="game"></canvas>
     <button type="button" id="openPrisonGame" class="kurmet-cave-launch" aria-haspopup="dialog" aria-controls="prisonKnifeGame" hidden>🗡 Испытание клинков</button>
     <button type="button" id="openCaveGame" class="kurmet-cave-launch" aria-haspopup="dialog" aria-controls="caveMiniGame">☀ Покорми меня</button>
+    <button type="button" id="cavePassageTest" class="kurmet-cave-passage-test" hidden>ТЕСТ: ОТКРЫТЬ</button>
     <button type="button" id="openPetStatus" aria-label="Состояния" class="kurmet-scene-tool top-left" aria-haspopup="dialog" aria-controls="petStatusModal">💗 Состояние</button>
     <button type="button" id="openPetActions" aria-label="Действия" class="kurmet-scene-tool top-right" aria-haspopup="dialog" aria-controls="petActionsModal">✦ Действия</button>
     <button type="button" id="openMainMenu" aria-label="Меню" class="kurmet-scene-tool bottom-right" aria-haspopup="dialog" aria-controls="mainMenuModal">☰ Меню</button>
@@ -1858,8 +1909,13 @@ const initLocation=()=>{
 const caveOpenSmoke=new Image(),caveBoards=new Image(),caveLadder=new Image(),caveDust=new Image(),caveLight=new Image();
 caveBoards.src='./%D0%B4%D0%BE%D1%81%D0%BA%D0%B8.png';caveLadder.src='./%D0%BB%D0%B5%D1%81%D1%82%D0%BD%D0%B8%D1%86%D0%B0.png';caveDust.src='./%D0%BF%D1%8B%D0%BB%D1%8C%20%D0%BF%D0%BE%D1%81%D0%BB%D0%B5%20%D0%BE%D0%B1%D1%80%D1%83%D1%88%D0%B5%D0%BD%D0%B8%D1%8F%20%D0%B4%D0%BE%D1%81%D0%BE%D0%BA.png';caveLight.src='./%D1%81%D0%BF%D1%80%D0%B0%D0%B9%D1%82%D1%8B%20%D1%81%D0%B2%D0%B5%D1%82%D0%B0.png';
 caveOpenSmoke.src='./cave_open_smoke_sprites.png';
-let cavePassageOpen=false,caveOpeningAt=null;
-try{cavePassageOpen=localStorage.getItem('kurmet-cave-passage-v2')==='1'}catch(e){}
+const caveLockImage=new Image(),cavePaperFirst=new Image(),cavePaperSecond=new Image();
+caveLockImage.src='./%D0%B7%D0%B0%D0%BC%D0%BE%D0%BA.png';
+cavePaperFirst.src='./%D0%B1%D1%83%D0%BC%D0%B0%D0%B3%D0%B0%2001.png';
+cavePaperSecond.src='./%D0%B1%D1%83%D0%BC%D0%B0%D0%B3%D0%B0-02.png';
+const CAVE_OPEN_DURATION=5.45,CAVE_PASSAGE_KEY='kurmet-cave-passage-v3';
+let cavePassageOpen=false,caveOpeningAt=null,caveClosingAt=null;
+try{cavePassageOpen=localStorage.getItem(CAVE_PASSAGE_KEY)==='1'}catch(e){}
 function caveGeometry(){const bg=locationImages.cave;if(!bg.naturalWidth)return null;const k=Math.max(600/bg.naturalWidth,roomH/bg.naturalHeight),w=bg.naturalWidth*k,h=bg.naturalHeight*k;return {w,h,x:(600-w)/2,y:(roomH-h)/2}}
 function drawRoomPortrait(t){
 
@@ -1913,28 +1969,103 @@ function drawAtmosphere(t){
 function drawCaveOpening(t){
  if(state.location!=='cave')return;
  const g=caveGeometry();if(!g)return;
- const e=caveOpeningAt===null?(cavePassageOpen?Infinity:-1):Math.max(0,t-caveOpeningAt);
+ let e=-1;
+ if(caveClosingAt!==null){
+  e=CAVE_OPEN_DURATION-(t-caveClosingAt);
+  if(e<=0){
+   e=-1;caveClosingAt=null;cavePassageOpen=false;
+   try{localStorage.removeItem(CAVE_PASSAGE_KEY)}catch(err){}
+  }
+ }else if(caveOpeningAt!==null){
+  e=Math.max(0,t-caveOpeningAt);
+  if(e>=CAVE_OPEN_DURATION){
+   e=CAVE_OPEN_DURATION;caveOpeningAt=null;cavePassageOpen=true;
+   try{localStorage.setItem(CAVE_PASSAGE_KEY,'1')}catch(err){}
+  }
+ }else e=cavePassageOpen?Infinity:-1;
  const x=g.x+g.w*.32,y=g.y+g.h*.385;
  const clamp=v=>Math.max(0,Math.min(1,v));
  const ease=v=>v*v*(3-2*v);
- function frame(im,n,i,dx,dy,w,h){if(!im.naturalWidth)return;const sw=im.naturalWidth/n;ctx.drawImage(im,sw*Math.min(n-1,Math.max(0,i)),0,sw,im.naturalHeight,dx,dy,w,h)}
+ function frame(im,n,i,dx,dy,w,h){
+  if(!im.naturalWidth)return;
+  const sw=im.naturalWidth/n;
+  ctx.drawImage(im,sw*Math.min(n-1,Math.max(0,i)),0,sw,im.naturalHeight,dx,dy,w,h);
+ }
  ctx.save();
- if(e<.60&&caveBoards.naturalWidth){const w=g.w*.32,h=w*caveBoards.naturalHeight/caveBoards.naturalWidth;ctx.drawImage(caveBoards,x-w/2,y-h*.72+g.h*.018,w,h)}
+ if(e<.60&&caveBoards.naturalWidth){
+  const w=g.w*.32,h=w*caveBoards.naturalHeight/caveBoards.naturalWidth;
+  ctx.drawImage(caveBoards,x-w/2,y-h*.72+g.h*.018,w,h);
+ }
  if(e>=2.7&&caveLight.naturalWidth){
- const p=clamp((e-2.7)/.75),w=g.w*.43,h=g.h*.21;
- ctx.globalAlpha=.55*(p===1?(.94+.06*Math.sin(t*1.6)):ease(p));
- frame(caveLight,7,Math.floor(p*6),g.x+g.w*.138,g.y+g.h*.368,w,h);
- ctx.globalAlpha=1;
+  const p=clamp((e-2.7)/.75),w=g.w*.43,h=g.h*.21;
+  ctx.globalAlpha=.55*(p===1?(.94+.06*Math.sin(t*1.6)):ease(p));
+  frame(caveLight,7,Math.floor(p*6),g.x+g.w*.138,g.y+g.h*.368,w,h);
+  ctx.globalAlpha=1;
  }
  if(e>=3.45&&caveLadder.naturalWidth){
- const p=ease(clamp((e-3.45)/2)),h=g.h*.225,w=h*caveLadder.naturalWidth/caveLadder.naturalHeight;
- ctx.save();ctx.beginPath();ctx.rect(x-g.w*.14,y-g.h*.008,g.w*.28,g.h*.30);ctx.clip();
- ctx.drawImage(caveLadder,x-w/2,y-h+h*.5*p,w,h);ctx.restore();
+  const p=ease(clamp((e-3.45)/2)),h=g.h*.225,w=h*caveLadder.naturalWidth/caveLadder.naturalHeight;
+  ctx.save();ctx.beginPath();ctx.rect(x-g.w*.14,y-g.h*.008,g.w*.28,g.h*.30);ctx.clip();
+  ctx.drawImage(caveLadder,x-w/2,y-h+h*.5*p,w,h);ctx.restore();
  }
- if(e>=0&&e<1.5){const size=g.w*.392;ctx.globalAlpha=e>1.0625?clamp((1.5-e)/.4375):1;frame(caveOpenSmoke,8,Math.floor(e/1.5*8),x-size/2,g.y+g.h*.40-size/2,size,size);ctx.globalAlpha=1}
- if(e>=1.5&&e<2.7&&caveDust.naturalWidth){const p=(e-1.5)/1.2,w=g.w*.36,h=w*caveDust.naturalHeight/(caveDust.naturalWidth/6);ctx.globalAlpha=clamp((1-p)*5);frame(caveDust,6,Math.floor(p*6),x-w/2,y-h*.15+p*g.h*.035,w,h)}
+ if(e>=0&&e<1.5){
+  const size=g.w*.392;
+  ctx.globalAlpha=e>1.0625?clamp((1.5-e)/.4375):1;
+  frame(caveOpenSmoke,8,Math.floor(e/1.5*8),x-size/2,g.y+g.h*.40-size/2,size,size);
+  ctx.globalAlpha=1;
+ }
+ if(e>=1.5&&e<2.7&&caveDust.naturalWidth){
+  const p=(e-1.5)/1.2,w=g.w*.36,h=w*caveDust.naturalHeight/(caveDust.naturalWidth/6);
+  ctx.globalAlpha=clamp((1-p)*5);
+  frame(caveDust,6,Math.floor(p*6),x-w/2,y-h*.15+p*g.h*.035,w,h);
+ }
+ // The original lock stays on top of the boarded passage and gently pulses.
+ if(e<0&&caveLockImage.naturalWidth){
+  const pulse=1+.045*Math.sin(t*2.35);
+  const w=g.w*.18*pulse,h=w*caveLockImage.naturalHeight/caveLockImage.naturalWidth;
+  const lockY=y+g.h*.018;
+  ctx.globalAlpha=1;
+  ctx.drawImage(caveLockImage,x-w/2,lockY-h/2,w,h);
+ }
  ctx.restore();
- if(caveOpeningAt!==null&&e>=5.45){caveOpeningAt=null;cavePassageOpen=true;try{localStorage.setItem('kurmet-cave-passage-v2','1')}catch(err){}}
+}
+
+function toggleCavePassageTest(){
+ const t=performance.now()/1000;
+ let progress=-1;
+ if(caveClosingAt!==null)progress=Math.max(0,CAVE_OPEN_DURATION-(t-caveClosingAt));
+ else if(caveOpeningAt!==null)progress=Math.min(CAVE_OPEN_DURATION,Math.max(0,t-caveOpeningAt));
+ else if(cavePassageOpen)progress=CAVE_OPEN_DURATION;
+ if(caveClosingAt!==null){
+  // Reverse a close-in-progress smoothly back toward the open passage.
+  caveClosingAt=null;caveOpeningAt=t-progress;cavePassageOpen=false;
+ }else if(progress>=0){
+  // Reverse the existing opening timeline; no abrupt jump to the locked frame.
+  caveOpeningAt=null;caveClosingAt=t-(CAVE_OPEN_DURATION-progress);cavePassageOpen=false;
+  try{localStorage.removeItem(CAVE_PASSAGE_KEY)}catch(e){}
+ }else{
+  caveClosingAt=null;caveOpeningAt=t;cavePassageOpen=false;
+ }
+}
+
+function updateCavePassageTestButton(){
+ const button=document.getElementById('cavePassageTest');
+ if(!button)return;
+ const visible=state.location==='cave';
+ button.hidden=!visible;
+ if(!visible)return;
+ const g=caveGeometry(),scene=canvas.parentElement;
+ if(!g||!scene)return;
+ const cr=canvas.getBoundingClientRect(),sr=scene.getBoundingClientRect();
+ const scale=Math.min(cr.width/600,cr.height/roomH);
+ const ox=(cr.width-600*scale)/2,oy=(cr.height-roomH*scale)/2;
+ const vx=g.x+g.w*.535,vy=g.y+g.h*.385;
+ button.style.left=(cr.left-sr.left+ox+vx*scale)+'px';
+ button.style.top=(cr.top-sr.top+oy+vy*scale)+'px';
+ const closing=caveClosingAt!==null;
+ const openingOrOpen=!closing&&(caveOpeningAt!==null||cavePassageOpen);
+ const label=openingOrOpen?'ТЕСТ: ЗАКРЫТЬ':'ТЕСТ: ОТКРЫТЬ';
+ if(button.textContent!==label)button.textContent=label;
+ button.setAttribute('aria-pressed',String(openingOrOpen));
 }
 function drawBowl(x,y){ellipse(x,y+10,66,18,'#bf8078','#956057',3);ellipse(x,y,50,12,'#fff4df','#b17f73',2);for(let i=0;i<7;i++)ellipse(x-26+i*9,y-2+Math.sin(i)*2,4,3,'#a57145',null,0,1);}
 function drawYarn(x,y,rot){ctx.save();ctx.translate(x,y);ctx.rotate(rot);ellipse(0,0,30,30,'#d97dad','#8e5a80',3);for(let i=0;i<5;i++)line([[-18,-10+i*8],[18,10-i*8]],'#efb4cf',2);line([[10,-25],[26,-38],[38,-34]],'#efb4cf',3);ctx.restore();}
@@ -2188,6 +2319,7 @@ function draw(now){
   // Malformed old saved placements must never prevent rendering the character.
   drawAtmosphere(t);
   drawCaveOpening(t);
+  updateCavePassageTestButton();
   // Render character independently over the cave background.
   ctx=characterCtx;
   ctx.setTransform(1,0,0,1,0,0);
@@ -2276,6 +2408,67 @@ function closeModals(restore=true){
   document.querySelectorAll('.modal-overlay').forEach(m=>m.hidden=true);
   if(restore && modalReturnFocus){modalReturnFocus.focus();modalReturnFocus=null;}
 }
+
+const CAVE_PAPER_FIRST_FRAMES=8,CAVE_PAPER_SECOND_FRAMES=6;
+const CAVE_PAPER_FIRST_FRAME_MS=100,CAVE_PAPER_SECOND_FRAME_MS=130;
+let caveLockedNoticeRaf=0;
+function drawCavePaperFrame(sheet,count,index,drawMessage=false){
+ const canvasEl=document.getElementById('caveLockedCanvas');
+ if(!canvasEl||!sheet.naturalWidth||!sheet.naturalHeight)return;
+ const dpr=Math.min(2,window.devicePixelRatio||1);
+ const width=Math.max(1,Math.round(canvasEl.clientWidth*dpr));
+ const height=Math.max(1,Math.round(canvasEl.clientHeight*dpr));
+ if(canvasEl.width!==width)canvasEl.width=width;
+ if(canvasEl.height!==height)canvasEl.height=height;
+ const c=canvasEl.getContext('2d');
+ if(!c)return;
+ c.clearRect(0,0,width,height);
+ const sw=sheet.naturalWidth/count,sh=sheet.naturalHeight;
+ const fit=Math.min(width/sw,height/sh);
+ const dw=sw*fit,dh=sh*fit,dx=(width-dw)/2,dy=(height-dh)/2;
+ c.drawImage(sheet,Math.min(count-1,index)*sw,0,sw,sh,dx,dy,dw,dh);
+ if(drawMessage){
+  const size=Math.max(18,Math.min(31,dw*.085));
+  c.save();c.textAlign='center';c.textBaseline='middle';
+  c.fillStyle='#2c2117';c.shadowColor='rgba(54,35,18,.18)';c.shadowBlur=2;
+  c.font='900 '+size+'px "Trebuchet MS",system-ui,sans-serif';
+  c.fillText('Проход пока',dx+dw/2,dy+dh*.59);
+  c.fillText('закрыт',dx+dw/2,dy+dh*.59+size*1.22);
+  c.restore();
+ }
+}
+function openCaveLockedNotice(){
+ const modal=document.getElementById('caveLockedModal');
+ if(!modal||!modal.hidden)return;
+ openModal('caveLockedModal',null);
+ modal.focus({preventScroll:true});
+ const started=performance.now();
+ const firstDuration=CAVE_PAPER_FIRST_FRAMES*CAVE_PAPER_FIRST_FRAME_MS;
+ const totalDuration=firstDuration+CAVE_PAPER_SECOND_FRAMES*CAVE_PAPER_SECOND_FRAME_MS;
+ const animate=now=>{
+  if(modal.hidden)return;
+  if(!cavePaperFirst.naturalWidth||!cavePaperSecond.naturalWidth){
+   caveLockedNoticeRaf=requestAnimationFrame(animate);return;
+  }
+  const elapsed=now-started;
+  if(elapsed<firstDuration){
+   const frame=Math.min(CAVE_PAPER_FIRST_FRAMES-1,Math.floor(elapsed/CAVE_PAPER_FIRST_FRAME_MS));
+   drawCavePaperFrame(cavePaperFirst,CAVE_PAPER_FIRST_FRAMES,frame,false);
+   caveLockedNoticeRaf=requestAnimationFrame(animate);
+  }else if(elapsed<totalDuration){
+   const local=elapsed-firstDuration;
+   const frame=Math.min(CAVE_PAPER_SECOND_FRAMES-1,Math.floor(local/CAVE_PAPER_SECOND_FRAME_MS));
+   drawCavePaperFrame(cavePaperSecond,CAVE_PAPER_SECOND_FRAMES,frame,false);
+   caveLockedNoticeRaf=requestAnimationFrame(animate);
+  }else{
+   drawCavePaperFrame(cavePaperSecond,CAVE_PAPER_SECOND_FRAMES,CAVE_PAPER_SECOND_FRAMES-1,true);
+   caveLockedNoticeRaf=0;
+  }
+ };
+ if(caveLockedNoticeRaf)cancelAnimationFrame(caveLockedNoticeRaf);
+ caveLockedNoticeRaf=requestAnimationFrame(animate);
+}
+
 document.getElementById('openPetStatus').addEventListener('click',e=>openModal('petStatusModal',e.currentTarget));
 document.getElementById('openPetActions').addEventListener('click',e=>openModal('petActionsModal',e.currentTarget));
 document.getElementById('openMainMenu').addEventListener('click',e=>{openModal('mainMenuModal',e.currentTarget);document.getElementById('openQuests').focus({preventScroll:true});});
@@ -2297,6 +2490,7 @@ if(originalBackArrow){
 }
 for(const b of document.querySelectorAll('[data-close]'))b.addEventListener('click',()=>{if(b.dataset.close==='locationsModal')goBackLocation();else closeModals();});
 for(const modal of document.querySelectorAll('.modal-overlay'))modal.addEventListener('click',e=>{if(e.target===modal)closeModals();});
+document.getElementById('cavePassageTest').addEventListener('click',e=>{e.preventDefault();e.stopPropagation();toggleCavePassageTest();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!document.getElementById('locationsModal').hidden && locationScreen!=='grid')goBackLocation();else closeModals();} if(e.key==='Tab'){const open=[...document.querySelectorAll('.modal-overlay')].find(m=>!m.hidden);if(open){const items=[...open.querySelectorAll('button,input')].filter(el=>!el.disabled);if(!items.length)return;const first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){last.focus();e.preventDefault();}else if(!e.shiftKey&&document.activeElement===last){first.focus();e.preventDefault();}}}});
 
 
@@ -2357,11 +2551,18 @@ document.addEventListener('visibilitychange',()=>{
 window.addEventListener('pagehide',rememberLastVisit);
 // Tapping the kitten is a tiny direct interaction even outside the five care actions.
 canvas.addEventListener('pointerdown',e=>{
- if(state.location==='cave'&&caveOpeningAt===null){
+ if(state.location==='cave'&&!document.getElementById('caveLockedModal').hidden)return;
+ if(state.location==='cave'&&!cavePassageOpen&&caveOpeningAt===null&&caveClosingAt===null){
   const g=caveGeometry(),r=canvas.getBoundingClientRect(),scale=Math.min(canvas.width/600,canvas.height/roomH);
   const x=((e.clientX-r.left)*canvas.width/r.width-(canvas.width-600*scale)/2)/scale;
   const y=((e.clientY-r.top)*canvas.height/r.height-(canvas.height-roomH*scale)/2)/scale;
-  if(g&&x>=g.x+g.w*.15&&x<=g.x+g.w*.49&&y>=g.y+g.h*.33&&y<=g.y+g.h*.44&&[caveBoards,caveLadder,caveDust,caveLight,caveOpenSmoke].every(im=>im.naturalWidth)){if(cavePassageOpen){cavePassageOpen=false;try{localStorage.removeItem('kurmet-cave-passage-v1')}catch(e){}}else{caveOpeningAt=performance.now()/1000;}return}
+  if(g){
+   const hitW=g.w*.205,hitH=hitW*(caveLockImage.naturalHeight||747)/(caveLockImage.naturalWidth||726);
+   const lockX=g.x+g.w*.32,lockY=g.y+g.h*.385+g.h*.018;
+   if(x>=lockX-hitW/2&&x<=lockX+hitW/2&&y>=lockY-hitH/2&&y<=lockY+hitH/2){
+    openCaveLockedNotice();return;
+   }
+  }
  }
  if(state.action!=='idle')return;
  const rect=canvas.getBoundingClientRect(),l=state.life;
