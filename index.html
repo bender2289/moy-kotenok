@@ -1154,8 +1154,8 @@ html.kurmet-boot-already-entered #kurmet-boot-screen{display:none!important}
 </style>
 <style>
 /* KURMET main menu — single original parchment PNG with three independent hit areas. */
-#mainMenuModal[hidden]{display:none!important}
-#mainMenuModal.kurmet-main-menu-overlay{
+#mainMenuModal.kurmet-main-menu-overlay[hidden]{display:none!important}
+#mainMenuModal.kurmet-main-menu-overlay:not([hidden]){
  position:fixed!important;inset:0!important;z-index:120!important;
  display:flex!important;align-items:center!important;justify-content:center!important;
  padding:0!important;overflow:hidden!important;
