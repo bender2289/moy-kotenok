@@ -1696,7 +1696,7 @@ function drawCaveOpening(t){
  if(e>=2.7&&caveLight.naturalWidth){
  const p=clamp((e-2.7)/.75),w=g.w*.43,h=g.h*.21;
  ctx.globalAlpha=.55*(p===1?(.94+.06*Math.sin(t*1.6)):ease(p));
- frame(caveLight,7,Math.floor(p*6),g.x+g.w*.153,g.y+g.h*.368,w,h);
+ frame(caveLight,7,Math.floor(p*6),g.x+g.w*.138,g.y+g.h*.368,w,h);
  ctx.globalAlpha=1;
  }
  if(e>=3.45&&caveLadder.naturalWidth){
