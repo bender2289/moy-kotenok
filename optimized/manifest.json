@@ -1,0 +1,56 @@
+{
+  "format": "lossless WebP",
+  "scope": "candidate assets only; original PNG and game code unchanged",
+  "source_total_bytes": 7111164,
+  "saved_total_bytes": 5421300,
+  "items": [
+    {
+      "source": "локация пещера.png",
+      "width": 4500,
+      "height": 8000,
+      "original_bytes": 3249961,
+      "candidate_bytes": 796830,
+      "visually_lossless": true,
+      "output": "optimized/локация пещера.webp",
+      "saved_bytes": 2453131,
+      "saved_percent": 75.48,
+      "kept": true
+    },
+    {
+      "source": "бумага-02.png",
+      "width": 11628,
+      "height": 2876,
+      "original_bytes": 2285733,
+      "candidate_bytes": 544840,
+      "visually_lossless": true,
+      "output": "optimized/бумага-02.webp",
+      "saved_bytes": 1740893,
+      "saved_percent": 76.16,
+      "kept": true
+    },
+    {
+      "source": "бумага 01.png",
+      "width": 8797,
+      "height": 2119,
+      "original_bytes": 921593,
+      "candidate_bytes": 209608,
+      "visually_lossless": true,
+      "output": "optimized/бумага 01.webp",
+      "saved_bytes": 711985,
+      "saved_percent": 77.26,
+      "kept": true
+    },
+    {
+      "source": "открытое меню.png",
+      "width": 4608,
+      "height": 2554,
+      "original_bytes": 653877,
+      "candidate_bytes": 138586,
+      "visually_lossless": true,
+      "output": "optimized/открытое меню.webp",
+      "saved_bytes": 515291,
+      "saved_percent": 78.81,
+      "kept": true
+    }
+  ]
+}
