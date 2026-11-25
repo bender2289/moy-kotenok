@@ -1704,7 +1704,7 @@ function renderKurmetHands(){
    ctx.putImageData(pixels,0,0);
   }catch(err){
    // Never display unmasked parchment over cards if pixel reading fails.
-   canvas.style.display='none';
+   canvas.style.setProperty('display','none','important');
   }
  }
 }
