@@ -1205,7 +1205,7 @@ html.kurmet-boot-already-entered #kurmet-boot-screen{display:none!important}
  outline:3px solid rgba(255,224,90,.95)!important;
 }
 @media(max-height:520px) and (orientation:landscape){
- #mainMenuModal .kurmet-main-menu-art{width:min(88vw, 920px)!important;max-height:86dvh!important}
+ #mainMenuModal .kurmet-main-menu-art{width:min(88vw, 140dvh)!important;max-height:none!important}
 }
 </style>
 </head>
@@ -2282,7 +2282,7 @@ function closeModals(restore=true){
 }
 document.getElementById('openPetStatus').addEventListener('click',e=>openModal('petStatusModal',e.currentTarget));
 document.getElementById('openPetActions').addEventListener('click',e=>openModal('petActionsModal',e.currentTarget));
-document.getElementById('openMainMenu').addEventListener('click',e=>openModal('mainMenuModal',e.currentTarget));
+document.getElementById('openMainMenu').addEventListener('click',e=>{openModal('mainMenuModal',e.currentTarget);document.getElementById('openQuests').focus({preventScroll:true});});
 document.getElementById('openQuests').addEventListener('click',e=>openModal('questsModal',e.currentTarget));
 document.getElementById('openLocations').addEventListener('click',e=>{resetLocationScreens();renderLocationsMenu();openModal('locationsModal',e.currentTarget);requestAnimationFrame(renderKurmetHands);});
 // Back controls reuse the artist's exact original left location arrow artwork.
