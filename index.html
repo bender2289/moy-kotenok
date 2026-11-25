@@ -1221,6 +1221,51 @@ html.kurmet-boot-already-entered #kurmet-boot-screen{display:none!important}
 }
 </style>
 
+
+<style>
+/* Restore the artist-drawn hands above the scrolling location cards.
+   The hands are part of the parchment artwork, so redraw only their exact
+   source-image regions as transparent foreground overlays. */
+#locationsModal:not(.preview-active) .kurmet-locations-modal{
+  isolation:isolate!important;
+}
+#locationsModal:not(.preview-active) .kurmet-locations-modal::before,
+#locationsModal:not(.preview-active) .kurmet-locations-modal::after{
+  content:""!important;
+  position:absolute!important;
+  inset:0!important;
+  z-index:5!important;
+  display:block!important;
+  pointer-events:none!important;
+  background-image:url('./локации 02.png')!important;
+  background-repeat:no-repeat!important;
+  background-position:center center!important;
+  background-size:100% 100%!important;
+}
+/* Left hand */
+#locationsModal:not(.preview-active) .kurmet-locations-modal::before{
+  clip-path:polygon(
+    2% 55.5%, 3.5% 53.5%, 7% 52.2%, 11% 52.5%,
+    15% 54%, 19% 55.8%, 22% 57.5%, 23% 59.5%,
+    21.5% 62%, 23% 64%, 22% 67%, 23% 69%,
+    20.5% 72%, 17% 74%, 12% 74.5%, 7% 73.5%,
+    3.5% 71.5%, 1.5% 68.5%, 1% 64.5%,
+    1.5% 60%
+  )!important;
+}
+/* Right hand */
+#locationsModal:not(.preview-active) .kurmet-locations-modal::after{
+  clip-path:polygon(
+    98% 55.5%, 96.5% 53.5%, 93% 52.2%, 89% 52.5%,
+    85% 54%, 81% 55.8%, 78% 57.5%, 77% 59.5%,
+    78.5% 62%, 77% 64%, 78% 67%, 77% 69%,
+    79.5% 72%, 83% 74%, 88% 74.5%, 93% 73.5%,
+    96.5% 71.5%, 98.5% 68.5%, 99% 64.5%,
+    98.5% 60%
+  )!important;
+}
+</style>
+
 </head>
 <body>
 <div id="kurmet-boot-screen" role="status" aria-live="polite" aria-label="KURMET UNIVERSE — загрузка">
