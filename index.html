@@ -1266,6 +1266,134 @@ html.kurmet-boot-already-entered #kurmet-boot-screen{display:none!important}
 }
 </style>
 
+
+<style>
+/* Final locations parchment: use the clean artist PNG, no painted scrollbar. */
+#locationsModal:not(.preview-active) .kurmet-locations-modal{
+  isolation:isolate!important;
+  background-image:url('./локации%20без%20скроллбара.png')!important;
+  background-position:center center!important;
+  background-repeat:no-repeat!important;
+  background-size:100% 100%!important;
+  overflow:hidden!important;
+}
+/* The hands are part of the parchment artwork; repeat just those regions
+   above the cards so the cards never cover the illustrated fingers. */
+#locationsModal:not(.preview-active) .kurmet-locations-modal::before,
+#locationsModal:not(.preview-active) .kurmet-locations-modal::after{
+  content:""!important;
+  display:block!important;
+  position:absolute!important;
+  inset:0!important;
+  z-index:5!important;
+  pointer-events:none!important;
+  background:url('./локации%20без%20скроллбара.png') center center / 100% 100% no-repeat!important;
+}
+#locationsModal:not(.preview-active) .kurmet-locations-modal::before{
+  clip-path:polygon(
+    1.5% 51.5%, 5% 50%, 9% 50.5%, 13% 52%, 17% 54%,
+    20.5% 56.5%, 21.5% 59%, 20% 62%, 21.5% 65%,
+    20% 68.5%, 17% 71%, 12% 72.5%, 7% 72%,
+    3% 70%, 1.5% 66%, 1% 60%
+  )!important;
+}
+#locationsModal:not(.preview-active) .kurmet-locations-modal::after{
+  clip-path:polygon(
+    98.5% 51.5%, 95% 50%, 91% 50.5%, 87% 52%, 83% 54%,
+    79.5% 56.5%, 78.5% 59%, 80% 62%, 78.5% 65%,
+    80% 68.5%, 83% 71%, 88% 72.5%, 93% 72%,
+    97% 70%, 98.5% 66%, 99% 60%
+  )!important;
+}
+/* Card area follows the reference: 3 clear columns, tighter rows. */
+#locationsModal:not(.preview-active) #locationsGrid{
+  position:absolute!important;
+  z-index:2!important;
+  left:13.5%!important;
+  right:13.5%!important;
+  top:14.5%!important;
+  width:auto!important;
+  height:72%!important;
+  max-height:none!important;
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  grid-auto-rows:max-content!important;
+  align-content:start!important;
+  align-items:start!important;
+  column-gap:3.2%!important;
+  row-gap:3.5%!important;
+  padding:0 0 24px!important;
+  margin:0!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior-y:contain!important;
+  touch-action:pan-y!important;
+  scrollbar-width:none!important;
+  -ms-overflow-style:none!important;
+}
+#locationsModal:not(.preview-active) #locationsGrid::-webkit-scrollbar{
+  display:none!important;
+  width:0!important;
+  height:0!important;
+  background:transparent!important;
+}
+#locationsModal:not(.preview-active) .kurmet-location-tile.artist-location-card,
+#locationsModal:not(.preview-active) .kurmet-location-tile.locked.artist-location-card{
+  width:100%!important;
+  min-width:0!important;
+  height:auto!important;
+  min-height:0!important;
+  aspect-ratio:.62!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#locationsModal:not(.preview-active) .kurmet-location-tile.artist-location-card .kurmet-location-picture{
+  position:absolute!important;
+  inset:0!important;
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  aspect-ratio:auto!important;
+  overflow:hidden!important;
+  background:transparent!important;
+}
+#locationsModal:not(.preview-active) .kurmet-location-tile.artist-location-card .kurmet-location-picture img{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:fill!important;
+  object-position:center!important;
+  transform:none!important;
+}
+#locationsModal:not(.preview-active) .kurmet-location-tile.artist-location-card .kurmet-location-caption,
+#locationsModal:not(.preview-active) .kurmet-location-tile.artist-location-card .kurmet-location-selected{
+  display:none!important;
+}
+@media(max-width:480px){
+  #locationsModal:not(.preview-active) .kurmet-locations-modal{
+    width:90vw!important;
+    height:76dvh!important;
+    max-height:76dvh!important;
+  }
+  #locationsModal:not(.preview-active) #locationsGrid{
+    left:13.5%!important;
+    right:13.5%!important;
+    column-gap:3.2%!important;
+    row-gap:3.5%!important;
+  }
+}
+</style>
+
 </head>
 <body>
 <div id="kurmet-boot-screen" role="status" aria-live="polite" aria-label="KURMET UNIVERSE — загрузка">
