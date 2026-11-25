@@ -1431,6 +1431,17 @@ html.kurmet-boot-already-entered #kurmet-boot-screen{display:none!important}
 }
 </style>
 
+
+<style>
+/* Preserve artwork proportions while cropping transparent side margins
+   so the card frame uses more of each thumbnail slot. */
+#locationsModal:not(.preview-active) .kurmet-location-tile.artist-location-card .kurmet-location-picture img{
+  object-fit:cover!important;
+  object-position:center center!important;
+  transform:none!important;
+}
+</style>
+
 </head>
 <body>
 <div id="kurmet-boot-screen" role="status" aria-live="polite" aria-label="KURMET UNIVERSE — загрузка">
