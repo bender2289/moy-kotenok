@@ -1694,15 +1694,15 @@ function drawCaveOpening(t){
  ctx.save();
  if(e<.60&&caveBoards.naturalWidth){const w=g.w*.32,h=w*caveBoards.naturalHeight/caveBoards.naturalWidth;ctx.drawImage(caveBoards,x-w/2,y-h*.72+g.h*.018,w,h)}
  if(e>=2.7&&caveLight.naturalWidth){
- const p=clamp((e-2.7)/.75),w=g.w*.43,h=g.h*.19;
+ const p=clamp((e-2.7)/.75),w=g.w*.43,h=g.h*.21;
  ctx.globalAlpha=.55*(p===1?(.94+.06*Math.sin(t*1.6)):ease(p));
- frame(caveLight,7,Math.floor(p*6),x-w*.51,y+g.h*.003,w,h);
+ frame(caveLight,7,Math.floor(p*6),g.x+g.w*.09,g.y+g.h*.36,w,h);
  ctx.globalAlpha=1;
  }
  if(e>=3.45&&caveLadder.naturalWidth){
- const p=ease(clamp((e-3.45)/2)),h=g.h*.143,w=h*caveLadder.naturalWidth/caveLadder.naturalHeight;
+ const p=ease(clamp((e-3.45)/2)),h=g.h*.225,w=h*caveLadder.naturalWidth/caveLadder.naturalHeight;
  ctx.save();ctx.beginPath();ctx.rect(x-g.w*.14,y-g.h*.008,g.w*.28,g.h*.30);ctx.clip();
- ctx.drawImage(caveLadder,x-w/2,y-h+h*p,w,h);ctx.restore();
+ ctx.drawImage(caveLadder,x-w/2,y-h+h*.5*p,w,h);ctx.restore();
  }
  if(e>=0&&e<1.5){const size=g.w*.392;ctx.globalAlpha=e>1.0625?clamp((1.5-e)/.4375):1;frame(caveOpenSmoke,8,Math.floor(e/1.5*8),x-size/2,g.y+g.h*.40-size/2,size,size);ctx.globalAlpha=1}
  if(e>=1.5&&e<2.7&&caveDust.naturalWidth){const p=(e-1.5)/1.2,w=g.w*.36,h=w*caveDust.naturalHeight/(caveDust.naturalWidth/6);ctx.globalAlpha=clamp((1-p)*5);frame(caveDust,6,Math.floor(p*6),x-w/2,y-h*.15+p*g.h*.035,w,h)}
