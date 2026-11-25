@@ -1116,7 +1116,14 @@ html.kurmet-boot-already-entered #kurmet-boot-screen{display:none!important}
  #locationsModal:not(.preview-active) #locationsGrid{gap:7px!important;left:16%!important;width:67.5%!important}
 }
 </style>
-</head>
+<style>
+#locationsModal:not(.preview-active) #locationsGrid{left:14%!important;width:65%!important;gap:4px!important;padding:0!important;scrollbar-width:none!important;grid-auto-rows:auto!important}
+#locationsModal:not(.preview-active) #locationsGrid::-webkit-scrollbar{display:none!important}
+#locationsModal:not(.preview-active) .kurmet-location-tile.artist-location-card .kurmet-location-picture img{transform:scale(1.27);transform-origin:center}
+#locationsModal:not(.preview-active) .kurmet-location-tile.artist-location-card .kurmet-location-picture{overflow:visible!important}
+#locationsModal:not(.preview-active) .kurmet-location-tile.artist-location-card{overflow:visible!important;aspect-ratio:.65!important}
+#locationsModal:not(.preview-active) .kurmet-location-tile.locked.artist-location-card{aspect-ratio:.65!important}
+</style></head>
 <body>
 <div id="kurmet-boot-screen" role="status" aria-live="polite" aria-label="KURMET UNIVERSE — загрузка">
   <div class="kurmet-boot-inner">
@@ -1564,7 +1571,7 @@ const renderLocationsMenu=()=>{
  if(!grid)return;
  grid.replaceChildren();
  // Three currently available places plus six reserved spaces for future KURMET locations.
- const slots=['cave',null,null,null,null,null,null,null];
+ const slots=['cave',...Array(23).fill(null)];
  slots.forEach((id,index)=>{
   if(id){
    const button=document.createElement('button');
