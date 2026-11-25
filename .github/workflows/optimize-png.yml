@@ -18,8 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - name: Checkout experimental branch
+      - name: Checkout latest experimental branch head
         uses: actions/checkout@v4
+        with:
+          ref: optimize-png-round2
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
