@@ -3384,10 +3384,10 @@ function startKurmetBootPreparation(){
    Promise.resolve().then(work).then(()=>{
     if(done)return;
     done=true;clearTimeout(timeout);manager.completed++;resolve();
-   },()=>{
+   },error=>{
     if(done)return;
     done=true;clearTimeout(timeout);
-    manager.failed.push(label);manager.completed++;resolve();
+    manager.failed.push(label+': '+String(error));manager.completed++;resolve();
    });
   });
   tasks.push(task);
