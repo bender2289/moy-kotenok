@@ -1056,6 +1056,7 @@ html.kurmet-boot-already-entered #kurmet-boot-screen{display:none!important}
 /* KURMET locations screen — consolidated layout matched to the supplied reference. */
 /* A closed locations modal must stay closed, including on initial load. */
 #locationsModal[hidden]{display:none!important;}
+#locationsModal[hidden].locations-warming{display:flex!important;visibility:hidden!important;pointer-events:none!important;}
 #locationsModal:not(.preview-active){
   position:fixed!important;inset:0!important;
   align-items:center!important;justify-content:center!important;
@@ -1730,9 +1731,12 @@ function ensureLocationImage(id){
 
 const LOCATIONS=['cave','prison','laboratory'];
 const LOCATION_TITLES={prison:'Тюрьма',cave:'Пещера',laboratory:'Лаборатория'};
+let locationsGridKey=null;
 const renderLocationsMenu=()=>{
  const grid=document.getElementById('locationsGrid');
  if(!grid)return;
+ if(locationsGridKey===state.location&&grid.children.length===24){grid.scrollTop=0;return;}
+ locationsGridKey=state.location;
  grid.replaceChildren();
  grid.scrollTop=0;
  // One available cave and 23 reserved spaces for future KURMET locations.
@@ -1751,7 +1755,7 @@ const renderLocationsMenu=()=>{
    image.src=id==='cave'?'./optimized/%D0%BB%D0%BE%D0%BA%D0%B0%D1%86%D0%B8%D0%B8%2004%20%D0%BF%D1%80%D0%B5%D0%B2%D1%8C%D1%8E%20%D0%BF%D0%B5%D1%89%D0%B5%D1%80%D0%B0.webp':LOCATION_IMAGE_SOURCES[id]; // Artist-supplied cave card; preserve existing previews for other unlocked locations.
    if(id==='cave')button.classList.add('artist-location-card');
    image.alt='';
-   image.loading='lazy';
+   image.loading='eager';
    image.draggable=false;
    art.append(image);
    if(selected){
@@ -1775,7 +1779,7 @@ const renderLocationsMenu=()=>{
    art.className='kurmet-location-picture';
    const lockImage=document.createElement('img');
    lockImage.src='./optimized/%D0%BB%D0%BE%D0%BA%D0%B0%D1%86%D0%B8%D0%B8%2003.webp';
-   lockImage.alt='';lockImage.loading='lazy';lockImage.draggable=false;
+   lockImage.alt='';lockImage.loading='eager';lockImage.draggable=false;
    locked.classList.add('artist-location-card');
    art.append(lockImage);
    locked.append(art);
@@ -1791,14 +1795,17 @@ const renderLocationsMenu=()=>{
 const kurmetHandSource=new Image();
 kurmetHandSource.decoding='async';
 const KURMET_HAND_SOURCE="./optimized/%D0%BB%D0%BE%D0%BA%D0%B0%D1%86%D0%B8%D0%B8%20%D0%B1%D0%B5%D0%B7%20%D1%81%D0%BA%D1%80%D0%BE%D0%BB%D0%BB%D0%B1%D0%B0%D1%80%D0%B0.webp";
+let kurmetHandsSize=null;
 function renderKurmetHands(){
  const modal=document.getElementById('locationsModal');
  const paper=modal?.querySelector('.kurmet-locations-modal');
- if(!paper||modal.hidden||modal.classList.contains('preview-active'))return;
+ if(!paper||(modal.hidden&&!modal.classList.contains('locations-warming'))||modal.classList.contains('preview-active'))return;
  if(!kurmetHandSource.complete||!kurmetHandSource.naturalWidth)return;
  const fullWidth=paper.clientWidth,fullHeight=paper.clientHeight;
  if(!fullWidth||!fullHeight)return;
  const density=Math.min(window.devicePixelRatio||1,3);
+ const sizeKey=[fullWidth,fullHeight,density].join(":");
+ if(kurmetHandsSize===sizeKey)return;
  const regions=[
   {side:'left',x:0,y:.50,width:.25,height:.27},
   {side:'right',x:.75,y:.50,width:.25,height:.27}
@@ -1840,8 +1847,10 @@ function renderKurmetHands(){
   }catch(err){
    // Never display unmasked parchment over cards if pixel reading fails.
    canvas.style.setProperty('display','none','important');
+   return;
   }
  }
+ kurmetHandsSize=sizeKey;
 }
 kurmetHandSource.addEventListener('load',()=>requestAnimationFrame(renderKurmetHands));
 window.addEventListener('resize',()=>requestAnimationFrame(renderKurmetHands));
@@ -3263,6 +3272,17 @@ kurmetLangObserver.observe(document.body,{subtree:true,childList:true,characterD
 kurmetSetLanguage(kurmetLanguage);
 
 initLocation();
+async function warmLocationsMenu(){
+ const modal=document.getElementById("locationsModal");
+ renderLocationsMenu();
+ const images=[...document.querySelectorAll("#locationsGrid img")];
+ const decode=img=>typeof img.decode==="function"?img.decode().catch(()=>{}):Promise.resolve();
+ await Promise.all([loadImageOnce(kurmetHandSource,KURMET_HAND_SOURCE).then(decode),...images.map(decode)]);
+ if(!modal.hidden)return;
+ modal.classList.add("locations-warming");
+ try{renderKurmetHands();}finally{modal.classList.remove("locations-warming");}
+}
+initialSceneAssetsPromise=Promise.allSettled([initialSceneAssetsPromise,warmLocationsMenu()]);
 store(); // Upgrade previous saves without writing obsolete furniture or cosmetic fields.
 requestAnimationFrame(frame);
 </script>
