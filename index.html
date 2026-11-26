@@ -1913,7 +1913,9 @@ async function prepareKurmetLocationsBeforePlay(){
  renderLocationsMenu();
  await loadImageOnce(kurmetHandSource,KURMET_HAND_SOURCE);
  if(!kurmetHandSource.naturalWidth)throw new Error('Location parchment did not load');
- if(typeof kurmetHandSource.decode==='function')await kurmetHandSource.decode();
+ // The large artwork is rendered through canvas; a separate decode() can reject in
+ // some Chromium builds even when the image is loaded and drawable.
+ // Let drawImage decode it once while the boot overlay is still visible.
  const modal=document.getElementById('locationsModal');
  const paper=modal?.querySelector('.kurmet-locations-modal');
  if(!modal||!paper)return;
