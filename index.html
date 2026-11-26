@@ -1763,6 +1763,27 @@ const LOCATION_TITLES={prison:'Тюрьма',cave:'Пещера',laboratory:'Л�
 const renderLocationsMenu=()=>{
  const grid=document.getElementById('locationsGrid');
  if(!grid)return;
+ // Build the 24 art cards only once. Subsequent openings update selection in place.
+ if(grid.dataset.kurmetBuilt==='1'){
+  const caveCard=grid.querySelector('button.kurmet-location-tile');
+  if(caveCard){
+   const selected=state.location==='cave';
+   caveCard.classList.toggle('selected',selected);
+   caveCard.setAttribute('aria-label',LOCATION_TITLES.cave+(selected?', текущая локация':''));
+   if(selected)caveCard.setAttribute('aria-current','location');
+   else caveCard.removeAttribute('aria-current');
+   const mark=caveCard.querySelector('.kurmet-location-selected');
+   if(selected&&!mark){
+    const check=document.createElement('span');
+    check.className='kurmet-location-selected';
+    check.textContent='✓';
+    check.setAttribute('aria-hidden','true');
+    caveCard.querySelector('.kurmet-location-picture')?.append(check);
+   }else if(!selected&&mark)mark.remove();
+  }
+  grid.scrollTop=0;
+  return;
+ }
  grid.replaceChildren();
  grid.scrollTop=0;
  // One available cave and 23 reserved spaces for future KURMET locations.
@@ -1812,6 +1833,7 @@ const renderLocationsMenu=()=>{
    grid.append(locked);
   }
  });
+ grid.dataset.kurmetBuilt='1';
  grid.scrollTop=0;
 };
 
@@ -1829,6 +1851,11 @@ function renderKurmetHands(){
  const fullWidth=paper.clientWidth,fullHeight=paper.clientHeight;
  if(!fullWidth||!fullHeight)return;
  const density=Math.min(window.devicePixelRatio||1,3);
+ const sizeKey=Math.round(fullWidth*density)+'x'+Math.round(fullHeight*density);
+ if(paper.dataset.kurmetHandSize===sizeKey
+  &&paper.querySelector('.kurmet-hand-foreground[data-side="left"]')
+  &&paper.querySelector('.kurmet-hand-foreground[data-side="right"]'))return;
+ let maskReady=true;
  const regions=[
   {side:'left',x:0,y:.50,width:.25,height:.27},
   {side:'right',x:.75,y:.50,width:.25,height:.27}
@@ -1869,12 +1896,40 @@ function renderKurmetHands(){
    ctx.putImageData(pixels,0,0);
   }catch(err){
    // Never display unmasked parchment over cards if pixel reading fails.
+   maskReady=false;
    canvas.style.setProperty('display','none','important');
   }
  }
+ if(maskReady)paper.dataset.kurmetHandSize=sizeKey;
+ else delete paper.dataset.kurmetHandSize;
 }
 kurmetHandSource.addEventListener('load',()=>requestAnimationFrame(renderKurmetHands));
 window.addEventListener('resize',()=>requestAnimationFrame(renderKurmetHands));
+
+// Prepare the actual locations UI under the boot overlay, before the player taps it.
+// Visibility:hidden retains the final layout dimensions without showing the dialog.
+async function prepareKurmetLocationsBeforePlay(){
+ renderLocationsMenu();
+ await loadImageOnce(kurmetHandSource,KURMET_HAND_SOURCE);
+ if(!kurmetHandSource.naturalWidth)throw new Error('Location parchment did not load');
+ if(typeof kurmetHandSource.decode==='function')await kurmetHandSource.decode();
+ const modal=document.getElementById('locationsModal');
+ const paper=modal?.querySelector('.kurmet-locations-modal');
+ if(!modal||!paper)return;
+ if(!modal.hidden)return;
+ const previousVisibility=modal.style.visibility;
+ const previousPointerEvents=modal.style.pointerEvents;
+ modal.style.visibility='hidden';
+ modal.style.pointerEvents='none';
+ modal.hidden=false;
+ try{renderKurmetHands();}
+ finally{
+  modal.hidden=true;
+  modal.style.visibility=previousVisibility;
+  modal.style.pointerEvents=previousPointerEvents;
+ }
+ if(!paper.dataset.kurmetHandSize)throw new Error('Location hand mask not prepared');
+}
 
 let selectedLocationPreview=null;
 let locationScreen='grid'; // grid | preview | story
