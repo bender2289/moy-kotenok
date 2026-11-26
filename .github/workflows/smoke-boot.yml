@@ -16,7 +16,7 @@ permissions:
 jobs:
   check-real-boot:
     if: github.ref_name == 'real-boot-preload'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - name: Checkout test branch
