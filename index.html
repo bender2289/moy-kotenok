@@ -2005,16 +2005,24 @@ function ensureCavePassageAssets(){
   loadImageOnce(caveOpenSmoke,CAVE_ASSET_SOURCES.caveOpenSmoke)
  ]);
 }
+let caveNoticeReadyPromise=null;
 function ensureCaveNoticeAssets(){
- return Promise.all([
+ if(caveNoticeReadyPromise)return caveNoticeReadyPromise;
+ caveNoticeReadyPromise=Promise.all([
   loadImageOnce(cavePaperFirst,CAVE_ASSET_SOURCES.cavePaperFirst),
   loadImageOnce(cavePaperSecond,CAVE_ASSET_SOURCES.cavePaperSecond)
- ]);
+ ]).then(async images=>{
+  await Promise.all(images.map(img=>typeof img.decode==="function"?img.decode().catch(()=>{}):Promise.resolve()));
+  getCavePaperFrames(cavePaperFirst,CAVE_PAPER_FIRST_FRAMES);
+  getCavePaperFrames(cavePaperSecond,CAVE_PAPER_SECOND_FRAMES);
+  return images;
+ });
+ return caveNoticeReadyPromise;
 }
 function ensureLocationAssets(id){
  const jobs=[ensureLocationImage(id)];
  if(id==='cave'){
-  jobs.push(ensureCaveAtmosphereAssets());
+  jobs.push(ensureCaveAtmosphereAssets(),ensureCaveNoticeAssets());
   if(cavePassageOpen)jobs.push(ensureCavePassageAssets());
  }
  return Promise.all(jobs);
@@ -2631,6 +2639,7 @@ function openCaveLockedNotice(){
  if(caveLockedNoticeRaf)cancelAnimationFrame(caveLockedNoticeRaf);
  ensureCaveNoticeAssets().then(()=>{
   if(generation!==caveLockedNoticeGeneration||modal.hidden||!cavePaperFirst.naturalWidth||!cavePaperSecond.naturalWidth)return;
+  drawCavePaperFrame(cavePaperFirst,CAVE_PAPER_FIRST_FRAMES,0,false);
   const started=performance.now();
   const animate=now=>{
    if(modal.hidden)return;
