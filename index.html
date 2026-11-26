@@ -6,7 +6,8 @@
 <title>KURMET UNIVERSE</title>
 <script>
 /* Preserve completed entry across reloads of the same browser tab. */
-try{if(sessionStorage.getItem('kurmet-boot-entered-v1')==='1')document.documentElement.classList.add('kurmet-boot-already-entered')}catch(e){}
+// A newly loaded document must prepare the UI; returning to an existing
+// backgrounded tab does not reload the document or replay the boot screen.
 </script>
 <style>
 *{box-sizing:border-box}
@@ -3365,45 +3366,105 @@ const kurmetLangObserver=new MutationObserver(mutations=>{
 kurmetLangObserver.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['aria-label','title','placeholder']});
 kurmetSetLanguage(kurmetLanguage);
 
+
+// Real boot preparation: progress tracks completed downloads/decodes and UI assembly,
+// not a decorative timer. The 24 gallery cards and foreground mask are built offscreen.
+function startKurmetBootPreparation(){
+ const manager={completed:0,total:0,finished:false,failed:[]};
+ const tasks=[];
+ const timeoutMs=12000;
+ const track=(label,work)=>{
+  manager.total++;
+  const task=new Promise(resolve=>{
+   let done=false;
+   const timeout=setTimeout(()=>{
+    if(done)return;
+    done=true;manager.failed.push(label);manager.completed++;resolve();
+   },timeoutMs);
+   Promise.resolve().then(work).then(()=>{
+    if(done)return;
+    done=true;clearTimeout(timeout);manager.completed++;resolve();
+   },()=>{
+    if(done)return;
+    done=true;clearTimeout(timeout);
+    manager.failed.push(label);manager.completed++;resolve();
+   });
+  });
+  tasks.push(task);
+ };
+ const warmImage=async src=>{
+  const image=new Image();
+  await loadImageOnce(image,src);
+  if(!image.naturalWidth)throw new Error('Failed image: '+src);
+  if(typeof image.decode==='function')await image.decode();
+ };
+ const interfaceArt=[
+  './optimized/%D0%B8%D0%BA%D0%BE%D0%BD%D0%BA%D0%B0%20%D1%81%D0%BE%D1%81%D1%82%D0%BE%D1%8F%D0%BD%D0%B8%D1%8F.webp',
+  './optimized/%D0%B8%D0%BA%D0%BE%D0%BD%D0%BA%D0%B0%20%D0%B4%D0%B5%D0%B9%D1%81%D1%82%D0%B2%D0%B8%D1%8F.webp',
+  './optimized/%D0%B8%D0%BA%D0%BE%D0%BD%D0%BA%D0%B0%20%D0%BB%D0%BE%D0%BA%D0%B0%D1%86%D0%B8%D0%B8.webp',
+  './optimized/%D0%B8%D0%BA%D0%BE%D0%BD%D0%BA%D0%B0%20%D0%BC%D0%B5%D0%BD%D1%8E.webp',
+  './optimized/%D0%B8%D0%BA%D0%BE%D0%BD%D0%BA%D0%B0%20%D0%9F%D0%95%D0%A9%D0%95%D0%A0%D0%90.webp',
+  './optimized/%D0%BE%D1%82%D0%BA%D1%80%D1%8B%D1%82%D0%BE%D0%B5%20%D0%BC%D0%B5%D0%BD%D1%8E.webp',
+  './optimized/%D0%BB%D0%BE%D0%BA%D0%B0%D1%86%D0%B8%D0%B8%2004%20%D0%BF%D1%80%D0%B5%D0%B2%D1%8C%D1%8E%20%D0%BF%D0%B5%D1%89%D0%B5%D1%80%D0%B0.webp',
+  './optimized/%D0%BB%D0%BE%D0%BA%D0%B0%D1%86%D0%B8%D0%B8%2003.webp'
+ ];
+ for(const src of interfaceArt)track('art '+src,()=>warmImage(src));
+ track('current location',async()=>{
+  await initialSceneAssetsPromise;
+  const image=locationImages[state.location];
+  if(!image?.naturalWidth)throw new Error('Current location image failed');
+  if(typeof image.decode==='function')await image.decode();
+ });
+ track('location menu and hand mask',prepareKurmetLocationsBeforePlay);
+ track('fonts',()=>document.fonts?.ready||Promise.resolve());
+ track('page load',()=>document.readyState==='complete'?Promise.resolve():
+  new Promise(resolve=>window.addEventListener('load',resolve,{once:true})));
+ manager.promise=Promise.all(tasks).then(()=>{manager.finished=true;});
+ window.kurmetBootLoader=manager;
+ return manager;
+}
+
 initLocation();
+startKurmetBootPreparation();
 store(); // Upgrade previous saves without writing obsolete furniture or cosmetic fields.
 requestAnimationFrame(frame);
 </script>
 
 <script>
-/* Smooth visible progress; entry is always controlled by the player. */
+/* Real tracked resource and interface preparation. No artificial countdown. */
 (function(){
  const screen=document.getElementById('kurmet-boot-screen');
  const bar=screen?.querySelector('.kurmet-boot-bar');
  const caption=document.getElementById('kurmet-boot-caption');
  const button=document.getElementById('kurmet-boot-continue');
  if(!screen||!bar||!caption||!button)return;
- if(document.documentElement.classList.contains('kurmet-boot-already-entered')){screen.remove();return}
- const start=performance.now(),duration=2200;
- let pageReady=document.readyState==='complete',assetsReady=false,progress=0,entered=false;
- Promise.resolve(initialSceneAssetsPromise).then(()=>{assetsReady=true;});
+ const loader=window.kurmetBootLoader;
+ if(!loader){caption.textContent='Ошибка инициализации игры';return}
+ let entered=false,progress=0;
  const lang=()=>{try{return localStorage.getItem('kurmet-language-v1')==='en'}catch(e){return false}};
  function render(){
   const en=lang();
-  caption.textContent=(progress===100?(en?'World ready':'Мир готов'):(en?'Loading world... ':'Загрузка мира... ')+(progress+'%'));
+  const count=Math.min(loader.completed,loader.total);
+  progress=loader.finished?100:Math.min(99,Math.floor(100*count/Math.max(1,loader.total)));
+  bar.style.width=progress+'%';
+  if(loader.finished){
+   caption.textContent=loader.failed.length?
+    (en?'Ready with some missing resources':'Готово, но часть ресурсов не загрузилась'):
+    (en?'World ready':'Мир готов');
+   button.classList.add('kurmet-boot-ready');
+  }else{
+   caption.textContent=(en?'Preparing interface... ':'Подготовка интерфейса... ')+progress+'% ('+count+'/'+loader.total+')';
+  }
   button.textContent=en?'Continue':'Продолжить';
   screen.setAttribute('aria-label',en?'KURMET UNIVERSE — loading':'KURMET UNIVERSE — загрузка');
  }
- function tick(now){
+ function tick(){
   if(entered)return;
-  const elapsed=Math.min(1,(now-start)/duration);
-  const target=Math.round((1-Math.pow(1-elapsed,2))*100);
-  progress=pageReady&&assetsReady?target:Math.min(target,95);
-  bar.style.width=progress+'%';render();
-  if(progress===100){button.classList.add('kurmet-boot-ready');return}
-  requestAnimationFrame(tick);
+  render();
+  if(!loader.finished)requestAnimationFrame(tick);
  }
- function ready(){pageReady=true}
- if(!pageReady)window.addEventListener('load',ready,{once:true});
- /* Prevent a failed external asset from trapping the player. */
- setTimeout(()=>{pageReady=true;assetsReady=true},8000);
  button.addEventListener('click',()=>{
-  if(progress!==100||entered)return;
+  if(!loader.finished||entered)return;
   entered=true;
   try{sessionStorage.setItem('kurmet-boot-entered-v1','1')}catch(e){}
   document.documentElement.classList.add('kurmet-boot-already-entered');
