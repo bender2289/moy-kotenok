@@ -1047,6 +1047,36 @@ html.kurmet-boot-already-entered #kurmet-boot-screen{display:none!important}
 .scene button#openPetActions{background-image:url("./optimized/%D0%B8%D0%BA%D0%BE%D0%BD%D0%BA%D0%B0%20%D0%B4%D0%B5%D0%B9%D1%81%D1%82%D0%B2%D0%B8%D1%8F.webp")!important;right:2.2%!important;top:1.8%!important;left:auto!important;bottom:auto!important;width:17%!important;aspect-ratio:782/725}
 .scene button#openLocations{background-image:url("./optimized/%D0%B8%D0%BA%D0%BE%D0%BD%D0%BA%D0%B0%20%D0%BB%D0%BE%D0%BA%D0%B0%D1%86%D0%B8%D0%B8.webp")!important;left:6.1%!important;bottom:3%!important;top:auto!important;right:auto!important;width:17%!important;aspect-ratio:756/753}
 .scene button#openMainMenu{background-image:url("./optimized/%D0%B8%D0%BA%D0%BE%D0%BD%D0%BA%D0%B0%20%D0%BC%D0%B5%D0%BD%D1%8E.webp")!important;right:1.8%!important;bottom:2.5%!important;left:auto!important;top:auto!important;width:23%!important;aspect-ratio:995/833}
+/* Match the existing Locations icon press feedback on the other three home buttons.
+   Animate the button itself: original sprite, size, layout and hitbox stay unchanged. */
+.scene button#openPetStatus,
+.scene button#openPetActions,
+.scene button#openMainMenu{
+ transform-origin:center center;
+ transition:transform 140ms ease-out!important;
+ -webkit-tap-highlight-color:transparent;
+}
+.scene button#openPetStatus:active,
+.scene button#openPetActions:active,
+.scene button#openMainMenu:active{
+ transform:scale(.96)!important;
+}
+.scene button#openPetStatus.kurmet-icon-tap,
+.scene button#openPetActions.kurmet-icon-tap,
+.scene button#openMainMenu.kurmet-icon-tap{
+ animation:kurmet-icon-tap 220ms ease-out both;
+}
+@keyframes kurmet-icon-tap{
+ 0%{transform:scale(1)}
+ 36%{transform:scale(.96)}
+ 100%{transform:scale(1)}
+}
+@media(prefers-reduced-motion:reduce){
+ .scene button#openPetStatus.kurmet-icon-tap,
+ .scene button#openPetActions.kurmet-icon-tap,
+ .scene button#openMainMenu.kurmet-icon-tap{animation:none}
+}
+
 .scene #locationTitle{top:2.8%!important;max-width:40%!important;}
 .scene #locationTitle.cave-art-title{background-image:url("./optimized/%D0%B8%D0%BA%D0%BE%D0%BD%D0%BA%D0%B0%20%D0%9F%D0%95%D0%A9%D0%95%D0%A0%D0%90.webp")!important;background-size:contain!important;width:40%!important;aspect-ratio:1803/567;min-height:0!important;height:auto!important;padding:0!important;color:transparent!important;text-shadow:none!important;font-size:0!important;}
 
@@ -2641,6 +2671,24 @@ function openCaveLockedNotice(){
    }
   };
   caveLockedNoticeRaf=requestAnimationFrame(animate);
+ });
+}
+// Keep a short press-and-release pulse visible even if the modal opens immediately.
+// 'Locations' already has this effect; apply it only to Status, Actions and Menu.
+for(const id of ['openPetStatus','openPetActions','openMainMenu']){
+ const button=document.getElementById(id);
+ if(!button)continue;
+ const animate=()=>{
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  button.classList.remove('kurmet-icon-tap');
+  // Restart the same short animation on successive taps, not on every frame.
+  void button.offsetWidth;
+  button.classList.add('kurmet-icon-tap');
+ };
+ button.addEventListener('pointerdown',animate);
+ button.addEventListener('click',e=>{if(e.detail===0)animate();});
+ button.addEventListener('animationend',e=>{
+  if(e.animationName==='kurmet-icon-tap')button.classList.remove('kurmet-icon-tap');
  });
 }
 document.getElementById('openPetStatus').addEventListener('click',e=>openModal('petStatusModal',e.currentTarget));
