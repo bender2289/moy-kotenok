@@ -1,0 +1,35 @@
+name: KURMET startup loading smoke test
+
+on:
+  push:
+    branches:
+      - real-boot-preload
+    paths:
+      - index.html
+      - tools/smoke_boot.cjs
+      - .github/workflows/smoke-boot.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-real-boot:
+    if: github.ref_name == 'real-boot-preload'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout test branch
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install headless Chromium driver
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Check mobile and desktop boot experience
+        run: |
+          python3 -m http.server 8000 --bind 127.0.0.1 >/tmp/kurmet-http.log 2>&1 &
+          node tools/smoke_boot.cjs
